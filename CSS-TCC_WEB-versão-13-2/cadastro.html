@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="CSS/css_cadastro_login.css">
+    <title>Cadastro</title>
+</head>
+<body>
+    <div class="main">
+        <form action="PHP/cadastro.php" method="post" class="form-login">
+            <div id="titulo"><label>Cadastro</label></div>
+
+            <label for="nome_usuario">Nome(*)</label>
+            <input type="text" name="nome_usuario" id="nome" required>
+
+            <div class="CPF_CNPJ">   
+                <div>
+                    <label for="CPF">CPF(*)</label>
+                    <input type="text" name="CPF_usuario" id="CPF">
+                </div>
+                <div>
+                    <label for="CNPJ">CNPJ</label>
+                    <input type="text" name="CNPJ_usuario" id="CNPJ" not required>
+                </div>
+            </div>
+            <label for="dta_nascimento">Data de nascimento</label> 
+                   <input type="date" name="dta_nascimento" id="data" required>
+    
+
+            <label for="email_usuario">E-mail</label>
+            <input type="text" name="email_usuario" id="email_cad" required>
+
+            <label for="conf_email">Confirmar e-mail</label>
+            <input type="email" name="conf_email" id="email_conf" required>
+
+            <label for="senha_cad">Senha</label>
+            <input type="password" name="senha_cad" id="senha" placeholder="Mínimo 8 caracteres" required>
+
+            <label for="conf_senha">Confirmar Senha</label>
+            <input type="password" name="conf_senha" id="confsenha"placeholder="Mínimo 8 caracteres" required><br>
+
+            <input type="submit" value="Cadastrar" id="botao" >
+
+            <div>
+                <label>Já possui cadastro?<a href="logar.html">Faça seu login!</a></label>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
