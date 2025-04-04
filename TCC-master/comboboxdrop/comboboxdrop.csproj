@@ -68,6 +68,12 @@
     <Compile Include="cadastro.Designer.cs">
       <DependentUpon>cadastro.cs</DependentUpon>
     </Compile>
+    <Compile Include="exitentry.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="exitentry.Designer.cs">
+      <DependentUpon>exitentry.cs</DependentUpon>
+    </Compile>
     <Compile Include="produtosestoque.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,6 +114,9 @@
     </Compile>
     <EmbeddedResource Include="cadastro.resx">
       <DependentUpon>cadastro.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="exitentry.resx">
+      <DependentUpon>exitentry.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="produtosestoque.resx">
       <DependentUpon>produtosestoque.cs</DependentUpon>

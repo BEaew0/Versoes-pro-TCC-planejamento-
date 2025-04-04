@@ -128,6 +128,12 @@ namespace comboboxdrop
 
             // Exibe o formulário TransferTest
             transferTestForm.Show(); // Use ShowDialog() se quiser que o formulário seja modal
-        } 
+        }
+
+        private void pictureBox4_Click(object sender, EventArgs e)
+        {
+            exitentry exitentry = new exitentry();
+            exitentry.Show();
+        }
     }
 }
