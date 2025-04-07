@@ -82,5 +82,14 @@ namespace comboboxdrop
                 timer1.Start();  // Iniciar animação de retração
             }
         }
+
+        private void pbox1_Click(object sender, EventArgs e)
+        {
+            // Cria uma nova instância do formulário TransferTest
+            transfertest transferTestForm = new transfertest();
+
+            // Exibe o formulário TransferTest
+            transferTestForm.Show(); // Use ShowDialog() se quiser que o formulário seja modal
+        }
     }
 }

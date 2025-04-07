@@ -248,6 +248,7 @@
             this.Controls.Add(this.txt1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.MaximumSize = new System.Drawing.Size(1222, 748);
             this.MinimumSize = new System.Drawing.Size(1222, 748);
             this.Name = "exitentry";
             this.Text = "Tesouro Azul";
