@@ -63,25 +63,28 @@
             // 
             txtbox4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             txtbox4.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            txtbox4.Location = new System.Drawing.Point(283, 337);
+            txtbox4.Location = new System.Drawing.Point(424, 518);
+            txtbox4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             txtbox4.Name = "txtbox4";
-            txtbox4.Size = new System.Drawing.Size(210, 20);
+            txtbox4.Size = new System.Drawing.Size(313, 26);
             txtbox4.TabIndex = 8;
             // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.Black;
-            this.panel1.Location = new System.Drawing.Point(0, -3);
+            this.panel1.Location = new System.Drawing.Point(0, -5);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(807, 106);
+            this.panel1.Size = new System.Drawing.Size(1210, 163);
             this.panel1.TabIndex = 0;
             // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Black;
-            this.panel2.Location = new System.Drawing.Point(0, 540);
+            this.panel2.Location = new System.Drawing.Point(0, 831);
+            this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(797, 100);
+            this.panel2.Size = new System.Drawing.Size(1196, 154);
             this.panel2.TabIndex = 1;
             // 
             // dropdownContainer
@@ -91,11 +94,12 @@
             this.dropdownContainer.Controls.Add(this.btn2);
             this.dropdownContainer.Controls.Add(this.panel3);
             this.dropdownContainer.Controls.Add(this.btn4);
-            this.dropdownContainer.Location = new System.Drawing.Point(597, 109);
-            this.dropdownContainer.MaximumSize = new System.Drawing.Size(200, 300);
-            this.dropdownContainer.MinimumSize = new System.Drawing.Size(200, 50);
+            this.dropdownContainer.Location = new System.Drawing.Point(896, 168);
+            this.dropdownContainer.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.dropdownContainer.MaximumSize = new System.Drawing.Size(300, 462);
+            this.dropdownContainer.MinimumSize = new System.Drawing.Size(300, 77);
             this.dropdownContainer.Name = "dropdownContainer";
-            this.dropdownContainer.Size = new System.Drawing.Size(200, 50);
+            this.dropdownContainer.Size = new System.Drawing.Size(300, 77);
             this.dropdownContainer.TabIndex = 3;
             // 
             // button1
@@ -104,9 +108,10 @@
             this.button1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
             this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.button1.Location = new System.Drawing.Point(3, 3);
+            this.button1.Location = new System.Drawing.Point(4, 5);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(197, 47);
+            this.button1.Size = new System.Drawing.Size(296, 72);
             this.button1.TabIndex = 1;
             this.button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.button1.UseVisualStyleBackColor = true;
@@ -119,9 +124,10 @@
             this.btn2.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btn2.Image = ((System.Drawing.Image)(resources.GetObject("btn2.Image")));
             this.btn2.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btn2.Location = new System.Drawing.Point(3, 56);
+            this.btn2.Location = new System.Drawing.Point(4, 87);
+            this.btn2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btn2.Name = "btn2";
-            this.btn2.Size = new System.Drawing.Size(192, 53);
+            this.btn2.Size = new System.Drawing.Size(288, 82);
             this.btn2.TabIndex = 2;
             this.btn2.Text = "Cadastro";
             this.btn2.UseVisualStyleBackColor = true;
@@ -130,10 +136,10 @@
             // panel3
             // 
             this.panel3.Controls.Add(this.btn3);
-            this.panel3.Location = new System.Drawing.Point(0, 112);
+            this.panel3.Location = new System.Drawing.Point(0, 174);
             this.panel3.Margin = new System.Windows.Forms.Padding(0);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(197, 59);
+            this.panel3.Size = new System.Drawing.Size(296, 91);
             this.panel3.TabIndex = 0;
             // 
             // btn3
@@ -142,9 +148,10 @@
             this.btn3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn3.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btn3.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btn3.Location = new System.Drawing.Point(3, 0);
+            this.btn3.Location = new System.Drawing.Point(4, 0);
+            this.btn3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btn3.Name = "btn3";
-            this.btn3.Size = new System.Drawing.Size(192, 53);
+            this.btn3.Size = new System.Drawing.Size(288, 82);
             this.btn3.TabIndex = 3;
             this.btn3.Text = "Login";
             this.btn3.UseVisualStyleBackColor = true;
@@ -155,9 +162,10 @@
             this.btn4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.btn4.Image = ((System.Drawing.Image)(resources.GetObject("btn4.Image")));
-            this.btn4.Location = new System.Drawing.Point(3, 174);
+            this.btn4.Location = new System.Drawing.Point(4, 270);
+            this.btn4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btn4.Name = "btn4";
-            this.btn4.Size = new System.Drawing.Size(37, 36);
+            this.btn4.Size = new System.Drawing.Size(56, 55);
             this.btn4.TabIndex = 3;
             this.btn4.UseVisualStyleBackColor = false;
             this.btn4.Click += new System.EventHandler(this.button4_Click);
@@ -172,9 +180,10 @@
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Black;
             this.label1.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label1.Location = new System.Drawing.Point(352, 106);
+            this.label1.Location = new System.Drawing.Point(528, 163);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(49, 13);
+            this.label1.Size = new System.Drawing.Size(74, 20);
             this.label1.TabIndex = 4;
             this.label1.Text = "Cadastro";
             // 
@@ -182,27 +191,30 @@
             // 
             this.txtbox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.txtbox1.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtbox1.Location = new System.Drawing.Point(283, 145);
+            this.txtbox1.Location = new System.Drawing.Point(424, 223);
+            this.txtbox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtbox1.Name = "txtbox1";
-            this.txtbox1.Size = new System.Drawing.Size(210, 20);
+            this.txtbox1.Size = new System.Drawing.Size(313, 26);
             this.txtbox1.TabIndex = 5;
             // 
             // txtbox2
             // 
             this.txtbox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.txtbox2.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtbox2.Location = new System.Drawing.Point(283, 210);
+            this.txtbox2.Location = new System.Drawing.Point(424, 323);
+            this.txtbox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtbox2.Name = "txtbox2";
-            this.txtbox2.Size = new System.Drawing.Size(210, 20);
+            this.txtbox2.Size = new System.Drawing.Size(313, 26);
             this.txtbox2.TabIndex = 6;
             // 
             // txtbox3
             // 
             this.txtbox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.txtbox3.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtbox3.Location = new System.Drawing.Point(283, 269);
+            this.txtbox3.Location = new System.Drawing.Point(424, 414);
+            this.txtbox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtbox3.Name = "txtbox3";
-            this.txtbox3.Size = new System.Drawing.Size(210, 20);
+            this.txtbox3.Size = new System.Drawing.Size(313, 26);
             this.txtbox3.TabIndex = 7;
             // 
             // label2
@@ -210,9 +222,10 @@
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.Black;
             this.label2.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label2.Location = new System.Drawing.Point(340, 129);
+            this.label2.Location = new System.Drawing.Point(510, 198);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(82, 13);
+            this.label2.Size = new System.Drawing.Size(123, 20);
             this.label2.TabIndex = 9;
             this.label2.Text = "Nome Completo";
             // 
@@ -221,9 +234,10 @@
             this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.Color.Black;
             this.label3.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label3.Location = new System.Drawing.Point(340, 185);
+            this.label3.Location = new System.Drawing.Point(510, 285);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(104, 13);
+            this.label3.Size = new System.Drawing.Size(154, 20);
             this.label3.TabIndex = 10;
             this.label3.Text = "Data de Nascimento";
             // 
@@ -232,9 +246,10 @@
             this.label4.AutoSize = true;
             this.label4.BackColor = System.Drawing.Color.Black;
             this.label4.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label4.Location = new System.Drawing.Point(362, 241);
+            this.label4.Location = new System.Drawing.Point(543, 371);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(27, 13);
+            this.label4.Size = new System.Drawing.Size(40, 20);
             this.label4.TabIndex = 11;
             this.label4.Text = "CPF";
             // 
@@ -243,9 +258,10 @@
             this.label5.AutoSize = true;
             this.label5.BackColor = System.Drawing.Color.Black;
             this.label5.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label5.Location = new System.Drawing.Point(361, 306);
+            this.label5.Location = new System.Drawing.Point(542, 471);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(39, 13);
+            this.label5.Size = new System.Drawing.Size(58, 20);
             this.label5.TabIndex = 12;
             this.label5.Text = "EMAIL";
             // 
@@ -254,9 +270,10 @@
             this.label6.AutoSize = true;
             this.label6.BackColor = System.Drawing.Color.Black;
             this.label6.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label6.Location = new System.Drawing.Point(362, 372);
+            this.label6.Location = new System.Drawing.Point(543, 572);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(38, 13);
+            this.label6.Size = new System.Drawing.Size(56, 20);
             this.label6.TabIndex = 13;
             this.label6.Text = "Senha";
             // 
@@ -264,9 +281,10 @@
             // 
             this.txtbox5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.txtbox5.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtbox5.Location = new System.Drawing.Point(283, 408);
+            this.txtbox5.Location = new System.Drawing.Point(424, 628);
+            this.txtbox5.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtbox5.Name = "txtbox5";
-            this.txtbox5.Size = new System.Drawing.Size(210, 20);
+            this.txtbox5.Size = new System.Drawing.Size(313, 26);
             this.txtbox5.TabIndex = 14;
             // 
             // label7
@@ -274,9 +292,10 @@
             this.label7.AutoSize = true;
             this.label7.BackColor = System.Drawing.Color.Black;
             this.label7.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label7.Location = new System.Drawing.Point(341, 447);
+            this.label7.Location = new System.Drawing.Point(512, 688);
+            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(81, 13);
+            this.label7.Size = new System.Drawing.Size(120, 20);
             this.label7.TabIndex = 15;
             this.label7.Text = "Repita a Senha";
             // 
@@ -284,28 +303,30 @@
             // 
             this.txtbox6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.txtbox6.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtbox6.Location = new System.Drawing.Point(283, 487);
+            this.txtbox6.Location = new System.Drawing.Point(424, 749);
+            this.txtbox6.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtbox6.Name = "txtbox6";
-            this.txtbox6.Size = new System.Drawing.Size(210, 20);
+            this.txtbox6.Size = new System.Drawing.Size(313, 26);
             this.txtbox6.TabIndex = 16;
             // 
             // pbox1
             // 
             this.pbox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.pbox1.Image = ((System.Drawing.Image)(resources.GetObject("pbox1.Image")));
-            this.pbox1.Location = new System.Drawing.Point(26, 129);
+            this.pbox1.Location = new System.Drawing.Point(39, 198);
+            this.pbox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pbox1.Name = "pbox1";
-            this.pbox1.Size = new System.Drawing.Size(50, 50);
+            this.pbox1.Size = new System.Drawing.Size(75, 77);
             this.pbox1.TabIndex = 17;
             this.pbox1.TabStop = false;
             this.pbox1.Click += new System.EventHandler(this.pbox1_Click);
             // 
             // cadastro
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
-            this.ClientSize = new System.Drawing.Size(800, 642);
+            this.ClientSize = new System.Drawing.Size(1200, 988);
             this.Controls.Add(this.pbox1);
             this.Controls.Add(this.txtbox6);
             this.Controls.Add(this.label7);
@@ -324,6 +345,8 @@
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.MaximumSize = new System.Drawing.Size(1222, 1044);
             this.Name = "cadastro";
             this.Text = "Tesouro Azul";
             this.dropdownContainer.ResumeLayout(false);
