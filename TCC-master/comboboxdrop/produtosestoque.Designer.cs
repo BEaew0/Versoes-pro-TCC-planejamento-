@@ -43,6 +43,7 @@
             this.button4 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.pbox1 = new System.Windows.Forms.PictureBox();
+            this.button6 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.dropdownContainer.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -185,6 +186,15 @@
             this.pbox1.TabStop = false;
             this.pbox1.Click += new System.EventHandler(this.pbox1_Click);
             // 
+            // button6
+            // 
+            this.button6.Image = ((System.Drawing.Image)(resources.GetObject("button6.Image")));
+            this.button6.Location = new System.Drawing.Point(585, 263);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(39, 37);
+            this.button6.TabIndex = 24;
+            this.button6.UseVisualStyleBackColor = true;
+            // 
             // produtosestoque
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -192,6 +202,7 @@
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.ClientSize = new System.Drawing.Size(900, 563);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.pbox1);
             this.Controls.Add(this.dropdownContainer);
             this.Controls.Add(this.chart1);
@@ -220,5 +231,6 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.PictureBox pbox1;
+        private System.Windows.Forms.Button button6;
     }
 }

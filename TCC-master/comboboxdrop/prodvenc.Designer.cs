@@ -42,6 +42,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.pbox1 = new System.Windows.Forms.PictureBox();
+            this.button6 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.dropdownContainer.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -193,12 +194,22 @@
             this.pbox1.TabStop = false;
             this.pbox1.Click += new System.EventHandler(this.pbox1_Click);
             // 
+            // button6
+            // 
+            this.button6.Image = ((System.Drawing.Image)(resources.GetObject("button6.Image")));
+            this.button6.Location = new System.Drawing.Point(787, 297);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(39, 37);
+            this.button6.TabIndex = 24;
+            this.button6.UseVisualStyleBackColor = true;
+            // 
             // prodvenc
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.ClientSize = new System.Drawing.Size(1200, 692);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.pbox1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -231,5 +242,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.PictureBox pbox1;
+        private System.Windows.Forms.Button button6;
     }
 }

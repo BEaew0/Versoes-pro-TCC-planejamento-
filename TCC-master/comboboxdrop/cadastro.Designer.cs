@@ -81,10 +81,10 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Black;
-            this.panel2.Location = new System.Drawing.Point(0, 831);
+            this.panel2.Location = new System.Drawing.Point(0, 891);
             this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1196, 154);
+            this.panel2.Size = new System.Drawing.Size(1196, 94);
             this.panel2.TabIndex = 1;
             // 
             // dropdownContainer
