@@ -238,9 +238,10 @@
             this.button6.Image = ((System.Drawing.Image)(resources.GetObject("button6.Image")));
             this.button6.Location = new System.Drawing.Point(807, 322);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(39, 37);
+            this.button6.Size = new System.Drawing.Size(77, 37);
             this.button6.TabIndex = 24;
             this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // exitentry
             // 

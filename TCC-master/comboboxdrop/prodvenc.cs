@@ -95,5 +95,12 @@ namespace comboboxdrop
             // Exibe o formulário TransferTest
             transferTestForm.Show(); // Use ShowDialog() se quiser que o formulário seja modal
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            // botão para atualizar informações do banco de dados 
+            //https://www.youtube.com/watch?v=lhXpeae149M tutorial de como fazer 
+
+        }
     }
 }

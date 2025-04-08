@@ -97,7 +97,9 @@ namespace comboboxdrop
         private void button2_Click(object sender, EventArgs e)
         {
             // button inserido  caso queira atualizar as informações no banco 
-            // desenvolvimento de back
+            
+            
+            //https://www.youtube.com/watch?v=lhXpeae149M tutorial de como fazer 
         }
     }
 }

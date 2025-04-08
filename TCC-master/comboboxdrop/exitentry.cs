@@ -91,6 +91,12 @@ namespace comboboxdrop
                 }
             }
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            // botão para atualizar informações do banco de dados 
+            //https://www.youtube.com/watch?v=lhXpeae149M tutorial de como fazer 
+        }
     }
     
 }
