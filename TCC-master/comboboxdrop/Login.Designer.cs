@@ -55,7 +55,7 @@
             this.panel1.BackColor = System.Drawing.Color.Black;
             this.panel1.Location = new System.Drawing.Point(1, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(800, 100);
+            this.panel1.Size = new System.Drawing.Size(800, 51);
             this.panel1.TabIndex = 0;
             // 
             // panel2
@@ -113,7 +113,7 @@
             this.dropdownContainer.Controls.Add(this.btn2);
             this.dropdownContainer.Controls.Add(this.panel3);
             this.dropdownContainer.Controls.Add(this.btn4);
-            this.dropdownContainer.Location = new System.Drawing.Point(500, 108);
+            this.dropdownContainer.Location = new System.Drawing.Point(568, 94);
             this.dropdownContainer.MaximumSize = new System.Drawing.Size(200, 300);
             this.dropdownContainer.MinimumSize = new System.Drawing.Size(200, 50);
             this.dropdownContainer.Name = "dropdownContainer";
