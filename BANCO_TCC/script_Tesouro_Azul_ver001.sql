@@ -8,7 +8,7 @@ CREATE TABLE TB_TIPO_ASSINATURA (
     DESC_TIPO VARCHAR(20) NOT NULL UNIQUE
 )Engine=InnoDB;
 
-insert into TB_TIPO_ASSINATURA (DESC_TIPO_ASSINATURA) values("normal") , ("assinante");
+insert into TB_TIPO_ASSINATURA (DESC_TIPO) values("normal") , ("assinante");
 
 -- Tabela TB_ASSINATURA
 CREATE TABLE TB_ASSINATURA (
