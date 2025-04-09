@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">tesouro_azul_app</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="testando">Testando</string>
+    <string name="testando2kkkkk">Testando2KKKKK</string>
+    <string name="sobre_n_s">Sobre nós</string>
+    <string name="home">Home</string>
+    <string name="sair">Sair</string>
+    <string name="settings">Settings</string>
+    <string name="compartilhar">Compartilhar</string>
+    <string name="sample_text" />
+
+    <string name="title_activity_main">MainActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="usuario">User name</string>
+    <string name="email">User Email</string>
+    <string name="buttonDrawertoggle" />
+    <string name="Titulo">Tesouro Azul</string>
+    <string name="SDE">Sistemas de estoque</string>
+
+    <string name="modo">Tema</string>
+
+
+</resources>
