@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,7 @@ public class ConfigActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
 
     ImageView Xleave,themeIcon,userIcon;
+    RelativeLayout trocarSenha,SairConta,ExcluirConta;
 
     // Nome do arquivo de preferências e chave booleana usada para salvar o modo escuro
     private static final String PREF_NAME = "ThemePrefs";
@@ -49,12 +51,27 @@ public class ConfigActivity extends AppCompatActivity {
         themeIcon = findViewById(R.id.ThemeMode);
         Xleave = (ImageView) findViewById(R.id.Xleave);
 
+        trocarSenha = (RelativeLayout) findViewById(R.id.trocarSenha);
+        SairConta = (RelativeLayout) findViewById(R.id.SairConta);
+        ExcluirConta = (RelativeLayout) findViewById(R.id.ExcluirConta);
+
+
         // Referência ao Switch no layout (XML)
         swicthTheme = findViewById(R.id.swicthTheme);
 
         // Define o estado inicial do Switch de acordo com a preferência
         swicthTheme.setChecked(isNightMode);
         updateThemeIcon(isNightMode);
+
+
+
+        Xleave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ConfigActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Listener para detectar mudanças no Switch
         swicthTheme.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -76,11 +93,29 @@ public class ConfigActivity extends AppCompatActivity {
             recreate();
         });
 
-        Xleave.setOnClickListener(new View.OnClickListener() {
+        trocarSenha.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+
+
+
+
+            }
+        });
+
+        SairConta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ConfigActivity.this, MainActivity.class);
-                startActivity(intent);
+                //Processo que remove o login do aplicativo
+            }
+        });
+
+        ExcluirConta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 

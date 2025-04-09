@@ -20,9 +20,13 @@ public class EntradaActivity extends AppCompatActivity
 
     //quando tiver eu botoKKKKK
 
+    private String Host="...";
     private String url,ret;
 
-    EditText txtCPF_CNPJ,txtSenha,txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
+    private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
+
+    public static String nomeReg,senhaReg,conSenhaReg,emailReg,CPF_CNPJ_reg,nascReg;
+    private EditText txtCPF_CNPJ,txtSenha;
 
     Button btnEnter,btnRegister;
 
@@ -31,34 +35,38 @@ public class EntradaActivity extends AppCompatActivity
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     Date dataAtual = new Date();
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.entrada);
+        try {
 
 
-        txtCPF_CNPJ = (EditText) findViewById(R.id.txtCPF_CNPJ);
-        txtSenha = (EditText) findViewById(R.id.txtSenha);
-        btnEnter = (Button) findViewById(R.id.btnEnter);
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.entrada);
 
-        String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
-        String senha = txtSenha.getText().toString().trim();
 
-        txtRegistrar =(TextView) findViewById(R.id.txtRegistrar);
+            txtCPF_CNPJ = (EditText) findViewById(R.id.txtCPF_CNPJ);
+            txtSenha = (EditText) findViewById(R.id.txtSenha);
+            btnEnter = (Button) findViewById(R.id.btnEnter);
 
-        btnEnter.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
+            String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
+            String senha = txtSenha.getText().toString().trim();
 
-                //Após periodo de testes ajeitar essa parte
-                Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                startActivity(intent);
+            txtRegistrar = (TextView) findViewById(R.id.txtRegistrar);
 
-            }
-        });
+            btnEnter.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Após periodo de testes ajeitar essa parte
+                    Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
+                    startActivity(intent);
+
+                }
+            });
+        }
+        catch (Exception e) {}
 
         txtRegistrar.setOnClickListener(v ->
         {
@@ -172,12 +180,6 @@ public class EntradaActivity extends AppCompatActivity
 
                 }
 
-                private void inserir()
-                {
-                    //Quando tiver um processo eu passo
-
-                }
-
                 class ValidarClass
                 {
 
@@ -258,6 +260,14 @@ public class EntradaActivity extends AppCompatActivity
 
                         return Idade < 18;
                     }
+                }
+
+
+
+                private void inserir()
+                {
+                    //Quando tiver um processo eu passo
+
                 }
 
             });
