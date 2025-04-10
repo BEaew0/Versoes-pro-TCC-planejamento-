@@ -67,8 +67,8 @@
 
         <LinearLayout
             android:id="@+id/row1"
-            android:layout_width="0dp"
-            android:layout_height="175dp"
+            android:layout_width="410dp"
+            android:layout_height="173dp"
             android:layout_marginTop="68dp"
             android:orientation="horizontal"
             android:padding="10dp"
@@ -96,7 +96,7 @@
                         android:layout_below="@+id/PizzaImage"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="CoisandoKKKKK"
+                        android:text="Pizza"
                         android:textColor="@color/blueText"
                         android:textSize="20sp" />
 
@@ -106,7 +106,7 @@
                         android:layout_height="70dp"
                         android:layout_centerHorizontal="true"
                         android:contentDescription="TODO"
-                        android:src="@drawable/baseline_produto" />
+                        android:src="@drawable/baseline_pie_chart" />
 
 
                 </RelativeLayout>
@@ -133,7 +133,7 @@
                         android:layout_below="@+id/BarraImage"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="CoisandoKKKKK"
+                        android:text="Barras"
                         android:textColor="@color/blueText"
                         android:textSize="20sp" />
 
@@ -143,7 +143,7 @@
                         android:layout_height="70dp"
                         android:layout_centerHorizontal="true"
                         android:contentDescription="TODO"
-                        android:src="@drawable/baseline_produto" />
+                        android:src="@drawable/baseline_charts" />
 
 
                 </RelativeLayout>
@@ -170,7 +170,7 @@
                         android:layout_below="@+id/LinhaImage"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="Coisando 2"
+                        android:text="Linha"
                         android:textColor="@color/blueText"
                         android:textSize="20sp" />
 
@@ -180,7 +180,7 @@
                         android:layout_height="70dp"
                         android:layout_centerHorizontal="true"
                         android:importantForAccessibility="no"
-                        android:src="@drawable/baseline_charts" />
+                        android:src="@drawable/baseline_line_chart" />
 
 
                 </RelativeLayout>
@@ -330,19 +330,31 @@
         android:id="@+id/barChart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:visibility="gone"
+            android:layout_marginTop="68dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/row2"/>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/lineChart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_marginTop="68dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/row2"/>
 
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/pieChart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_marginTop="68dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/row2"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
