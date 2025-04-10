@@ -141,5 +141,23 @@ namespace comboboxdrop
             // botão para atualizar informações do banco de dados 
             //https://www.youtube.com/watch?v=lhXpeae149M tutorial de como fazer 
         }
+
+        private void pictureBox1_MouseLeave(object sender, EventArgs e)
+        {
+           PictureBox picturebox = new PictureBox();
+            picturebox.BackColor = Color.Transparent;
+        }
+
+        private void pictureBox1_MouseHover(object sender, EventArgs e)
+        {
+          
+        }
+
+        private void pictureBox1_MouseEnter(object sender, EventArgs e)
+        {
+            PictureBox picturbox = (PictureBox)sender;
+
+            picturbox.BackColor = Color.FromArgb(100,255,255,255);
+        }
     }
 }

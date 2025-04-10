@@ -68,6 +68,10 @@
     <Compile Include="cadastro.Designer.cs">
       <DependentUpon>cadastro.cs</DependentUpon>
     </Compile>
+    <Compile Include="controllers\Classart.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="controllers\Hover.cs" />
     <Compile Include="exitentry.cs">
       <SubType>Form</SubType>
     </Compile>
