@@ -74,7 +74,7 @@
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pictureBox1.ErrorImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.ErrorImage")));
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(31, 22);
+            this.pictureBox1.Location = new System.Drawing.Point(23, 21);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(228, 84);
@@ -260,9 +260,9 @@
             this.panel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.panel4.Controls.Add(this.pictureBox1);
             this.panel4.ForeColor = System.Drawing.SystemColors.Control;
-            this.panel4.Location = new System.Drawing.Point(81, 73);
+            this.panel4.Location = new System.Drawing.Point(89, 65);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(307, 134);
+            this.panel4.Size = new System.Drawing.Size(276, 142);
             this.panel4.TabIndex = 26;
             this.panel4.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel4_MouseClick);
             this.panel4.MouseEnter += new System.EventHandler(this.panel4_MouseEnter);
