@@ -106,7 +106,8 @@
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerVertical="true"
                                 android:switchMinWidth="50dp"
-                                android:theme="@style/nigthModeSwicth" />
+                                android:theme="@style/nigthModeSwicth"
+                                tools:ignore="UseSwitchCompatOrMaterialXml" />
                         </RelativeLayout>
 
                         <!--mudar senha -->

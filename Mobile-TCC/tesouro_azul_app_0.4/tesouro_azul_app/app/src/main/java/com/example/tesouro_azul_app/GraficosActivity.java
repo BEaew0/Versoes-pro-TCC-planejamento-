@@ -62,16 +62,26 @@ public class GraficosActivity extends AppCompatActivity {
         PizzaCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Oculta todos
+                barChart.setVisibility(View.GONE);
+                lineChart.setVisibility(View.GONE);
+                pieChart.setVisibility(View.GONE);
                 // Ação ao clicar no card de Pizza
                 Toast.makeText(getApplicationContext(), "Gráfico de Pizza selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "pizza";
                 exibirGraficoSelecionado(typeGraph,barChart,lineChart,pieChart);
+                // Oculta todos
+
             }
         });
 
         BarraCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Oculta todos
+                barChart.setVisibility(View.GONE);
+                lineChart.setVisibility(View.GONE);
+                pieChart.setVisibility(View.GONE);
                 // Ação ao clicar no card de Barra
                 Toast.makeText(getApplicationContext(), "Gráfico de Barras selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "barra";
@@ -82,6 +92,10 @@ public class GraficosActivity extends AppCompatActivity {
         LinhaCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Oculta todos
+                barChart.setVisibility(View.GONE);
+                lineChart.setVisibility(View.GONE);
+                pieChart.setVisibility(View.GONE);
                 // Ação ao clicar no card de Linha
                 Toast.makeText(getApplicationContext(), "Gráfico de Linhas selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "linha";
@@ -210,10 +224,6 @@ public class GraficosActivity extends AppCompatActivity {
 
     private void exibirGraficoSelecionado(String typeGraph, BarChart barChart, LineChart lineChart, PieChart pieChart)
     {
-        // Oculta todos
-        barChart.setVisibility(View.GONE);
-        lineChart.setVisibility(View.GONE);
-        pieChart.setVisibility(View.GONE);
 
         switch (typeGraph.toLowerCase()) {
             case "barra":

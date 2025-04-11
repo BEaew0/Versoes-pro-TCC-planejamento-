@@ -30,6 +30,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Logo -->
+
         <TextView
             android:id="@+id/sdeText"
             android:layout_width="0dp"
@@ -39,10 +41,8 @@
             android:textColor="@color/blueText"
             android:textSize="20sp"
             app:layout_constraintEnd_toStartOf="@id/Logo"
-            app:layout_constraintStart_toStartOf="1dp"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tesouroName" />
-
-        <!-- Logo -->
 
         <ImageView
             android:id="@+id/Logo"
@@ -85,7 +85,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/ProdutoName"
-                        android:text="CoisandoKKKKK"
+                        android:text="Produtos"
                         android:textSize="20sp"
                         android:textColor="@color/blueText"
                         android:layout_centerHorizontal="true"
@@ -121,7 +121,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/graficosName"
-                        android:text="Coisando 2"
+                        android:text="Graficos"
                         android:textSize="20sp"
                         android:textColor="@color/blueText"
                         android:layout_centerHorizontal="true"
@@ -175,7 +175,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/MetasName"
-                        android:text="CoisandoKKKKK"
+                        android:text="Metas"
                         android:textSize="20sp"
                         android:textColor="@color/blueText"
                         android:layout_centerHorizontal="true"
@@ -210,7 +210,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/ConfigName"
-                        android:text="Coisando 3"
+                        android:text="Configurações"
                         android:textSize="20sp"
                         android:textColor="@color/blueText"
                         android:layout_centerHorizontal="true"

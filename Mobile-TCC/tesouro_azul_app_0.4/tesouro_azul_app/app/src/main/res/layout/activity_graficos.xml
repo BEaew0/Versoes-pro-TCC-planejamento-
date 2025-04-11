@@ -67,9 +67,9 @@
 
         <LinearLayout
             android:id="@+id/row1"
-            android:layout_width="410dp"
-            android:layout_height="173dp"
-            android:layout_marginTop="68dp"
+            android:layout_width="match_parent"
+            android:layout_height="175dp"
+            android:layout_marginTop="50dp"
             android:orientation="horizontal"
             android:padding="10dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -202,7 +202,7 @@
             app:layout_constraintStart_toStartOf="parent" />
         <LinearLayout
             android:id="@+id/row2"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="175dp"
             android:layout_marginTop="50dp"
             android:orientation="horizontal"
@@ -231,7 +231,7 @@
                         android:layout_below="@+id/LucroImage"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="CoisandoKKKKK"
+                        android:text="Lucro"
                         android:textColor="@color/blueText"
                         android:textSize="20sp" />
 
@@ -241,7 +241,7 @@
                         android:layout_height="70dp"
                         android:layout_centerHorizontal="true"
                         android:contentDescription="TODO"
-                        android:src="@drawable/baseline_produto" />
+                        android:src="@drawable/baseline_attach_money_24" />
 
 
                 </RelativeLayout>
@@ -268,7 +268,7 @@
                         android:layout_below="@+id/VendasImage"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="CoisandoKKKKK"
+                        android:text="Vendas"
                         android:textColor="@color/blueText"
                         android:textSize="20sp" />
 
@@ -278,7 +278,7 @@
                         android:layout_height="70dp"
                         android:layout_centerHorizontal="true"
                         android:contentDescription="TODO"
-                        android:src="@drawable/baseline_produto" />
+                        android:src="@drawable/baseline_vendas" />
 
 
                 </RelativeLayout>
@@ -305,7 +305,7 @@
                         android:layout_below="@+id/FaturamentoImage"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="Coisando 2"
+                        android:text="Fatura"
                         android:textColor="@color/blueText"
                         android:textSize="20sp" />
 
@@ -315,7 +315,7 @@
                         android:layout_height="70dp"
                         android:layout_centerHorizontal="true"
                         android:importantForAccessibility="no"
-                        android:src="@drawable/baseline_charts" />
+                        android:src="@drawable/baseline_corporate_fare_24" />
 
 
                 </RelativeLayout>
@@ -325,36 +325,41 @@
 
         </LinearLayout>
 
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barChart"
+                android:layout_width="0dp"
+                android:layout_height="300dp"
+                android:visibility="gone"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/row2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/barChart"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-            android:layout_marginTop="68dp"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/row2"/>
+            <!-- LineChart -->
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChart"
+                android:layout_width="0dp"
+                android:layout_height="300dp"
+                android:visibility="gone"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/row2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/lineChart"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:layout_marginTop="68dp"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/row2"/>
+            <!-- PieChart -->
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pieChart"
+                android:layout_width="0dp"
+                android:layout_height="300dp"
+                android:visibility="gone"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/row2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.github.mikephil.charting.charts.PieChart
-        android:id="@+id/pieChart"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:layout_marginTop="68dp"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/row2"/>
+
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
