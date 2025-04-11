@@ -152,11 +152,7 @@ namespace comboboxdrop
 
         private void pictureBox1_MouseLeave(object sender, EventArgs e)
         {
-            PictureBox picturebox = (PictureBox)sender; // Obtenha a instância correta
-
-            // Restaura o tamanho original do PictureBox
-            picturebox.Size = new Size(picturebox.Width - 1, picturebox.Height - 10); // Restaura 10 pixels
-            picturebox.BackColor = Color.Transparent; // Restaura a cor original
+            
         }
 
         private void pictureBox1_MouseHover(object sender, EventArgs e)
@@ -166,21 +162,32 @@ namespace comboboxdrop
 
         private void pictureBox1_MouseEnter(object sender, EventArgs e)
         {
-            PictureBox picturbox = (PictureBox)sender;
-
-            // Aumenta o tamanho do PictureBox
-            picturbox.Size = new Size(picturbox.Width + 1, picturbox.Height + 10); // Aumenta 10 pixels
-            picturbox.BackColor = Color.FromArgb(150, 150, 255, 255); // Efeito de hover
         }
 
         private void panel4_MouseEnter(object sender, EventArgs e)
         {
-            panel1.BorderStyle = BorderStyle.Fixed3D; // Adiciona uma borda
+            Panel panel = (Panel)sender; // Obtenha a instância correta
+
+            // Aumenta o tamanho do Panel
+            panel.Size = new Size(panel.Width + 1, panel.Height + 10); // Aumenta 10 pixels
+            panel.BackColor = Color.FromArgb(150, 150, 255, 255); // Efeito de hover
+           
         }
+        
 
         private void panel4_MouseLeave(object sender, EventArgs e)
         {
-            panel4.BorderStyle = BorderStyle.None;
+            Panel panel = (Panel)sender; // Obtenha a instância correta
+
+            // Restaura o tamanho original do Panel
+            panel.Size = new Size(panel.Width - 1, panel.Height - 10); // Restaura 10 pixels
+            panel.BackColor = Color.Transparent; // Restaura a cor original
+        }
+
+        private void panel4_MouseClick(object sender, MouseEventArgs e)
+        {
+            prodvenc pvenc = new prodvenc();
+            pvenc.Show();    // funcionalidade de click no painel 
         }
     }
 }

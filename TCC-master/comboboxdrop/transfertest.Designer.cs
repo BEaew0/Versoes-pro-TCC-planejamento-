@@ -47,8 +47,8 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.pbox1 = new System.Windows.Forms.PictureBox();
             this.button6 = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -63,9 +63,9 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Black;
-            this.panel2.Location = new System.Drawing.Point(0, 391);
+            this.panel2.Location = new System.Drawing.Point(0, 378);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(801, 59);
+            this.panel2.Size = new System.Drawing.Size(872, 59);
             this.panel2.TabIndex = 1;
             // 
             // pictureBox1
@@ -74,7 +74,7 @@
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pictureBox1.ErrorImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.ErrorImage")));
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(13, 0);
+            this.pictureBox1.Location = new System.Drawing.Point(31, 22);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(228, 84);
@@ -89,7 +89,7 @@
             // 
             this.pictureBox2.ErrorImage = ((System.Drawing.Image)(resources.GetObject("pictureBox2.ErrorImage")));
             this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(466, 91);
+            this.pictureBox2.Location = new System.Drawing.Point(407, 100);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(225, 79);
             this.pictureBox2.TabIndex = 3;
@@ -99,7 +99,7 @@
             // pictureBox3
             // 
             this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(31, 221);
+            this.pictureBox3.Location = new System.Drawing.Point(36, 233);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(177, 129);
             this.pictureBox3.TabIndex = 4;
@@ -108,7 +108,7 @@
             // pictureBox4
             // 
             this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
-            this.pictureBox4.Location = new System.Drawing.Point(214, 221);
+            this.pictureBox4.Location = new System.Drawing.Point(289, 233);
             this.pictureBox4.Name = "pictureBox4";
             this.pictureBox4.Size = new System.Drawing.Size(187, 117);
             this.pictureBox4.TabIndex = 5;
@@ -118,7 +118,7 @@
             // pictureBox5
             // 
             this.pictureBox5.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox5.Image")));
-            this.pictureBox5.Location = new System.Drawing.Point(407, 221);
+            this.pictureBox5.Location = new System.Drawing.Point(545, 233);
             this.pictureBox5.Name = "pictureBox5";
             this.pictureBox5.Size = new System.Drawing.Size(175, 117);
             this.pictureBox5.TabIndex = 6;
@@ -137,7 +137,7 @@
             this.dropdownContainer.Controls.Add(this.button2);
             this.dropdownContainer.Controls.Add(this.panel3);
             this.dropdownContainer.Controls.Add(this.button4);
-            this.dropdownContainer.Location = new System.Drawing.Point(598, 88);
+            this.dropdownContainer.Location = new System.Drawing.Point(643, 70);
             this.dropdownContainer.MaximumSize = new System.Drawing.Size(200, 300);
             this.dropdownContainer.MinimumSize = new System.Drawing.Size(200, 50);
             this.dropdownContainer.Name = "dropdownContainer";
@@ -230,7 +230,7 @@
             this.panel1.BackColor = System.Drawing.Color.Black;
             this.panel1.Location = new System.Drawing.Point(0, 1);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(798, 58);
+            this.panel1.Size = new System.Drawing.Size(872, 58);
             this.panel1.TabIndex = 7;
             // 
             // pbox1
@@ -247,7 +247,7 @@
             // button6
             // 
             this.button6.Image = ((System.Drawing.Image)(resources.GetObject("button6.Image")));
-            this.button6.Location = new System.Drawing.Point(643, 183);
+            this.button6.Location = new System.Drawing.Point(812, 126);
             this.button6.Margin = new System.Windows.Forms.Padding(2);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(26, 24);
@@ -255,35 +255,35 @@
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
+            // panel4
+            // 
+            this.panel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
+            this.panel4.Controls.Add(this.pictureBox1);
+            this.panel4.ForeColor = System.Drawing.SystemColors.Control;
+            this.panel4.Location = new System.Drawing.Point(81, 73);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(307, 134);
+            this.panel4.TabIndex = 26;
+            this.panel4.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel4_MouseClick);
+            this.panel4.MouseEnter += new System.EventHandler(this.panel4_MouseEnter);
+            this.panel4.MouseLeave += new System.EventHandler(this.panel4_MouseLeave);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label1.Location = new System.Drawing.Point(602, 263);
+            this.label1.Location = new System.Drawing.Point(723, 137);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(35, 13);
             this.label1.TabIndex = 25;
             this.label1.Text = "label1";
-            // 
-            // panel4
-            // 
-            this.panel4.BackColor = System.Drawing.Color.Blue;
-            this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel4.Controls.Add(this.pictureBox1);
-            this.panel4.ForeColor = System.Drawing.SystemColors.Control;
-            this.panel4.Location = new System.Drawing.Point(103, 70);
-            this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(283, 100);
-            this.panel4.TabIndex = 26;
-            this.panel4.MouseEnter += new System.EventHandler(this.panel4_MouseEnter);
-            this.panel4.MouseLeave += new System.EventHandler(this.panel4_MouseLeave);
             // 
             // transfertest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
-            this.ClientSize = new System.Drawing.Size(794, 433);
+            this.ClientSize = new System.Drawing.Size(870, 433);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button6);
@@ -296,7 +296,6 @@
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.panel2);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximumSize = new System.Drawing.Size(814, 483);
             this.Name = "transfertest";
             this.Text = "Tesouro Azul";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -331,7 +330,7 @@
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.PictureBox pbox1;
         private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.Label label1;
     }
 }
