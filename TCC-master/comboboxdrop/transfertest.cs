@@ -273,22 +273,22 @@ namespace comboboxdrop
 
         private void panel8_MouseEnter(object sender, EventArgs e)
         {
-
+            panel8.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
         }
 
         private void panel8_MouseLeave(object sender, EventArgs e)
         {
-
+            panel8.BackColor = Color.Transparent; // Restaura a cor original
         }
 
         private void pictureBox3_MouseEnter(object sender, EventArgs e)
         {
-
+            panel8.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
         }
 
         private void pictureBox3_MouseLeave(object sender, EventArgs e)
         {
-
+            panel8.BackColor = Color.Transparent; // Restaura a cor original
         }
     }
 }
