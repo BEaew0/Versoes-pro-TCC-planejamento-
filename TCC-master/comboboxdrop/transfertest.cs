@@ -152,7 +152,7 @@ namespace comboboxdrop
 
         private void pictureBox1_MouseLeave(object sender, EventArgs e)
         {
-            panel4.Size = new Size(panel4.Width - 0, panel4.Height - 0);
+            panel4.Size = new Size(panel4.Width - 0, panel4.Height - 0); // mantém o tamanho do painel que faz a alteração de cor.
 
 
 

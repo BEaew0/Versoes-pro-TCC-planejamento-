@@ -61,9 +61,9 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Black;
-            this.panel2.Location = new System.Drawing.Point(1, 467);
+            this.panel2.Location = new System.Drawing.Point(1, 445);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(699, 100);
+            this.panel2.Size = new System.Drawing.Size(800, 62);
             this.panel2.TabIndex = 1;
             // 
             // txtbox2
@@ -223,7 +223,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 506);
             this.Controls.Add(this.pbox1);
             this.Controls.Add(this.dropdownContainer);
             this.Controls.Add(this.txtbox2);
@@ -233,7 +233,7 @@
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximumSize = new System.Drawing.Size(816, 489);
+            this.MaximumSize = new System.Drawing.Size(816, 545);
             this.Name = "Login";
             this.Text = "Tesouro Azul";
             this.dropdownContainer.ResumeLayout(false);
