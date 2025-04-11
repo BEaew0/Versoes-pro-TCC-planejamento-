@@ -200,5 +200,32 @@ namespace comboboxdrop
             prodvenc pvenc = new prodvenc();
             pvenc.Show();    // funcionalidade de click no painel 
         }
+
+        private void panel5_MouseClick(object sender, MouseEventArgs e)
+        {
+            produtosestoque produtosestoque = new produtosestoque();
+
+            produtosestoque.Show();
+        }
+
+        private void panel5_MouseEnter(object sender, EventArgs e)
+        {
+            panel5.BackColor = Color.FromArgb(0, 191, 255); // Cor de hover para o Panel
+        }
+
+        private void panel5_MouseLeave(object sender, EventArgs e)
+        {
+            panel5.BackColor = Color.Transparent; // Restaura a cor original
+        }
+
+        private void pictureBox2_MouseEnter(object sender, EventArgs e)
+        {
+            panel5.BackColor = Color.FromArgb(0, 191, 255); // Cor de hover para o Panel
+        }
+
+        private void pictureBox2_MouseLeave(object sender, EventArgs e)
+        {
+            panel5.BackColor = Color.Transparent; // Restaura a cor original
+        }
     }
 }
