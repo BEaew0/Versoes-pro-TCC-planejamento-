@@ -152,8 +152,9 @@ namespace comboboxdrop
 
         private void pictureBox1_MouseLeave(object sender, EventArgs e)
         {
+            panel4.Size = new Size(panel4.Width - 0, panel4.Height - 0);
 
-          
+
 
             // Restaura a cor original do Panel
             panel4.BackColor = Color.FromArgb(0, 0, 159); // Cor original do Panel
@@ -172,7 +173,9 @@ namespace comboboxdrop
             // Aumenta o tamanho do PictureBox
           
             // Muda a cor do Panel
-            panel4.BackColor = Color.FromArgb(0, 191, 255); // Cor de hover para o Panel
+            panel4.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
+
+            panel4.Size = new Size(panel4.Width + 0, panel4.Height + 0);
         }
 
         private void panel4_MouseEnter(object sender, EventArgs e)
@@ -180,8 +183,8 @@ namespace comboboxdrop
             Panel panel = (Panel)sender; // Obtenha a instância correta
 
             // Aumenta o tamanho do Panel
-            panel.Size = new Size(panel.Width + 0, panel.Height +0); // Aumenta 10 pixels
-            panel.BackColor = Color.FromArgb(0, 191, 255); // Efeito de hover
+            panel.Size = new Size(panel.Width-0, panel.Height -0); // mantém o tamanho para o que ser contralado ser o tamanho do painel não o crescimento do mesmo
+            panel.BackColor = Color.FromArgb(0, 50, 255); // Efeito de hover
            
         }
         
@@ -210,7 +213,7 @@ namespace comboboxdrop
 
         private void panel5_MouseEnter(object sender, EventArgs e)
         {
-            panel5.BackColor = Color.FromArgb(0, 191, 255); // Cor de hover para o Panel
+            panel5.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
         }
 
         private void panel5_MouseLeave(object sender, EventArgs e)
@@ -220,7 +223,7 @@ namespace comboboxdrop
 
         private void pictureBox2_MouseEnter(object sender, EventArgs e)
         {
-            panel5.BackColor = Color.FromArgb(0, 191, 255); // Cor de hover para o Panel
+            panel5.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
         }
 
         private void pictureBox2_MouseLeave(object sender, EventArgs e)
