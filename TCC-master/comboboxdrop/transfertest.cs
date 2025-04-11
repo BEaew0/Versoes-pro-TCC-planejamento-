@@ -36,7 +36,7 @@ namespace comboboxdrop
             if (expandir)
             {
                 // Expandir o painel
-                dropdownContainer.Height += 150;  // Ajuste mais suave
+                dropdownContainer.Height += 15;  // Ajuste mais suave
 
                 if (dropdownContainer.Height >= dropdownContainer.MaximumSize.Height)
                 {
@@ -229,6 +229,66 @@ namespace comboboxdrop
         private void pictureBox2_MouseLeave(object sender, EventArgs e)
         {
             panel5.BackColor = Color.Transparent; // Restaura a cor original
+        }
+
+        private void panel6_MouseEnter(object sender, EventArgs e)
+        {
+            panel6.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
+        }
+
+        private void panel6_MouseLeave(object sender, EventArgs e)
+        {
+            panel6.BackColor = Color.Transparent; // Restaura a cor original
+        }
+
+        private void pictureBox4_MouseEnter(object sender, EventArgs e)
+        {
+            panel6.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
+        }
+
+        private void pictureBox4_MouseLeave(object sender, EventArgs e)
+        {
+            panel6.BackColor = Color.Transparent; // Restaura a cor original
+        }
+
+        private void pictureBox5_MouseEnter(object sender, EventArgs e)
+        {
+            panel7.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
+        }
+
+        private void pictureBox5_MouseLeave(object sender, EventArgs e)
+        {
+            panel7.BackColor = Color.Transparent; // Restaura a cor original
+        }
+
+        private void panel7_MouseEnter(object sender, EventArgs e)
+        {
+            panel7.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
+        }
+
+        private void panel7_MouseLeave(object sender, EventArgs e)
+        {
+            panel7.BackColor = Color.Transparent; // Restaura a cor original
+        }
+
+        private void panel8_MouseEnter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel8_MouseLeave(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox3_MouseEnter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox3_MouseLeave(object sender, EventArgs e)
+        {
+
         }
     }
 }

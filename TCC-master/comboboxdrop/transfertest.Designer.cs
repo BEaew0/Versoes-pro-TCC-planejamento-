@@ -49,6 +49,9 @@
             this.button6 = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel5 = new System.Windows.Forms.Panel();
+            this.panel6 = new System.Windows.Forms.Panel();
+            this.panel7 = new System.Windows.Forms.Panel();
+            this.panel8 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -59,6 +62,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbox1)).BeginInit();
             this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
+            this.panel6.SuspendLayout();
+            this.panel7.SuspendLayout();
+            this.panel8.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel2
@@ -66,7 +72,7 @@
             this.panel2.BackColor = System.Drawing.Color.Black;
             this.panel2.Location = new System.Drawing.Point(0, 378);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(872, 59);
+            this.panel2.Size = new System.Drawing.Size(997, 59);
             this.panel2.TabIndex = 1;
             // 
             // pictureBox1
@@ -102,31 +108,37 @@
             // pictureBox3
             // 
             this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(36, 233);
+            this.pictureBox3.Location = new System.Drawing.Point(23, 13);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(177, 129);
+            this.pictureBox3.Size = new System.Drawing.Size(177, 117);
             this.pictureBox3.TabIndex = 4;
             this.pictureBox3.TabStop = false;
+            this.pictureBox3.MouseEnter += new System.EventHandler(this.pictureBox3_MouseEnter);
+            this.pictureBox3.MouseLeave += new System.EventHandler(this.pictureBox3_MouseLeave);
             // 
             // pictureBox4
             // 
             this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
-            this.pictureBox4.Location = new System.Drawing.Point(289, 233);
+            this.pictureBox4.Location = new System.Drawing.Point(25, 16);
             this.pictureBox4.Name = "pictureBox4";
             this.pictureBox4.Size = new System.Drawing.Size(187, 117);
             this.pictureBox4.TabIndex = 5;
             this.pictureBox4.TabStop = false;
             this.pictureBox4.Click += new System.EventHandler(this.pictureBox4_Click);
+            this.pictureBox4.MouseEnter += new System.EventHandler(this.pictureBox4_MouseEnter);
+            this.pictureBox4.MouseLeave += new System.EventHandler(this.pictureBox4_MouseLeave);
             // 
             // pictureBox5
             // 
             this.pictureBox5.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox5.Image")));
-            this.pictureBox5.Location = new System.Drawing.Point(545, 233);
+            this.pictureBox5.Location = new System.Drawing.Point(23, 13);
             this.pictureBox5.Name = "pictureBox5";
             this.pictureBox5.Size = new System.Drawing.Size(175, 117);
             this.pictureBox5.TabIndex = 6;
             this.pictureBox5.TabStop = false;
             this.pictureBox5.Click += new System.EventHandler(this.pictureBox5_Click);
+            this.pictureBox5.MouseEnter += new System.EventHandler(this.pictureBox5_MouseEnter);
+            this.pictureBox5.MouseLeave += new System.EventHandler(this.pictureBox5_MouseLeave);
             // 
             // timer1
             // 
@@ -135,20 +147,21 @@
             // 
             // dropdownContainer
             // 
-            this.dropdownContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
+            this.dropdownContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(50)))), ((int)(((byte)(255)))));
             this.dropdownContainer.Controls.Add(this.button1);
             this.dropdownContainer.Controls.Add(this.button2);
             this.dropdownContainer.Controls.Add(this.panel3);
             this.dropdownContainer.Controls.Add(this.button4);
-            this.dropdownContainer.Location = new System.Drawing.Point(672, 65);
+            this.dropdownContainer.Location = new System.Drawing.Point(774, 74);
             this.dropdownContainer.MaximumSize = new System.Drawing.Size(200, 300);
             this.dropdownContainer.MinimumSize = new System.Drawing.Size(200, 50);
             this.dropdownContainer.Name = "dropdownContainer";
-            this.dropdownContainer.Size = new System.Drawing.Size(200, 51);
+            this.dropdownContainer.Size = new System.Drawing.Size(200, 50);
             this.dropdownContainer.TabIndex = 2;
             // 
             // button1
             // 
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(50)))), ((int)(((byte)(255)))));
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
@@ -158,11 +171,12 @@
             this.button1.Size = new System.Drawing.Size(197, 47);
             this.button1.TabIndex = 1;
             this.button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button1.UseVisualStyleBackColor = true;
+            this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(50)))), ((int)(((byte)(255)))));
             this.button2.FlatAppearance.BorderSize = 0;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
@@ -173,7 +187,7 @@
             this.button2.Size = new System.Drawing.Size(192, 53);
             this.button2.TabIndex = 2;
             this.button2.Text = "Fazer Login";
-            this.button2.UseVisualStyleBackColor = true;
+            this.button2.UseVisualStyleBackColor = false;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // panel3
@@ -189,6 +203,7 @@
             // button5
             // 
             this.button5.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(50)))), ((int)(((byte)(255)))));
             this.button5.FlatAppearance.BorderSize = 0;
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button5.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
@@ -198,7 +213,7 @@
             this.button5.Size = new System.Drawing.Size(192, 53);
             this.button5.TabIndex = 4;
             this.button5.Text = "Cadastro";
-            this.button5.UseVisualStyleBackColor = true;
+            this.button5.UseVisualStyleBackColor = false;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button3
@@ -233,7 +248,7 @@
             this.panel1.BackColor = System.Drawing.Color.Black;
             this.panel1.Location = new System.Drawing.Point(0, 1);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(872, 58);
+            this.panel1.Size = new System.Drawing.Size(997, 58);
             this.panel1.TabIndex = 7;
             // 
             // pbox1
@@ -250,7 +265,7 @@
             // button6
             // 
             this.button6.Image = ((System.Drawing.Image)(resources.GetObject("button6.Image")));
-            this.button6.Location = new System.Drawing.Point(812, 126);
+            this.button6.Location = new System.Drawing.Point(12, 139);
             this.button6.Margin = new System.Windows.Forms.Padding(2);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(26, 24);
@@ -284,23 +299,60 @@
             this.panel5.MouseEnter += new System.EventHandler(this.panel5_MouseEnter);
             this.panel5.MouseLeave += new System.EventHandler(this.panel5_MouseLeave);
             // 
+            // panel6
+            // 
+            this.panel6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
+            this.panel6.Controls.Add(this.pictureBox4);
+            this.panel6.ForeColor = System.Drawing.SystemColors.Control;
+            this.panel6.Location = new System.Drawing.Point(12, 205);
+            this.panel6.Name = "panel6";
+            this.panel6.Size = new System.Drawing.Size(237, 145);
+            this.panel6.TabIndex = 27;
+            this.panel6.MouseEnter += new System.EventHandler(this.panel6_MouseEnter);
+            this.panel6.MouseLeave += new System.EventHandler(this.panel6_MouseLeave);
+            // 
+            // panel7
+            // 
+            this.panel7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
+            this.panel7.Controls.Add(this.pictureBox5);
+            this.panel7.ForeColor = System.Drawing.SystemColors.Control;
+            this.panel7.Location = new System.Drawing.Point(273, 208);
+            this.panel7.Name = "panel7";
+            this.panel7.Size = new System.Drawing.Size(222, 142);
+            this.panel7.TabIndex = 28;
+            this.panel7.MouseEnter += new System.EventHandler(this.panel7_MouseEnter);
+            this.panel7.MouseLeave += new System.EventHandler(this.panel7_MouseLeave);
+            // 
+            // panel8
+            // 
+            this.panel8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
+            this.panel8.Controls.Add(this.pictureBox3);
+            this.panel8.ForeColor = System.Drawing.SystemColors.Control;
+            this.panel8.Location = new System.Drawing.Point(524, 205);
+            this.panel8.Name = "panel8";
+            this.panel8.Size = new System.Drawing.Size(230, 145);
+            this.panel8.TabIndex = 29;
+            this.panel8.MouseEnter += new System.EventHandler(this.panel8_MouseEnter);
+            this.panel8.MouseLeave += new System.EventHandler(this.panel8_MouseLeave);
+            // 
             // transfertest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
-            this.ClientSize = new System.Drawing.Size(870, 433);
+            this.ClientSize = new System.Drawing.Size(998, 436);
+            this.Controls.Add(this.panel8);
+            this.Controls.Add(this.panel7);
+            this.Controls.Add(this.panel6);
             this.Controls.Add(this.panel5);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.pbox1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.dropdownContainer);
-            this.Controls.Add(this.pictureBox5);
-            this.Controls.Add(this.pictureBox4);
-            this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.panel2);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximumSize = new System.Drawing.Size(1014, 475);
             this.Name = "transfertest";
             this.Text = "Tesouro Azul";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -313,6 +365,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbox1)).EndInit();
             this.panel4.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
+            this.panel6.ResumeLayout(false);
+            this.panel7.ResumeLayout(false);
+            this.panel8.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -337,5 +392,8 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.Panel panel6;
+        private System.Windows.Forms.Panel panel7;
+        private System.Windows.Forms.Panel panel8;
     }
 }
