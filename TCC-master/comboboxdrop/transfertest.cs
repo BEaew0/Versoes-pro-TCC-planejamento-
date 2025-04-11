@@ -290,5 +290,31 @@ namespace comboboxdrop
         {
             panel8.BackColor = Color.Transparent; // Restaura a cor original
         }
+
+        private void panel6_MouseClick(object sender, MouseEventArgs e)
+        {
+            exitentry exitentry = new exitentry();
+            exitentry.Show();
+        }
+
+        private void panel7_MouseClick(object sender, MouseEventArgs e)
+        {
+            // cria uma nova instância do formulário
+            estoquemanager estoque = new estoquemanager();
+
+
+            //exibe o formulário  estoquemanager
+            estoque.Show();
+        }
+
+        private void panel8_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

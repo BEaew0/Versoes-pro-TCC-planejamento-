@@ -113,6 +113,7 @@
             this.pictureBox3.Size = new System.Drawing.Size(177, 117);
             this.pictureBox3.TabIndex = 4;
             this.pictureBox3.TabStop = false;
+            this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
             this.pictureBox3.MouseEnter += new System.EventHandler(this.pictureBox3_MouseEnter);
             this.pictureBox3.MouseLeave += new System.EventHandler(this.pictureBox3_MouseLeave);
             // 
@@ -234,7 +235,7 @@
             // button4
             // 
             this.button4.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
+            this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(50)))), ((int)(((byte)(255)))));
             this.button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
             this.button4.Location = new System.Drawing.Point(3, 174);
             this.button4.Name = "button4";
@@ -308,6 +309,7 @@
             this.panel6.Name = "panel6";
             this.panel6.Size = new System.Drawing.Size(237, 145);
             this.panel6.TabIndex = 27;
+            this.panel6.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel6_MouseClick);
             this.panel6.MouseEnter += new System.EventHandler(this.panel6_MouseEnter);
             this.panel6.MouseLeave += new System.EventHandler(this.panel6_MouseLeave);
             // 
@@ -320,6 +322,7 @@
             this.panel7.Name = "panel7";
             this.panel7.Size = new System.Drawing.Size(222, 142);
             this.panel7.TabIndex = 28;
+            this.panel7.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel7_MouseClick);
             this.panel7.MouseEnter += new System.EventHandler(this.panel7_MouseEnter);
             this.panel7.MouseLeave += new System.EventHandler(this.panel7_MouseLeave);
             // 
@@ -332,6 +335,7 @@
             this.panel8.Name = "panel8";
             this.panel8.Size = new System.Drawing.Size(230, 145);
             this.panel8.TabIndex = 29;
+            this.panel8.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel8_MouseClick);
             this.panel8.MouseEnter += new System.EventHandler(this.panel8_MouseEnter);
             this.panel8.MouseLeave += new System.EventHandler(this.panel8_MouseLeave);
             // 

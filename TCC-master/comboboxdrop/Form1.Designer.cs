@@ -45,7 +45,7 @@
             // 
             // dropdownContainer
             // 
-            this.dropdownContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
+            this.dropdownContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(50)))), ((int)(((byte)(255)))));
             this.dropdownContainer.Controls.Add(this.button1);
             this.dropdownContainer.Controls.Add(this.btn2);
             this.dropdownContainer.Controls.Add(this.panel1);
@@ -112,7 +112,7 @@
             // btn4
             // 
             this.btn4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
+            this.btn4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(50)))), ((int)(((byte)(255)))));
             this.btn4.Image = ((System.Drawing.Image)(resources.GetObject("btn4.Image")));
             this.btn4.Location = new System.Drawing.Point(3, 174);
             this.btn4.Name = "btn4";
@@ -149,6 +149,7 @@
             this.MaximumSize = new System.Drawing.Size(816, 489);
             this.Name = "Form1";
             this.Text = "Tesouro Azul";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.dropdownContainer.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbox1)).EndInit();

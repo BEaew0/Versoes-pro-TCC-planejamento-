@@ -25,7 +25,7 @@ namespace comboboxdrop
             if (expandir)
             {
                 // Expandir o painel
-                dropdownContainer.Height += 150;  // Ajuste mais suave
+                dropdownContainer.Height += 15;  // Ajuste mais suave
 
                 if (dropdownContainer.Height >= dropdownContainer.MaximumSize.Height)
                 {
@@ -97,6 +97,11 @@ namespace comboboxdrop
             // Exibe o formulário TransferTest
             loginForm.Show(); // Ou ShowDialog() se preferir
          
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

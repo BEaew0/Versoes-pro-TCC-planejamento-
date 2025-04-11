@@ -25,7 +25,7 @@ namespace comboboxdrop
             if (expandir)
             {
                 // Expandir o painel
-                dropdownContainer.Height += 150;  // Ajuste mais suave
+                dropdownContainer.Height += 15;  // Ajuste mais suave
 
                 if (dropdownContainer.Height >= dropdownContainer.MaximumSize.Height)
                 {
@@ -100,6 +100,11 @@ namespace comboboxdrop
             
             
             //https://www.youtube.com/watch?v=lhXpeae149M tutorial de como fazer 
+        }
+
+        private void estoquemanager_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

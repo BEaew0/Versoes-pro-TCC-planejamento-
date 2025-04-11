@@ -25,7 +25,7 @@ namespace comboboxdrop
             if (expandir)
             {
                 // Expandir o painel
-                dropdownContainer.Height += 150;  // Ajuste mais suave
+                dropdownContainer.Height += 15;  // Ajuste mais suave
 
                 if (dropdownContainer.Height >= dropdownContainer.MaximumSize.Height)
                 {
