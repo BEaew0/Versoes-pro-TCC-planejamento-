@@ -20,7 +20,7 @@ namespace comboboxdrop
             InitializeComponent();
             // Adicionando eventos ao PictureBox
             pictureBox1.MouseEnter += pictureBox1_MouseEnter;
-            pictureBox1.MouseLeave += pictureBox1_MouseLeave;
+            pictureBox1.MouseLeave += pictureBox1_MouseLeave; // eventos utilizados para fazer efeito "hover"
 
             // Adicionando eventos ao panel4
             panel4.MouseEnter += panel4_MouseEnter;
@@ -153,15 +153,17 @@ namespace comboboxdrop
         private void pictureBox1_MouseLeave(object sender, EventArgs e)
         {
             panel4.Size = new Size(panel4.Width - 0, panel4.Height - 0); // mantém o tamanho do painel que faz a alteração de cor.
+            // paineis são utilizados para fazer a animação de hover, pode ser ajustado.
+            
 
 
-
-            // Restaura a cor original do Panel
+            // Restaura a cor original do Panel  -- alteração de cor para azul mais claro, pode ser alterado.
             panel4.BackColor = Color.FromArgb(0, 0, 159); // Cor original do Panel
         }
         
 
         private void pictureBox1_MouseHover(object sender, EventArgs e)
+            // inserção desnecessaria 
         {
           
         }
@@ -170,7 +172,7 @@ namespace comboboxdrop
         {
             PictureBox picturebox = (PictureBox)sender;
 
-            // Aumenta o tamanho do PictureBox
+            
           
             // Muda a cor do Panel
             panel4.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
@@ -183,7 +185,7 @@ namespace comboboxdrop
             Panel panel = (Panel)sender; // Obtenha a instância correta
 
             // Aumenta o tamanho do Panel
-            panel.Size = new Size(panel.Width-0, panel.Height -0); // mantém o tamanho para o que ser contralado ser o tamanho do painel não o crescimento do mesmo
+            panel.Size = new Size(panel.Width-0, panel.Height -0); // tamanho de painel  não cresce para ser controlado pelo próprio componente 
             panel.BackColor = Color.FromArgb(0, 50, 255); // Efeito de hover
            
         }
@@ -194,8 +196,8 @@ namespace comboboxdrop
             Panel panel = (Panel)sender; // Obtenha a instância correta
 
             // Restaura o tamanho original do Panel
-            panel.Size = new Size(panel.Width - 0, panel.Height - 0); // Restaura 10 pixels
-            panel.BackColor = Color.Transparent; // Restaura a cor original
+            panel.Size = new Size(panel.Width - 0, panel.Height - 0);
+            panel.BackColor = Color.Transparent; // fica transparente para voltar para a back color do form
         }
 
         private void panel4_MouseClick(object sender, MouseEventArgs e)
@@ -238,9 +240,8 @@ namespace comboboxdrop
 
         private void panel6_MouseLeave(object sender, EventArgs e)
         {
-            panel6.BackColor = Color.Transparent; // Restaura a cor original
+            panel6.BackColor = Color.Transparent;// fica transparente para voltar para a back color do form
         }
-
         private void pictureBox4_MouseEnter(object sender, EventArgs e)
         {
             panel6.BackColor = Color.FromArgb(0, 50, 255); // Cor de hover para o Panel
@@ -309,6 +310,7 @@ namespace comboboxdrop
 
         private void panel8_MouseClick(object sender, MouseEventArgs e)
         {
+            //  evento do painel não utilizado mantido devido a natureza do c# de ferrrar com tudo
 
         }
 

@@ -36,11 +36,12 @@ namespace comboboxdrop
             else if (retrair)
             {
                 // Retrair o painel
-                dropdownContainer.Height -= 15;  // Ajuste mais suave
+                dropdownContainer.Height -= 15;  // aqui o ajuste conforme numeros maiores mais rapido 
 
                 if (dropdownContainer.Height <= dropdownContainer.MinimumSize.Height)
                 {
-                    timer1.Stop();  // Parar a animação de retração
+                    timer1.Stop();  // Parar a animação de retração (timer1) utilizado para fazer a animação
+
                     retrair = false; // Terminar a retração
                 }
             }
@@ -63,7 +64,7 @@ namespace comboboxdrop
                 retrair = true;  // Setar para retração
                 timer1.Start();  // Iniciar animação de retração
             }
-        }// artigo anormal de anormalidade 
+        }
 
         private void btn2_Click(object sender, EventArgs e)
         {
