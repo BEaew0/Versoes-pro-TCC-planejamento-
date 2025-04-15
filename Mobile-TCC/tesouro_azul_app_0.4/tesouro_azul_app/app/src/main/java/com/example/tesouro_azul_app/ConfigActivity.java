@@ -1,29 +1,47 @@
 package com.example.tesouro_azul_app;
 
-// Importações necessárias
+
+import android.app.Activity;
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.shape.ShapeAppearanceModel;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class ConfigActivity extends AppCompatActivity {
 
-    // Declaração do Switch e SharedPreferences
     private Switch swicthTheme;
     private SharedPreferences sharedPreferences;
 
-    ImageView Xleave,themeIcon,userIcon;
+
+    ImageView Xleave,themeIcon;
     RelativeLayout trocarSenha,SairConta,ExcluirConta;
 
     // Nome do arquivo de preferências e chave booleana usada para salvar o modo escuro
     private static final String PREF_NAME = "ThemePrefs";
     private static final String NIGHT_MODE_KEY = "night_mode";
+
+    //Declara uma constante para identificar o código da requisição da galeria,
+    // o ícone do usuário e o launcher para abrir a galeria e receber o resultado.
+    private static final int REQUEST_CODE_GALLERY = 1001;
+    private ShapeableImageView userIcon;
+    private ActivityResultLauncher<Intent> galleryLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,26 +61,33 @@ public class ConfigActivity extends AppCompatActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
 
-        // Agora que o tema está definido, carregamos a tela
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
 
+        // Referência ao Switch no layout (XML)
+        swicthTheme = findViewById(R.id.swicthTheme);
         userIcon = findViewById(R.id.User_icon);
         themeIcon = findViewById(R.id.ThemeMode);
-        Xleave = (ImageView) findViewById(R.id.Xleave);
 
+        Xleave = (ImageView) findViewById(R.id.Xleave);
         trocarSenha = (RelativeLayout) findViewById(R.id.trocarSenha);
         SairConta = (RelativeLayout) findViewById(R.id.SairConta);
         ExcluirConta = (RelativeLayout) findViewById(R.id.ExcluirConta);
-
-
-        // Referência ao Switch no layout (XML)
-        swicthTheme = findViewById(R.id.swicthTheme);
 
         // Define o estado inicial do Switch de acordo com a preferência
         swicthTheme.setChecked(isNightMode);
         updateThemeIcon(isNightMode);
 
+        //Prepara o launcher para abrir a galeria e, se o usuário selecionar uma imagem, define essa imagem como o novo ícone do usuário.
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri imageUri = result.getData().getData();
+                        userIcon.setImageURI(imageUri);
+                    }
+                });
 
 
         Xleave.setOnClickListener(new View.OnClickListener() {
@@ -73,8 +98,33 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
 
+
+        //Ao clicar no ícone do usuário, verifica se tem permissão para acessar a galeria.
+        // Se não tiver, solicita. Se tiver, abre a galeria para o usuário escolher uma imagem.
+        userIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ContextCompat.checkSelfPermission(ConfigActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    ActivityCompat.requestPermissions(
+                            ConfigActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            REQUEST_CODE_GALLERY
+                    );
+                    return;
+                }
+
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("image/*");
+                galleryLauncher.launch(intent);
+            }
+        });
+
+
         // Listener para detectar mudanças no Switch
-        swicthTheme.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        swicthTheme.setOnCheckedChangeListener((buttonView, isChecked) ->
+        {
             if (isChecked) {
                 // Se o usuário ativar, muda para o modo escuro
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -105,16 +155,21 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
 
-        SairConta.setOnClickListener(new View.OnClickListener() {
+        SairConta.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 //Processo que remove o login do aplicativo
+
             }
         });
 
-        ExcluirConta.setOnClickListener(new View.OnClickListener() {
+        ExcluirConta.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
 
             }
         });
@@ -122,7 +177,8 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     // Função auxiliar para salvar a preferência no SharedPreferences
-    private void saveThemePreference(boolean isNight) {
+    private void saveThemePreference(boolean isNight)
+    {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(NIGHT_MODE_KEY, isNight); // Salva o valor true ou false
         editor.apply(); // Aplica as mudanças
@@ -133,15 +189,13 @@ public class ConfigActivity extends AppCompatActivity {
         if(isNightMode){
             themeIcon.setImageResource(R.drawable.nigth_mode_icon);
             themeIcon.setBackgroundResource(R.drawable.round_back_night);
-            userIcon.setImageResource(R.drawable.white_icon_img);
-
-
         }
         else {
             themeIcon.setImageResource(R.drawable.ligth_mode_icon);
             themeIcon.setBackgroundResource(R.drawable.round_back_white);
-            userIcon.setImageResource(R.drawable.baseline_account_circle_24);
         }
 
     }
+
+
 }

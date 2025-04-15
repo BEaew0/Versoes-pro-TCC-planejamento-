@@ -66,11 +66,9 @@ public class GraficosActivity extends AppCompatActivity {
                 barChart.setVisibility(View.GONE);
                 lineChart.setVisibility(View.GONE);
                 pieChart.setVisibility(View.GONE);
-                // Ação ao clicar no card de Pizza
                 Toast.makeText(getApplicationContext(), "Gráfico de Pizza selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "pizza";
                 exibirGraficoSelecionado(typeGraph,barChart,lineChart,pieChart);
-                // Oculta todos
 
             }
         });
@@ -82,7 +80,6 @@ public class GraficosActivity extends AppCompatActivity {
                 barChart.setVisibility(View.GONE);
                 lineChart.setVisibility(View.GONE);
                 pieChart.setVisibility(View.GONE);
-                // Ação ao clicar no card de Barra
                 Toast.makeText(getApplicationContext(), "Gráfico de Barras selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "barra";
                 exibirGraficoSelecionado(typeGraph,barChart,lineChart,pieChart);
@@ -96,7 +93,6 @@ public class GraficosActivity extends AppCompatActivity {
                 barChart.setVisibility(View.GONE);
                 lineChart.setVisibility(View.GONE);
                 pieChart.setVisibility(View.GONE);
-                // Ação ao clicar no card de Linha
                 Toast.makeText(getApplicationContext(), "Gráfico de Linhas selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "linha";
                 exibirGraficoSelecionado(typeGraph,barChart,lineChart,pieChart);
@@ -132,94 +128,106 @@ public class GraficosActivity extends AppCompatActivity {
 
     private void exibirBarra(BarChart barChart)
     {
-        // Oculta os rótulos do eixo da direita
+        // Oculta os rótulos do eixo da direita (visualmente limpa o gráfico)
         barChart.getAxisRight().setDrawLabels(false);
 
-        // Entradas de exemplo
+        // Cria uma lista de valores de barra (posição X, valor Y)
         ArrayList<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(0, 45f));
-        entries.add(new BarEntry(1, 80f));
-        entries.add(new BarEntry(2, 65f));
+        entries.add(new BarEntry(0, 45f));  // Primeiro item com valor 45
+        entries.add(new BarEntry(1, 80f));  // Segundo com 80
+        entries.add(new BarEntry(2, 65f));  // ...
         entries.add(new BarEntry(3, 38f));
 
-        // Configuração do eixo Y (esquerdo)
+        // Configura o eixo Y (esquerdo)
         YAxis yAxis = barChart.getAxisLeft();
-        yAxis.setAxisMinimum(0f); // Corrigido: é Minimum, não Maximum aqui
-        yAxis.setAxisMaximum(100f);
-        yAxis.setAxisLineWidth(2f);
-        yAxis.setAxisLineColor(Color.BLACK); // Corrigido: usa Color, não resource ID
-        yAxis.setLabelCount(10);
+        yAxis.setAxisMinimum(0f); // Valor mínimo do Y é 0
+        yAxis.setAxisMaximum(100f); // Valor máximo do Y é 100
+        yAxis.setAxisLineWidth(2f);// Espessura da linha do eixo Y
+        yAxis.setAxisLineColor(Color.BLACK);// Cor da linha do eixo Y
+        yAxis.setLabelCount(10);// Quantidade de marcadores no eixo Y
 
-        // Dataset
-        BarDataSet dataSet = new BarDataSet(entries, "Subjects");
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        // Cria um conjunto de dados para o gráfico de barras
+        BarDataSet dataSet = new BarDataSet(entries, "Subjects");// Título da legenda
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);// Define cores variadas
 
-        // Dados e atribuição ao gráfico
+        // Cria os dados finais com o dataset e associa ao gráfico
         BarData barData = new BarData(dataSet);
         barChart.setData(barData);
 
-        // Desabilita a descrição padrão
+        // Remove a descrição de texto no canto inferior direito
         barChart.getDescription().setEnabled(false);
 
-        // Eixo X
-        barChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter());
-        barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        barChart.getXAxis().setGranularity(1f);
-        barChart.getXAxis().setGranularityEnabled(true);
+        // Configura o eixo X
+        barChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter());// Formatação personalizada (opcional)
+        barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM); // Posição na parte de baixo
+        barChart.getXAxis().setGranularity(1f); // Intervalo mínimo entre valores
+        barChart.getXAxis().setGranularityEnabled(true); // Ativa granularidade
 
-        // Atualiza o gráfico
+        // Redesenha o gráfico
         barChart.invalidate();
+
     }
 
     private void exibirPizza(PieChart pieChart)
     {
 
+        // Cria uma lista com os dados da pizza (valor, rótulo)
         ArrayList<PieEntry> entries = new ArrayList<>();
         entries.add(new PieEntry(45f, "Miguel"));
         entries.add(new PieEntry(80f, "Carlos"));
         entries.add(new PieEntry(65f, "Victor"));
         entries.add(new PieEntry(38f, "Bea"));
 
+        // Cria o conjunto de fatias da pizza
         PieDataSet dataSet = new PieDataSet(entries, "Subjects");
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-        dataSet.setSliceSpace(3f);
-        dataSet.setValueTextSize(12f);
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);// Aplica cores automáticas
+        dataSet.setSliceSpace(3f);// Espaço entre as fatias
+        dataSet.setValueTextSize(12f);// Tamanho do texto dos valores
 
+        // Cria os dados finais e associa ao gráfico
         PieData pieData = new PieData(dataSet);
         pieChart.setData(pieData);
-        pieChart.setUsePercentValues(true);
-        pieChart.getDescription().setEnabled(false);
-        pieChart.setEntryLabelColor(Color.BLACK);
-        pieChart.setHoleRadius(30f);
-        pieChart.setTransparentCircleRadius(35f);
-        pieChart.invalidate(); // Atualiza o gráfico
+        pieChart.setUsePercentValues(true);// Converte os valores para porcentagem
+        pieChart.getDescription().setEnabled(false);// Remove a descrição padrão
+        pieChart.setEntryLabelColor(Color.BLACK);// Cor dos rótulos das fatias
+        pieChart.setHoleRadius(30f);// Raio do buraco central
+        pieChart.setTransparentCircleRadius(35f);// Raio da borda transparente
+        pieChart.invalidate(); // Redesenha o gráfico
+
     }
 
     private void exibirLinha(LineChart lineChart)
     {
+        // Cria os pontos (x, y) para o gráfico de linha
         ArrayList<Entry> entries = new ArrayList<>();
         entries.add(new Entry(0, 45f));
         entries.add(new Entry(1, 80f));
         entries.add(new Entry(2, 65f));
         entries.add(new Entry(3, 38f));
 
+        // Cria o dataset para o gráfico de linha
         LineDataSet dataSet = new LineDataSet(entries, "Subjects");
-        dataSet.setColor(ColorTemplate.getHoloBlue());
-        dataSet.setCircleColor(ColorTemplate.MATERIAL_COLORS[0]);
-        dataSet.setLineWidth(2f);
-        dataSet.setCircleRadius(5f);
-        dataSet.setValueTextSize(10f);
+        dataSet.setColor(ColorTemplate.getHoloBlue()); // Cor da linha
+        dataSet.setCircleColor(ColorTemplate.MATERIAL_COLORS[0]);// Cor dos círculos nos pontos
+        dataSet.setLineWidth(2f); // Espessura da linha
+        dataSet.setCircleRadius(5f); // Tamanho dos círculos
+        dataSet.setValueTextSize(10f); // Tamanho dos valores nos pontos
 
+        // Cria os dados finais e associa ao gráfico
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
-        lineChart.getDescription().setEnabled(false);
+        lineChart.getDescription().setEnabled(false); // Remove descrição padrão
 
-        lineChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(Arrays.asList("Miguel", "Carlos", "Victor", "Bea")));
-        lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        lineChart.getXAxis().setGranularity(1f);
-        lineChart.getXAxis().setGranularityEnabled(true);
+        // Configura o eixo X com nomes personalizados
+        lineChart.getXAxis().setValueFormatter(
+                new IndexAxisValueFormatter(Arrays.asList("Miguel", "Carlos", "Victor", "Bea"))
+        );
+        lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Posição inferior
+        lineChart.getXAxis().setGranularity(1f);// Intervalo mínimo
+        lineChart.getXAxis().setGranularityEnabled(true); // Ativa granularidade
 
-        lineChart.invalidate(); // Atualiza o gráfico
+        lineChart.invalidate(); // Redesenha o gráfico
+
     }
 
     private void exibirGraficoSelecionado(String typeGraph, BarChart barChart, LineChart lineChart, PieChart pieChart)

@@ -6,12 +6,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import android.app.DatePickerDialog;
+import android.content.Context;
+
+import android.widget.DatePicker;
+import android.widget.EditText;
+
+
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +61,8 @@ public class EntradaActivity extends AppCompatActivity
             String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
             String senha = txtSenha.getText().toString().trim();
 
+
+
             txtRegistrar = (TextView) findViewById(R.id.txtRegistrar);
 
             btnEnter.setOnClickListener(new View.OnClickListener() {
@@ -77,8 +86,15 @@ public class EntradaActivity extends AppCompatActivity
             txtSenhaReg = (EditText) findViewById(R.id.txtSenhaReg);
             txtConfirmSenha = (EditText) findViewById(R.id.txtConfirmSenha);
             txtEmail = (EditText) findViewById(R.id.txtEmail);
-            txtNascimento = (EditText) findViewById(R.id.txtValidade);
+            txtNascimento = (EditText) findViewById(R.id.txtNascimento);
             btnRegister = (Button) findViewById(R.id.btnRegister);
+
+            txtNascimento.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatePickerUtil.showDatePicker(EntradaActivity.this, txtNascimento, true);
+                }
+            });
 
 
             btnRegister.setOnClickListener(new View.OnClickListener()
@@ -86,7 +102,22 @@ public class EntradaActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view)
                 {
+                    //isso é pra converter data de nascimento,
+                    // como somos obrigados a usar uma versão velha do java ela é feia assim mesmo
+                   if (validarCadastro(view,getApplicationContext()))
+                   {
 
+                      Toast.makeText(EntradaActivity.this,"Validação bem sucedida",Toast.LENGTH_SHORT).show();
+
+                        //processo de validação concluido
+                       Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
+                       startActivity(intent);
+                   }
+
+                }
+
+                //Utiliza o validarClass para permitir o processo de validação
+                public boolean validarCadastro(View view, Context context) {
                     String email = txtEmail.getText().toString().trim();
                     String senhaReg = txtSenhaReg.getText().toString().trim();
                     String senhaConfim = txtConfirmSenha.getText().toString().trim();
@@ -94,91 +125,72 @@ public class EntradaActivity extends AppCompatActivity
                     String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
                     String nascimento = txtNascimento.getText().toString().trim();
 
-                    //isso é pra converter data de nascimento,
-                    // como somos obrigados a usar uma versão velha do java ela é feia assim mesmo
-                    try
-                    {
-                        // Formatação de data
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                        Date dataNascimento = null;
-
-                        try
-                        {
-                            dataNascimento = dateFormat.parse(nascimento);
-                        } catch (ParseException e) {
-                            throw new RuntimeException("Formato de data inválido", e);
-                        }
-
-                        Calendar calendar = Calendar.getInstance();
-                        // Configurar a data no calendar se necessário
-                        // calendar.setTime(dataNascimento);
-
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
+                    // Verifica se todos os campos foram preenchidos
+                    if (email.isEmpty() || senhaReg.isEmpty() || senhaConfim.isEmpty() ||
+                            nomeReg.isEmpty() || CPF_CNPJreg.isEmpty() || nascimento.isEmpty()) {
+                        Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+                        return false;
                     }
 
                     // Instância do validador
                     ValidarClass validator = new ValidarClass();
 
-                    // Verifica se todos os campos foram preenchidos
-                    if (email.isEmpty() || senhaReg.isEmpty() || senhaConfim.isEmpty() ||
-                            nomeReg.isEmpty() || CPF_CNPJreg.isEmpty() || nascimento.isEmpty())
-                    {
-                        Toast.makeText(view.getContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show();
-                        setContentView(R.layout.activity_main);
-                        return;
-                    }
-
-                    // Identifica o tipo de documento (CPF ou CNPJ)
+                    // Identifica o tipo de documento
                     String tipoDocumento = validator.identificarTipo(CPF_CNPJreg);
 
                     try {
                         // Validação de maioridade
                         if (!validator.MaiorIdade(true)) {
-                            Toast.makeText(view.getContext(), "Menores de idade não são permitidos", Toast.LENGTH_SHORT).show();
-                            return;
+                            Toast.makeText(context, "Menores de idade não são permitidos", Toast.LENGTH_SHORT).show();
+                            return false;
                         }
 
                         // Validação de senha
                         if (!senhaReg.equals(senhaConfim)) {
-                            Toast.makeText(view.getContext(), "As senhas não coincidem", Toast.LENGTH_SHORT).show();
-                            return;
+                            Toast.makeText(context, "As senhas não coincidem", Toast.LENGTH_SHORT).show();
+                            return false;
                         }
 
                         // Validação de documento
-                        switch (tipoDocumento)
-                        {
+                        switch (tipoDocumento) {
                             case "CPF":
-                                if (!validator.validarCPF(CPF_CNPJreg))
-                                {
-                                    Toast.makeText(view.getContext(), "CPF inválido", Toast.LENGTH_SHORT).show();
-                                    return;
+                                if (!validator.validarCPF(CPF_CNPJreg)) {
+                                    Toast.makeText(context, "CPF inválido", Toast.LENGTH_SHORT).show();
+                                    return false;
                                 }
                                 break;
 
                             case "CNPJ":
-                                if (!validator.validarCNPJ(CPF_CNPJreg))
-                                {
-                                    Toast.makeText(view.getContext(), "CNPJ inválido", Toast.LENGTH_SHORT).show();
-                                    return;
+                                if (!validator.validarCNPJ(CPF_CNPJreg)) {
+                                    Toast.makeText(context, "CNPJ inválido", Toast.LENGTH_SHORT).show();
+                                    return false;
                                 }
                                 break;
 
                             default:
-                                Toast.makeText(view.getContext(), "Documento inválido", Toast.LENGTH_SHORT).show();
-                                return;
+                                Toast.makeText(context, "Documento inválido", Toast.LENGTH_SHORT).show();
+                                return false;
                         }
 
-                        // Se todas as validações passarem, continua com o processo de registro
-                        // ...
+                        // Validação da data de nascimento
+                        try {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                            Date dataNascimento = dateFormat.parse(nascimento);
+                            // Aqui você pode usar 'dataNascimento' se necessário
+                        } catch (ParseException e) {
+                            Toast.makeText(context, "Formato de data inválido", Toast.LENGTH_SHORT).show();
+                            return false;
+                        }
 
-                    } catch (ParseException e)
-                    {
-                        throw new RuntimeException("Erro ao processar dados", e);
+                    } catch (Exception e) {
+                        Toast.makeText(context, "Erro ao processar dados", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                        return false;
                     }
 
+                    return true; // Se passou por todas as validações
                 }
+
 
                 class ValidarClass
                 {
@@ -244,6 +256,8 @@ public class EntradaActivity extends AppCompatActivity
                         return CFP_CNPJreg.endsWith(digito1 + "" + digito2);
                     }
 
+
+
                     public boolean MaiorIdade( Boolean mais18) throws ParseException
                     {
                         String nascimento = txtNascimento.getText().toString().trim();
@@ -267,6 +281,11 @@ public class EntradaActivity extends AppCompatActivity
                 private void inserir()
                 {
                     //Quando tiver um processo eu passo
+
+                }
+
+                class DatePickerUtil {
+
 
                 }
 
