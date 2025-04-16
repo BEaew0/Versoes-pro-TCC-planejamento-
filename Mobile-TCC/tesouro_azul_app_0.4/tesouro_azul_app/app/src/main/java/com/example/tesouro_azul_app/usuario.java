@@ -1,72 +1,25 @@
 package com.example.tesouro_azul_app;
 
-public class usuario {
-    private String CPF_CNPJreg;
-    private String senhaReg;
-    private String senhaConfirm;
-    private String nascimento;
-    private String nomeReg;
-    private String email;
+import java.util.Date;
 
-    //Método construtor
-    public usuario(
-                   String CPF_CNPJreg, String senhaReg,
-                   String senhaConfirm, String nascimento,
-                   String nomeReg, String email) {
+public class Usuario {
+    public String NOME_USUARIO;
+    public String EMAIL_USUARIO;
+    public Date DATA_NASC_USUARIO;
+    public String CPF_USUARIO;
+    public String CNPJ_USUARIO;
+    public int ID_ASSINATURA_FK;
+    public byte FOTO_USUARIO;
+    public String SENHA_USUARIO;
 
-        this.CPF_CNPJreg = CPF_CNPJreg;
-        this.senhaReg = senhaReg;
-        this.senhaConfirm = senhaConfirm;
-        this.nascimento = nascimento;
-        this.nomeReg = nomeReg;
-        this.email = email;
-    }
-
-    public String getCPF_CNPJreg() {
-        return CPF_CNPJreg;
-    }
-
-    public void setCPF_CNPJreg(String CPF_CNPJreg) {
-        this.CPF_CNPJreg = CPF_CNPJreg;
-    }
-
-    public String getSenhaReg() {
-        return senhaReg;
-    }
-
-    public void setSenhaReg(String senhaReg) {
-        this.senhaReg = senhaReg;
-    }
-
-    public String getSenhaConfirm() {
-        return senhaConfirm;
-    }
-
-    public void setSenhaConfirm(String senhaConfirm) {
-        this.senhaConfirm = senhaConfirm;
-    }
-
-    public String getNascimento() {
-        return nascimento;
-    }
-
-    public void setNascimento(String nascimento) {
-        this.nascimento = nascimento;
-    }
-
-    public String getNomeReg() {
-        return nomeReg;
-    }
-
-    public void setNomeReg(String nomeReg) {
-        this.nomeReg = nomeReg;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public Usuario(String NOME_USUARIO, String EMAIL_USUARIO, Date DATA_NASC_USUARIO, String CPF_USUARIO, String CNPJ_USUARIO, String SENHA_USUARIO) {
+        this.NOME_USUARIO = NOME_USUARIO;
+        this.EMAIL_USUARIO = EMAIL_USUARIO;
+        this.DATA_NASC_USUARIO = DATA_NASC_USUARIO;
+        this.CPF_USUARIO = CPF_USUARIO;
+        this.CNPJ_USUARIO = CNPJ_USUARIO;
+        this.ID_ASSINATURA_FK = ID_ASSINATURA_FK;
+        this.FOTO_USUARIO = FOTO_USUARIO;
+        this.SENHA_USUARIO = SENHA_USUARIO;
     }
 }

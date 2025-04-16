@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import com.google.gson.Gson;
 import android.app.DatePickerDialog;
 import android.content.Context;
 
@@ -107,12 +108,74 @@ public class EntradaActivity extends AppCompatActivity
                    if (validarCadastro(view,getApplicationContext()))
                    {
 
-                      Toast.makeText(EntradaActivity.this,"Validação bem sucedida",Toast.LENGTH_SHORT).show();
+                      sendToJSON();
 
-                        //processo de validação concluido
+                       Toast.makeText(EntradaActivity.this,"Validação bem sucedida",Toast.LENGTH_SHORT).show();
+
+                       //processo de validação concluido
                        Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
                        startActivity(intent);
                    }
+
+                }
+
+                public void sendToJSON()
+                {
+
+                    String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
+
+
+                    ValidarClass validator = new ValidarClass();
+
+                    if (validarCadastro(v,EntradaActivity.this))
+                    {
+                        // Identifica o tipo de documento
+                        String tipoDocumento = validator.identificarTipo(CPF_CNPJreg);
+
+                        String CPF_USUARIO = null;
+                        String CNPJ_USUARIO = null;
+
+                        if (tipoDocumento == "CPF")
+                        {
+                            CPF_USUARIO = txtCPF_CNPJ_Reg.getText().toString().trim();
+                        }
+                        else if (tipoDocumento == "CNPJ")
+                        {
+                            CNPJ_USUARIO = txtCPF_CNPJ_Reg.getText().toString().trim();
+                        }
+                        else
+                        {
+                            //deu erroKKKK
+                        }
+
+                        String EMAIL_USUARIO = txtEmail.getText().toString().trim();
+                        String SENHA_USARIO = txtSenhaReg.getText().toString().trim();
+
+                        String NOME_USUARIO = txtNomeReg.getText().toString().trim();
+
+                        String birthUser = txtNascimento.getText().toString().trim();
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                        Date DATA_NASC_USUARIO = null;
+
+                        try
+                        {
+                            DATA_NASC_USUARIO = sdf.parse(birthUser);
+
+                        } catch (ParseException e)
+                        {
+                            e.printStackTrace();
+                        }
+
+                        Usuario usuario = new Usuario(NOME_USUARIO,EMAIL_USUARIO,DATA_NASC_USUARIO,CPF_USUARIO,CNPJ_USUARIO,SENHA_USARIO);
+
+                        //Conversão para JSON
+                        Gson gson = new Gson();
+                        String json = gson.toJson(usuario);
+
+                        Toast.makeText(EntradaActivity.this,json,Toast.LENGTH_SHORT).show();
+
+                    }
 
                 }
 
@@ -124,6 +187,7 @@ public class EntradaActivity extends AppCompatActivity
                     String nomeReg = txtNomeReg.getText().toString().trim();
                     String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
                     String nascimento = txtNascimento.getText().toString().trim();
+
 
                     // Verifica se todos os campos foram preenchidos
                     if (email.isEmpty() || senhaReg.isEmpty() || senhaConfim.isEmpty() ||
@@ -276,18 +340,6 @@ public class EntradaActivity extends AppCompatActivity
                     }
                 }
 
-
-
-                private void inserir()
-                {
-                    //Quando tiver um processo eu passo
-
-                }
-
-                class DatePickerUtil {
-
-
-                }
 
             });
 
