@@ -72,6 +72,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="controllers\Hover.cs" />
+    <Compile Include="deleteaccount.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="deleteaccount.Designer.cs">
+      <DependentUpon>deleteaccount.cs</DependentUpon>
+    </Compile>
     <Compile Include="exitentry.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -118,6 +124,9 @@
     </Compile>
     <EmbeddedResource Include="cadastro.resx">
       <DependentUpon>cadastro.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="deleteaccount.resx">
+      <DependentUpon>deleteaccount.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="exitentry.resx">
       <DependentUpon>exitentry.cs</DependentUpon>
