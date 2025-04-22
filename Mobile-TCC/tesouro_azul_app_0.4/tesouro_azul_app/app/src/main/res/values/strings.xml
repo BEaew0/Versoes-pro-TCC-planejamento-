@@ -29,6 +29,8 @@
 
     <string name="modo">Tema</string>
     <string name="descricao_user_icon">Icone de usuario</string>
+    <string name="Leave">Leave</string>
+    <string name="Tema">Tema</string>
 
 
 </resources>

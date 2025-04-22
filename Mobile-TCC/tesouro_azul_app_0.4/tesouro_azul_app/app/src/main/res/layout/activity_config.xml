@@ -16,7 +16,8 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/baseline_leave_24"
-            android:padding="1dp"/>
+            android:padding="1dp"
+            android:contentDescription="@string/Leave" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -38,6 +39,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.imageview.ShapeableImageView
+
 
                     android:scaleType="centerCrop"
                     android:layout_margin="16dp"
@@ -92,7 +94,8 @@
                                 android:layout_height="40dp"
                                 android:src="@drawable/ligth_mode_icon"
                                 android:background="@drawable/round_back_white"
-                                android:padding="6dp"/>
+                                android:padding="6dp"
+                                android:contentDescription="@string/Tema" />
 
                             <TextView
 
@@ -106,15 +109,15 @@
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
 
-                            <Switch
-                                android:id="@+id/swicthTheme"
+                            <com.google.android.material.switchmaterial.SwitchMaterial
+                                android:id="@+id/switchTheme"
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerVertical="true"
                                 android:switchMinWidth="50dp"
                                 android:theme="@style/nigthModeSwicth"
-                                tools:ignore="UseSwitchCompatOrMaterialXml" />
+                                 />
                         </RelativeLayout>
 
                         <!--mudar senha -->

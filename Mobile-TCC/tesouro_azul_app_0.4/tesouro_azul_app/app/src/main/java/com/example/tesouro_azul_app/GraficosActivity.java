@@ -236,19 +236,16 @@ public class GraficosActivity extends AppCompatActivity {
         switch (typeGraph.toLowerCase()) {
             case "barra":
                 barChart.setVisibility(View.VISIBLE);
-               // configurarBarChart(barChart);
                 exibirBarra(barChart);
                 break;
 
             case "linha":
                 lineChart.setVisibility(View.VISIBLE);
-               // configurarLineChart(lineChart);
                 exibirLinha(lineChart);
                 break;
 
             case "pizza":
                 pieChart.setVisibility(View.VISIBLE);
-               // configurarPieChart(pieChart);
                 exibirPizza(pieChart);
                 break;
 

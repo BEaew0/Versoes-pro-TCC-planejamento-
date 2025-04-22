@@ -3,6 +3,7 @@ package com.example.tesouro_azul_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -47,8 +48,12 @@ public class MainActivity extends AppCompatActivity {
         configCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ConfigActivity.class);
-                startActivity(intent);
+                try {
+                    Intent intent = new Intent(MainActivity.this, ConfigActivity.class);
+                    startActivity(intent);
+                    }catch (Exception e){
+                    Toast.makeText(MainActivity.this, "erro ao ir para config", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

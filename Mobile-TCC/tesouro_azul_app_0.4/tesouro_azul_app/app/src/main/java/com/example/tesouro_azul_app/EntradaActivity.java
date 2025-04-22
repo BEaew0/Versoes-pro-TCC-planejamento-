@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import android.app.DatePickerDialog;
 import android.content.Context;
 
@@ -22,6 +24,12 @@ import android.widget.Button;
 
 import android.widget.TextView;
 import android.widget.Toast;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class EntradaActivity extends AppCompatActivity
 {
@@ -43,17 +51,13 @@ public class EntradaActivity extends AppCompatActivity
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     Date dataAtual = new Date();
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         try {
 
-
             super.onCreate(savedInstanceState);
             setContentView(R.layout.entrada);
-
 
             txtCPF_CNPJ = (EditText) findViewById(R.id.txtCPF_CNPJ);
             txtSenha = (EditText) findViewById(R.id.txtSenha);
@@ -61,8 +65,6 @@ public class EntradaActivity extends AppCompatActivity
 
             String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
             String senha = txtSenha.getText().toString().trim();
-
-
 
             txtRegistrar = (TextView) findViewById(R.id.txtRegistrar);
 
@@ -97,7 +99,6 @@ public class EntradaActivity extends AppCompatActivity
                 }
             });
 
-
             btnRegister.setOnClickListener(new View.OnClickListener()
             {
                 @Override
@@ -124,7 +125,6 @@ public class EntradaActivity extends AppCompatActivity
 
                     String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
 
-
                     ValidarClass validator = new ValidarClass();
 
                     if (validarCadastro(v,EntradaActivity.this))
@@ -135,21 +135,23 @@ public class EntradaActivity extends AppCompatActivity
                         String CPF_USUARIO = null;
                         String CNPJ_USUARIO = null;
 
-                        if (tipoDocumento == "CPF")
+                        if ("CPF".equals(tipoDocumento))
                         {
                             CPF_USUARIO = txtCPF_CNPJ_Reg.getText().toString().trim();
                         }
-                        else if (tipoDocumento == "CNPJ")
+                        else if ("CNPJ".equals(tipoDocumento))
                         {
                             CNPJ_USUARIO = txtCPF_CNPJ_Reg.getText().toString().trim();
                         }
                         else
                         {
-                            //deu erroKKKK
+                            Toast.makeText(EntradaActivity.this, "Documento inválido!", Toast.LENGTH_SHORT).show();
+                            return; // Interrompe a execução se o documento for inválido
+
                         }
 
                         String EMAIL_USUARIO = txtEmail.getText().toString().trim();
-                        String SENHA_USARIO = txtSenhaReg.getText().toString().trim();
+                        String SENHA_USUARIO = txtSenhaReg.getText().toString().trim();
 
                         String NOME_USUARIO = txtNomeReg.getText().toString().trim();
 
@@ -167,13 +169,41 @@ public class EntradaActivity extends AppCompatActivity
                             e.printStackTrace();
                         }
 
-                        Usuario usuario = new Usuario(NOME_USUARIO,EMAIL_USUARIO,DATA_NASC_USUARIO,CPF_USUARIO,CNPJ_USUARIO,SENHA_USARIO);
+                        Usuario usuario = new Usuario(NOME_USUARIO,EMAIL_USUARIO,DATA_NASC_USUARIO,CPF_USUARIO,CNPJ_USUARIO,SENHA_USUARIO);
 
                         //Conversão para JSON
                         Gson gson = new Gson();
                         String json = gson.toJson(usuario);
 
                         Toast.makeText(EntradaActivity.this,json,Toast.LENGTH_SHORT).show();
+
+                        Retrofit retrofit = new Retrofit.Builder()
+                                .baseUrl("https://suaapi.com.br/") // coloque a URL base da sua API
+                                .addConverterFactory(GsonConverterFactory.create(gson))
+                                .build();
+
+                        // Crie uma instância da interface da API
+                        ApiService apiService = retrofit.create(ApiService.class);
+
+
+                        Call<Void> call = apiService.enviarUsuario(usuario);
+
+                        call.enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(Call<Void> call, Response<Void> response) {
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(EntradaActivity.this, "Usuário enviado com sucesso!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(EntradaActivity.this, "Erro ao enviar: " + response.code(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Void> call, Throwable t) {
+                                Toast.makeText(EntradaActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
 
                     }
 
@@ -188,10 +218,10 @@ public class EntradaActivity extends AppCompatActivity
                     String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
                     String nascimento = txtNascimento.getText().toString().trim();
 
-
                     // Verifica se todos os campos foram preenchidos
                     if (email.isEmpty() || senhaReg.isEmpty() || senhaConfim.isEmpty() ||
-                            nomeReg.isEmpty() || CPF_CNPJreg.isEmpty() || nascimento.isEmpty()) {
+                            nomeReg.isEmpty() || CPF_CNPJreg.isEmpty() || nascimento.isEmpty())
+                    {
                         Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -240,13 +270,15 @@ public class EntradaActivity extends AppCompatActivity
                         try {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                             Date dataNascimento = dateFormat.parse(nascimento);
-                            // Aqui você pode usar 'dataNascimento' se necessário
+
                         } catch (ParseException e) {
                             Toast.makeText(context, "Formato de data inválido", Toast.LENGTH_SHORT).show();
                             return false;
                         }
 
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
+                        //Se algo deu errado
                         Toast.makeText(context, "Erro ao processar dados", Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                         return false;
@@ -340,14 +372,9 @@ public class EntradaActivity extends AppCompatActivity
                     }
                 }
 
-
             });
 
-
         });
-
-
-
 
     }
 
