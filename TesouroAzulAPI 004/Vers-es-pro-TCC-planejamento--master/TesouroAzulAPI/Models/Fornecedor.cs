@@ -19,7 +19,7 @@ namespace TesouroAzulAPI.Models
         public string EMAIL_FORNECEDOR { get; set; }
 
         [StringLength(9)] // Olhar para depois para ser unico
-        public string TELEFONE_FORNECEDOR { get; set; }
+        public string TEL_FORNECEDOR { get; set; }
 
         [Required, StringLength(15)]
         public string CEL_FORNECEDOR { get; set; }

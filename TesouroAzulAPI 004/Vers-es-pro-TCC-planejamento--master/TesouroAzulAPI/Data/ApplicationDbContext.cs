@@ -17,6 +17,7 @@ namespace TesouroAzulAPI.Data
         {
             base.OnModelCreating(modelBuilder);
             // Aqui pode realizar configurações adicionais, como definir chaves primárias compostas, etc.
+            // Somente em casos de criar o DB atravez da propia API
         }
     }
 }

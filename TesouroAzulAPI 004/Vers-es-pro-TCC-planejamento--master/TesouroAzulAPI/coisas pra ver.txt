@@ -26,3 +26,15 @@ Modelo JSON de teste :
   "senhA_USUARIO": "12345678",
   "statuS_USUARIO": "a"
 }
+
+Modelo para o controller de Fornecedor
+
+{
+  "iD_FORNECEDOR": 0,
+  "nomE_FORNECEDOR": "Calcinha Preta",
+  "cnpJ_FORNECEDOR": "00000000000000000000",
+  "emaiL_FORNECEDOR": "Carlos@gmail.com",
+  "teL_FORNECEDOR": "012345678",
+  "ceL_FORNECEDOR": "012345678901234",
+  "enderecO_FORNECEDOR": "Sua Mãe Sabe"
+}	
