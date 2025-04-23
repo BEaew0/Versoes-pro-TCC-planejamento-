@@ -4,7 +4,6 @@ import java.util.Date;
 
 public class Usuario {
 
-
         public String NOME_USUARIO;
         public String EMAIL_USUARIO;
         public Date DATA_NASC_USUARIO;
@@ -25,36 +24,36 @@ public class Usuario {
             this.SENHA_USUARIO = SENHA_USUARIO;
         }
 
-    public String getNOME_USUARIO() {
-        return NOME_USUARIO;
-    }
+        public String getNOME_USUARIO() {
+            return NOME_USUARIO;
+        }
 
-    public String getEMAIL_USUARIO() {
-        return EMAIL_USUARIO;
-    }
+        public String getEMAIL_USUARIO() {
+            return EMAIL_USUARIO;
+        }
 
-    public Date getDATA_NASC_USUARIO() {
-        return DATA_NASC_USUARIO;
-    }
+        public Date getDATA_NASC_USUARIO() {
+            return DATA_NASC_USUARIO;
+        }
 
-    public String getCPF_USUARIO() {
-        return CPF_USUARIO;
-    }
+        public String getCPF_USUARIO() {
+            return CPF_USUARIO;
+        }
 
-    public String getCNPJ_USUARIO() {
-        return CNPJ_USUARIO;
-    }
+        public String getCNPJ_USUARIO() {
+            return CNPJ_USUARIO;
+        }
 
-    public int getID_ASSINATURA_FK() {
-        return ID_ASSINATURA_FK;
-    }
+        public int getID_ASSINATURA_FK() {
+            return ID_ASSINATURA_FK;
+        }
 
-    public byte getFOTO_USUARIO() {
-        return FOTO_USUARIO;
-    }
+        public byte getFOTO_USUARIO() {
+            return FOTO_USUARIO;
+        }
 
-    public String getSENHA_USUARIO() {
-        return SENHA_USUARIO;
+        public String getSENHA_USUARIO() {
+            return SENHA_USUARIO;
+        }
     }
-}
 

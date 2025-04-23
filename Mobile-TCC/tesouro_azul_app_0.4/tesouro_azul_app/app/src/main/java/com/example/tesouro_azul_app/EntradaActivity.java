@@ -6,12 +6,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
 
+import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
@@ -24,6 +27,7 @@ import android.widget.Button;
 
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,6 +52,8 @@ public class EntradaActivity extends AppCompatActivity
 
     TextView txtRegistrar;
 
+    private ApiService apiService;
+
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     Date dataAtual = new Date();
 
@@ -58,6 +64,14 @@ public class EntradaActivity extends AppCompatActivity
 
             super.onCreate(savedInstanceState);
             setContentView(R.layout.entrada);
+
+            // Configura Retrofit
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("https://seuservidor.com/") // <- Coloque a URL base da sua API aqui
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            apiService = retrofit.create(ApiService.class);
 
             txtCPF_CNPJ = (EditText) findViewById(R.id.txtCPF_CNPJ);
             txtSenha = (EditText) findViewById(R.id.txtSenha);
@@ -71,6 +85,7 @@ public class EntradaActivity extends AppCompatActivity
             btnEnter.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
                     //Após periodo de testes ajeitar essa parte
                     Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
                     startActivity(intent);
@@ -370,11 +385,49 @@ public class EntradaActivity extends AppCompatActivity
 
                         return Idade < 18;
                     }
+
                 }
 
+
+            });
+        });
+
+        class ApiOperation{
+        //Arrumar amanhã
+        private void buscarUsuarios() {
+        Call<List<Usuario>> call = ApiService.getUsuario();
+
+        call.enqueue(new Callback<List<Usuario>>() {
+            @Override
+            public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
+                if (response.isSuccessful()) {
+                    List<Usuario> usuarios = response.body();
+                    StringBuilder resultado = new StringBuilder();
+
+                    for (Usuario u : usuarios) {
+                        resultado.append("CNPJ: ").append(u.getCNPJ_USUARIO())
+                                .append("\nSenha: ").append(u.getSENHA_USUARIO())
+                                .append("\n\n");
+                    }
+                    String resultadoToast = resultado.toString();
+
+                    Toast.makeText(EntradaActivity.this, resultadoToast, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(EntradaActivity.this, "Erro ao executar", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<Usuario>> call, Throwable t) {
+                Toast.makeText(EntradaActivity.this, "falha na conexão", Toast.LENGTH_SHORT).show();
+                Log.e("API", "Erro: ", t);
+            }
             });
 
-        });
+        }
+    }
+
 
     }
 

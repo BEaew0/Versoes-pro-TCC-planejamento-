@@ -122,8 +122,7 @@ public class ConfigActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(
                         ConfigActivity.this,
                         new String[]{Manifest.permission.READ_MEDIA_IMAGES},
-                        REQUEST_CODE_GALLERY
-                );
+                        REQUEST_CODE_GALLERY);
             }
         });
 
@@ -214,11 +213,12 @@ public class ConfigActivity extends AppCompatActivity {
             galleryLauncher.unregister(); // Libera o registro do launcher
         }
     }
+    private static final int PICK_IMAGE = 1;
+
     private void openGallery()
     {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.setType("image/*");
-        galleryLauncher.launch(intent);
+        startActivityForResult(intent, PICK_IMAGE);
     }
 
     @Override
@@ -228,15 +228,11 @@ public class ConfigActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_CODE_GALLERY)// Verifica se é a permissão da galeria
         {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
+
+
                 // Permissão concedida → Abre a galeria
                 openGallery();
-            }
-            else
-            {
-                // Permissão negada → Mostra mensagem ou desabilita funcionalidade
-                Toast.makeText(this, "Permissão negada. Não é possível alterar a imagem.", Toast.LENGTH_SHORT).show();
+
 
                 // Mostrar explicação se o usuário negou permanentemente
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_IMAGES))
@@ -260,4 +256,6 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
 
-}
+
+
+
