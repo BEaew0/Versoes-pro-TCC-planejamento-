@@ -2,7 +2,7 @@
 
 namespace TesouroAzulAPI.Controllers
 {
-    public class ProdutoController : Controller
+    public class ProdutoController : ControllerBase
     {
         public IActionResult Index()
         {
