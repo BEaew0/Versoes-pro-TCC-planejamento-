@@ -107,10 +107,11 @@
             // 
             // pictureBox3
             // 
+            this.pictureBox3.BackColor = System.Drawing.Color.Gray;
             this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(23, 13);
+            this.pictureBox3.Location = new System.Drawing.Point(14, 22);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(177, 117);
+            this.pictureBox3.Size = new System.Drawing.Size(52, 54);
             this.pictureBox3.TabIndex = 4;
             this.pictureBox3.TabStop = false;
             this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
@@ -153,7 +154,7 @@
             this.dropdownContainer.Controls.Add(this.button2);
             this.dropdownContainer.Controls.Add(this.panel3);
             this.dropdownContainer.Controls.Add(this.button4);
-            this.dropdownContainer.Location = new System.Drawing.Point(774, 74);
+            this.dropdownContainer.Location = new System.Drawing.Point(718, 84);
             this.dropdownContainer.MaximumSize = new System.Drawing.Size(200, 300);
             this.dropdownContainer.MinimumSize = new System.Drawing.Size(200, 50);
             this.dropdownContainer.Name = "dropdownContainer";
@@ -331,9 +332,9 @@
             this.panel8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
             this.panel8.Controls.Add(this.pictureBox3);
             this.panel8.ForeColor = System.Drawing.SystemColors.Control;
-            this.panel8.Location = new System.Drawing.Point(524, 205);
+            this.panel8.Location = new System.Drawing.Point(616, 241);
             this.panel8.Name = "panel8";
-            this.panel8.Size = new System.Drawing.Size(230, 145);
+            this.panel8.Size = new System.Drawing.Size(78, 97);
             this.panel8.TabIndex = 29;
             this.panel8.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel8_MouseClick);
             this.panel8.MouseEnter += new System.EventHandler(this.panel8_MouseEnter);
@@ -344,7 +345,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(159)))));
-            this.ClientSize = new System.Drawing.Size(998, 436);
+            this.ClientSize = new System.Drawing.Size(937, 436);
             this.Controls.Add(this.panel8);
             this.Controls.Add(this.panel7);
             this.Controls.Add(this.panel6);
