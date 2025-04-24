@@ -39,3 +39,4 @@ Modelo para o controller de Fornecedor
   "ceL_FORNECEDOR": "012345678901234",
   "enderecO_FORNECEDOR": "Sua Mãe Sabe"
 }	
+
