@@ -2,11 +2,10 @@
 
 namespace TesouroAzulAPI.Controllers
 {
+    [Route("api/Produtos"), ApiController]
     public class ProdutoController : ControllerBase
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+
+                
     }
 }
