@@ -22,7 +22,7 @@ namespace comboboxdrop
         private void timer1_Tick(object sender, EventArgs e) // o timer serve para ativar a animação de retração/expanção
         {
 
-            if (expandir)
+            if (expandir) // sexo
             {
                 // Expandir o painel
                 dropdownContainer.Height += 15;  // Ajuste mais suave
