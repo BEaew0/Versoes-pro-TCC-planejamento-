@@ -110,10 +110,10 @@
             // pictureBox3
             // 
             this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(17, 30);
+            this.pictureBox3.Location = new System.Drawing.Point(17, 20);
             this.pictureBox3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(58, 69);
+            this.pictureBox3.Size = new System.Drawing.Size(90, 69);
             this.pictureBox3.TabIndex = 4;
             this.pictureBox3.TabStop = false;
             this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
@@ -351,7 +351,7 @@
             this.panel8.Location = new System.Drawing.Point(812, 252);
             this.panel8.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.panel8.Name = "panel8";
-            this.panel8.Size = new System.Drawing.Size(90, 125);
+            this.panel8.Size = new System.Drawing.Size(107, 125);
             this.panel8.TabIndex = 29;
             this.panel8.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel8_MouseClick);
             this.panel8.MouseEnter += new System.EventHandler(this.panel8_MouseEnter);

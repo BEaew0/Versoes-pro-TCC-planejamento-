@@ -316,7 +316,8 @@ namespace comboboxdrop
 
         private void pictureBox3_Click(object sender, EventArgs e)
         {
-
+            deleteaccount delete = new deleteaccount();
+            delete.Show();
         }
     }
 }

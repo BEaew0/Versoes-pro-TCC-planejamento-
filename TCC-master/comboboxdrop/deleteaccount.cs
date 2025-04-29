@@ -16,5 +16,7 @@ namespace comboboxdrop
         {
             InitializeComponent();
         }
+        bool expandir = false;
+        bool retrair = false;
     }
 }
