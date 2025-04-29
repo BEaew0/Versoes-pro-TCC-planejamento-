@@ -130,7 +130,7 @@
             this.dropdownContainer.MaximumSize = new System.Drawing.Size(267, 369);
             this.dropdownContainer.MinimumSize = new System.Drawing.Size(267, 62);
             this.dropdownContainer.Name = "dropdownContainer";
-            this.dropdownContainer.Size = new System.Drawing.Size(267, 325);
+            this.dropdownContainer.Size = new System.Drawing.Size(267, 62);
             this.dropdownContainer.TabIndex = 7;
             // 
             // button1
@@ -149,6 +149,7 @@
             this.button1.TabIndex = 1;
             this.button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
@@ -218,10 +219,12 @@
             this.button4.Size = new System.Drawing.Size(49, 44);
             this.button4.TabIndex = 3;
             this.button4.UseVisualStyleBackColor = false;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // timer1
             // 
             this.timer1.Interval = 1;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // deleteaccount
             // 
