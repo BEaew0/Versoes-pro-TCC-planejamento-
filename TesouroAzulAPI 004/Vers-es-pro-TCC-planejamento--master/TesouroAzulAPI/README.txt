@@ -1,0 +1,1 @@
+﻿Versão compativel com o banco somente com a 001
