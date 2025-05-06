@@ -17,14 +17,14 @@ coisas para ver :
 Modelo JSON de teste :
 
 {
-  "nomE_USUARIO": "Miguel",
-  "emaiL_USUARIO": "Miguel@gmail.com",
-  "datA_NASC_USUARIO": "2025-04-14T12:30:18.659Z",
-  "cpF_USUARIO": "00011122201",
+  "nomE_USUARIO": "Miguel Fonsêca Souza",
+  "emaiL_USUARIO": "MeuEmail@gmail.com",
+  "datA_NASC_USUARIO": "2025-05-06T19:32:34.717Z",
+  "cpF_USUARIO": "00011122233",
   "cnpJ_USUARIO": "",
-  "iD_ASSINATURA_FK": 0,
+  "iD_ASSINATURA_FK": 2,
   "fotO_USUARIO": "",
-  "senhA_USUARIO": "12345678",
+  "senhA_USUARIO": "01234567",
   "statuS_USUARIO": "a"
 }
 

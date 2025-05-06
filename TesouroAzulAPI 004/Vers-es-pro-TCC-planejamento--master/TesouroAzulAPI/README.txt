@@ -1,1 +1,1 @@
-﻿Versão compativel com o banco somente com a 001
+﻿Versão compatavil somente com o banco script_Tesouro_Azul_ver002.sql

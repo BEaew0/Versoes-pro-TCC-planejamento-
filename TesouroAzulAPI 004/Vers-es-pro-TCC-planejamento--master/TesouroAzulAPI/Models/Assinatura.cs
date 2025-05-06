@@ -18,6 +18,9 @@ namespace TesouroAzulAPI.Models
         [Required]
         public int TIPO_ASSINATURA_FK { get; set; } // 1 para normal; 2 para assinante
 
+        [Required]
+        public int DURACAO_SEGUNDOS_ASSINATURA { get; set; } // Duração em segundos
+
         [ForeignKey(nameof(TIPO_ASSINATURA_FK))]
         public Tipo_Assinatura Tipo_Assinatura { get; set; } // FK para Tipo_Assinatura
     }
