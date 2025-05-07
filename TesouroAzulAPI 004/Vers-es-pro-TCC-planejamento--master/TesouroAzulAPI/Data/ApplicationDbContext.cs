@@ -8,7 +8,7 @@ namespace TesouroAzulAPI.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
 
-        public DbSet<Produto> Produtods { get; set; }
+        public DbSet<Produto> Produtodos { get; set; }
 
         public DbSet<Usuario> Usuarios { get; set; }
 

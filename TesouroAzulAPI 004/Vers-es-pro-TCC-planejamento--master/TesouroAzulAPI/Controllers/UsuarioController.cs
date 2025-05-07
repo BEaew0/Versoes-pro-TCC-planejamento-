@@ -80,6 +80,7 @@ namespace TesouroAzulAPI.Controllers
                 // Controller Dinâmico, ou seja, utiliza a classe AtualizarCampoUsuarioDto para qualquer campo e informação que deseja alterar
 
                 // Tratamentos de erro de {id}
+                // Criar uma função privada de mensagem de erro mais tarde aqui para ecomonizar codigo
                 var usuario = await _context.Usuarios.FindAsync(id);
                 if (usuario == null) return NotFound("Usuario não encontrado.");
 
@@ -114,10 +115,6 @@ namespace TesouroAzulAPI.Controllers
                         {
                             return BadRequest("Novo Valor para Data deve ser uma data válida.");
                         }
-                        break;
-                    case "imagem":
-                        // preciso adiciar a logica de uma nova imagem
-                        return Ok();
                         break;
                     case "status":
                         if (dto.NovoValor == "a")
