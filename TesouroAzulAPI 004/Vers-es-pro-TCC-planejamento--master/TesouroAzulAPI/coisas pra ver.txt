@@ -12,7 +12,7 @@ coisas para ver :
 - Preciso melhorar o update do usuario : acresentar novos campos e apresentar ideia de implementação de imagem
 -- Melhorar o tratamento de erro nos dados recebidos
 -- Adicionar logica de criptografia de senha
-
+-- Adicionar campo para alterar assinatura
 
 Modelo JSON de teste :
 

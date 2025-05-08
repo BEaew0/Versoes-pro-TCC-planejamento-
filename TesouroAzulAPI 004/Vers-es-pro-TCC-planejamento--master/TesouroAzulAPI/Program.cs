@@ -1,26 +1,34 @@
 using Microsoft.EntityFrameworkCore;
 using TesouroAzulAPI.Data;
-// colocar o using data aqui !!!
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+// Adiciona o serviço de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
-// Add services to the container.
+builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    new MySqlServerVersion(new Version(8, 0, 36)) // Altere a versão do WampServer conforme o necessario aqui
+    new MySqlServerVersion(new Version(8, 0, 36)) // Ajuste conforme sua versão do MySQL
     ));
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Habilita CORS antes de mapear os endpoints
+app.UseCors();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
