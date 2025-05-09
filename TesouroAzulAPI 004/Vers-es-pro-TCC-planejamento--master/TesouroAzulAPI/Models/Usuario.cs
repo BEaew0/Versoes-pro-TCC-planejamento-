@@ -23,7 +23,7 @@ namespace TesouroAzulAPI.Models
         [Required]
         public DateTime DATA_NASC_USUARIO { get; set; }
 
-        [Required, StringLength(11)]
+        [StringLength(11)]
         public string CPF_USUARIO {  get; set; }
 
         [StringLength(14)]
