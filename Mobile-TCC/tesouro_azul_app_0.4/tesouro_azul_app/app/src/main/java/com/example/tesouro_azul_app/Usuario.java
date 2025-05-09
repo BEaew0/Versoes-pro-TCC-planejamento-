@@ -8,11 +8,12 @@ public class Usuario {
     public Date DATA_NASC_USUARIO;
     public String CPF_USUARIO;
     public String CNPJ_USUARIO;
-    public int ID_ASSINATURA_FK;
+    public String STATUS_USUARIO = "a"; // "a" para conta ativa , "d" para desativado
+    public int ID_ASSINATURA_FK = 1; // 1 para assinatura normal , 2 para pagante
     public byte FOTO_USUARIO;
     public String SENHA_USUARIO;
 
-    public Usuario(String NOME_USUARIO, String EMAIL_USUARIO, Date DATA_NASC_USUARIO, String CPF_USUARIO, String CNPJ_USUARIO, String SENHA_USUARIO) {
+    public Usuario(String NOME_USUARIO, String EMAIL_USUARIO, Date DATA_NASC_USUARIO, String CPF_USUARIO, String CNPJ_USUARIO, String SENHA_USUARIO,String STATUS_USUARIO) {
         this.NOME_USUARIO = NOME_USUARIO;
         this.EMAIL_USUARIO = EMAIL_USUARIO;
         this.DATA_NASC_USUARIO = DATA_NASC_USUARIO;
@@ -21,6 +22,7 @@ public class Usuario {
         this.ID_ASSINATURA_FK = ID_ASSINATURA_FK;
         this.FOTO_USUARIO = FOTO_USUARIO;
         this.SENHA_USUARIO = SENHA_USUARIO;
+        this.STATUS_USUARIO = STATUS_USUARIO;
     }
 
     public String getNOME_USUARIO() {

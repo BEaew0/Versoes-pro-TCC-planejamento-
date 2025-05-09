@@ -8,8 +8,7 @@ import retrofit2.http.POST;
 import retrofit2.http.GET;
 
 public interface ApiService {
-    @POST("/api/usuario/CriarUsuario") // <-- coloque o endpoint da sua API aqui
-        // <-- coloque o endpoint da sua API aqui
+    @POST("https://localhost:7221/api/Usuarios") // <-- coloque o endpoint da sua API aqui
         // Significa que a resposta da API não tem corpo (só código HTTP). Se sua API retorna algo (como um JSON com status ou mensagem)
         // você pode trocar Void por uma classe de resposta.
     Call<Void> enviarUsuario(@Body Usuario usuario);
