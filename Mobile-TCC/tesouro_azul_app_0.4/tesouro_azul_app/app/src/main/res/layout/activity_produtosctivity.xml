@@ -30,11 +30,18 @@
         app:layout_constraintStart_toEndOf="@+id/btnVenderProd"
         app:layout_constraintTop_toBottomOf="@+id/txtQuant" />
 
-    <ImageView
-        android:id="@+id/Leave"
-        android:layout_width="61dp"
-        android:layout_height="60dp"
-        android:src="@drawable/baseline_leave_24"
+    <EditText
+        android:id="@+id/txtCodProd"
+        android:layout_width="365dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/edittext_background"
+        android:hint="Codigo do produto"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textColor="@android:color/black"
+        android:textColorHint="@color/cinza"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -42,16 +49,16 @@
         android:id="@+id/txtNomeProd"
         android:layout_width="365dp"
         android:layout_height="56dp"
-        android:layout_marginStart="6dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/edittext_background"
         android:hint="Produto"
-        android:textColorHint="@color/cinza"
         android:inputType="text"
         android:padding="12dp"
         android:textColor="@android:color/black"
+        android:textColorHint="@color/cinza"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Leave" />
+        app:layout_constraintTop_toBottomOf="@+id/txtCodProd" />
 
     <EditText
         android:id="@+id/txtValorProd"
