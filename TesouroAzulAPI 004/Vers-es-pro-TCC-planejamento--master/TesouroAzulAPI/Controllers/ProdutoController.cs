@@ -68,14 +68,17 @@ namespace TesouroAzulAPI.Controllers
             return Ok(produto);
         }
 
-        /*
+        
         //Buscar Produto {campo}
         [HttpGet("Buscar-por-campo")]
         public async Task<ActionResult<IEnumerable<Produto>>> BurcarPorCampo(string campo, string novoValor)
         {
+            
 
+            // temporario para não dar erro
+            return default;
         }
-        */
+
         //PATCHs
         //Alterar Produto {campo}
 
@@ -83,6 +86,11 @@ namespace TesouroAzulAPI.Controllers
 
         //DELETs
         //Deletar Produto {id}
-
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletarProduto(int id)
+        {
+            var id_produto = await _context.AddAsync(id);
+            return Ok();
+        }
     }
 }
