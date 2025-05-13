@@ -89,8 +89,12 @@ namespace TesouroAzulAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletarProduto(int id)
         {
-            var id_produto = await _context.AddAsync(id);
-            return Ok();
+            var id_produto = await _context.Produtodos.FindAsync(id);
+            if (id_produto == null) return NotFound("Produto não encontrado");
+
+            _context.Produtodos.Remove(id_produto);
+            await _context.SaveChangesAsync();
+            return Ok( new { mensagem = "Produto Removido com sucesso"});
         }
     }
 }
