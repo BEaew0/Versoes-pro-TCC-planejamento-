@@ -21,7 +21,7 @@ namespace TesouroAzulAPI.Controllers
 
         //POSTs
         //Cadastrar Produto
-        /*
+        
         [HttpPost]
         public async Task<IActionResult> CadastrarProduto([FromBody] CadastrarProdutoDto produtoDto)
         {
@@ -35,26 +35,26 @@ namespace TesouroAzulAPI.Controllers
                 IMG_PRODUTO = produtoDto.IMG_PRODUTO
             };
 
-            _context.Produtodos.Add(produto);
+            _context.Produtos.Add(produto);
             await _context.SaveChangesAsync();
             return Ok(produto); // Colocar um retorno de mensagem aqui
             
         }
-        */
+        
 
         //GETs
         //Buscar Produtos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutos()
         {
-            return await _context.Produtodos.ToListAsync();
+            return await _context.Produtos.ToListAsync();
         }
 
         // Bucar Produtos {id_usuario}
-        [HttpGet("{id_usuario}")]
+        [HttpGet("{usuario/id_usuario}")]
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutoIdUsuario(int id_usuario)
         {
-            var produto = await _context.Produtodos.FindAsync(id_usuario);
+            var produto = await _context.Produtos.FindAsync(id_usuario);
             if (produto == null) return NotFound("Produto não encontrado");
             return Ok(produto);
         }
@@ -63,7 +63,7 @@ namespace TesouroAzulAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutoId(int id)
         {
-            var produto = await _context.Produtodos.FindAsync(id);
+            var produto = await _context.Produtos.FindAsync(id);
             if (produto == null) return NotFound("Produto não encontrado");
             return Ok(produto);
         }
@@ -76,7 +76,7 @@ namespace TesouroAzulAPI.Controllers
             
 
             // temporario para não dar erro
-            return default;
+            return StatusCode(501, "Não implementado");
         }
 
         //PATCHs
@@ -89,10 +89,10 @@ namespace TesouroAzulAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletarProduto(int id)
         {
-            var id_produto = await _context.Produtodos.FindAsync(id);
+            var id_produto = await _context.Produtos.FindAsync(id);
             if (id_produto == null) return NotFound("Produto não encontrado");
 
-            _context.Produtodos.Remove(id_produto);
+            _context.Produtos.Remove(id_produto);
             await _context.SaveChangesAsync();
             return Ok( new { mensagem = "Produto Removido com sucesso"});
         }
