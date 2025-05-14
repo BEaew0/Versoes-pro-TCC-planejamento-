@@ -54,6 +54,98 @@
             app:layout_constraintTop_toTopOf="parent"
             android:contentDescription="TODO" />
 
+        <LinearLayout
+            android:id="@+id/rowInfo"
+            android:layout_width="0dp"
+            android:layout_height="175dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Logo">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/VendasCard"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="20dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/VendasHjName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/VendasHjInfo"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="Vendas hoje"
+                        android:textColor="@color/blueText"
+                        android:textSize="30sp" />
+
+                    <TextView
+                        android:id="@+id/VendasHjInfo"
+                        android:layout_width="150dp"
+                        android:layout_height="70dp"
+                        android:layout_centerHorizontal="true"
+                        android:text="@string/VendasHj"
+                        android:textColor="@color/blueButton"
+                        android:textDirection="rtl"
+                        android:textSize="50sp" />
+
+
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ValidCard"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="20dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/FaturaName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/FaturaInfo"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="Perto de vencer"
+                        android:textColor="@color/red"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/FaturaInfo"
+                        android:layout_width="150dp"
+                        android:layout_height="70dp"
+                        android:layout_centerHorizontal="true"
+                        android:text="@string/Fatura"
+                        android:textColor="@color/red"
+                        android:textDirection="rtl"
+                        android:textSize="50sp" />
+
+
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
         <TextView
             android:id="@+id/graficoTxt"
             android:layout_width="0dp"
@@ -69,7 +161,7 @@
             android:id="@+id/row1"
             android:layout_width="match_parent"
             android:layout_height="175dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="232dp"
             android:orientation="horizontal"
             android:padding="10dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -249,7 +341,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/VendasCard"
+                android:id="@+id/GraficVendasCard"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"

@@ -66,6 +66,11 @@ public class GraficosActivity extends AppCompatActivity {
                 barChart.setVisibility(View.GONE);
                 lineChart.setVisibility(View.GONE);
                 pieChart.setVisibility(View.GONE);
+
+                barChart.clear();
+                lineChart.clear();
+                pieChart.clear();
+
                 Toast.makeText(getApplicationContext(), "Gráfico de Pizza selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "pizza";
                 exibirGraficoSelecionado(typeGraph,barChart,lineChart,pieChart);
@@ -80,6 +85,11 @@ public class GraficosActivity extends AppCompatActivity {
                 barChart.setVisibility(View.GONE);
                 lineChart.setVisibility(View.GONE);
                 pieChart.setVisibility(View.GONE);
+
+                barChart.clear();
+                lineChart.clear();
+                pieChart.clear();
+
                 Toast.makeText(getApplicationContext(), "Gráfico de Barras selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "barra";
                 exibirGraficoSelecionado(typeGraph,barChart,lineChart,pieChart);
@@ -93,6 +103,11 @@ public class GraficosActivity extends AppCompatActivity {
                 barChart.setVisibility(View.GONE);
                 lineChart.setVisibility(View.GONE);
                 pieChart.setVisibility(View.GONE);
+
+                barChart.clear();
+                lineChart.clear();
+                pieChart.clear();
+
                 Toast.makeText(getApplicationContext(), "Gráfico de Linhas selecionado", Toast.LENGTH_SHORT).show();
                 typeGraph = "linha";
                 exibirGraficoSelecionado(typeGraph,barChart,lineChart,pieChart);

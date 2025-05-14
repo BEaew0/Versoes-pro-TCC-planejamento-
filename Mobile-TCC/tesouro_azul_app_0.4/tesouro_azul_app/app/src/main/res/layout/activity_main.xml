@@ -60,7 +60,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="175dp"
-            android:id="@+id/row1"
+            android:id="@+id/rowInfo"
             android:orientation="horizontal"
             android:layout_marginTop="50dp"
             android:padding="10dp"
@@ -72,7 +72,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:id="@+id/ProdutoCard"
+                android:id="@+id/LucroCard"
                 android:layout_margin="10dp"
                 android:layout_weight="1"
                 app:cardElevation="20dp"
@@ -84,21 +84,23 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/ProdutoName"
-                        android:text="Produtos"
-                        android:textSize="20sp"
+                        android:id="@+id/LucroName"
+                        android:text="Lucro"
+                        android:textSize="30sp"
                         android:textColor="@color/blueText"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:layout_below="@+id/ProdutoImage"/>
+                        android:layout_below="@+id/LucroInfo"/>
 
-                    <ImageView
-                        android:layout_width="70dp"
+                    <TextView
+                        android:layout_width="150dp"
                         android:layout_height="70dp"
-                        android:id="@+id/ProdutoImage"
-                        android:src="@drawable/baseline_produto"
+                        android:id="@+id/LucroInfo"
+                        android:text="@string/Lucro"
                         android:layout_centerHorizontal="true"
-                        android:contentDescription="TODO" />
+                        android:textColor="@color/blueButton"
+                        android:textSize="50sp"
+                        android:textDirection="rtl"/>
 
 
                 </RelativeLayout>
@@ -108,7 +110,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:id="@+id/graficosCard"
+                android:id="@+id/ValidCard"
                 android:layout_margin="10dp"
                 android:layout_weight="1"
                 app:cardElevation="20dp"
@@ -120,29 +122,116 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/graficosName"
-                        android:text="Graficos"
-                        android:textSize="20sp"
-                        android:textColor="@color/blueText"
+                        android:id="@+id/ValidName"
+                        android:text="Perto de vencer"
+                        android:textSize="22sp"
+                        android:textColor="@color/red"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:layout_below="@+id/graficosImage"/>
+                        android:layout_below="@+id/ValidInfo"/>
 
-                    <ImageView
-                        android:layout_width="70dp"
+                    <TextView
+                        android:layout_width="150dp"
                         android:layout_height="70dp"
-                        android:id="@+id/graficosImage"
-                        android:src="@drawable/baseline_charts"
+                        android:id="@+id/ValidInfo"
+                        android:text="@string/Lucro"
                         android:layout_centerHorizontal="true"
-                        android:importantForAccessibility="no" />
+                        android:textColor="@color/red"
+                        android:textSize="50sp"
+                        android:textDirection="rtl"/>
 
 
                 </RelativeLayout>
 
             </androidx.cardview.widget.CardView>
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/row1"
+            android:layout_width="0dp"
+            android:layout_height="175dp"
+            android:layout_marginTop="275dp"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Logo">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ProdutoCard"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="20dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/ProdutoName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/ProdutoImage"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="Produtos"
+                        android:textColor="@color/blueText"
+                        android:textSize="20sp" />
+
+                    <ImageView
+                        android:id="@+id/ProdutoImage"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:layout_centerHorizontal="true"
+                        android:contentDescription="TODO"
+                        android:src="@drawable/baseline_produto" />
 
 
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/graficosCard"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="20dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/graficosName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/graficosImage"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="Graficos"
+                        android:textColor="@color/blueText"
+                        android:textSize="20sp" />
+
+                    <ImageView
+                        android:id="@+id/graficosImage"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:layout_centerHorizontal="true"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/baseline_charts" />
+
+
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
 
 
         </LinearLayout>

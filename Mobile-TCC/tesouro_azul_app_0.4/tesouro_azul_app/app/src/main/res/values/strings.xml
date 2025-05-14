@@ -31,6 +31,9 @@
     <string name="descricao_user_icon">Icone de usuario</string>
     <string name="Leave">Leave</string>
     <string name="Tema">Tema</string>
+    <string name="Lucro">0</string>
+    <string name="VendasHj">0</string>
+    <string name="Fatura">0</string>
 
 
 </resources>
