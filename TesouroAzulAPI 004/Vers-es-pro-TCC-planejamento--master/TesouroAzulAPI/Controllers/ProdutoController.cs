@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using TesouroAzulAPI.Data;
 using TesouroAzulAPI.Dtos;
 using TesouroAzulAPI.Models;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using System.Numerics;
 
 namespace TesouroAzulAPI.Controllers
 {
@@ -18,10 +20,17 @@ namespace TesouroAzulAPI.Controllers
             _context = context;
         }
 
+        // DTOs
+        // DTO para switch de campos
+        public class camposDtos
+        {
+            public string Campo { get; set; } = string.Empty;
+            public string NovoValor { get; set; } = string.Empty;
+        }
 
         //POSTs
         //Cadastrar Produto
-        
+
         [HttpPost]
         public async Task<IActionResult> CadastrarProduto([FromBody] CadastrarProdutoDto produtoDto)
         {
@@ -51,16 +60,16 @@ namespace TesouroAzulAPI.Controllers
         }
 
         // Bucar Produtos {id_usuario}
-        [HttpGet("{usuario/id_usuario}")]
+        [HttpGet("usuario/{id_usuario}")]
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutoIdUsuario(int id_usuario)
         {
-            var produto = await _context.Produtos.FindAsync(id_usuario);
-            if (produto == null) return NotFound("Produto não encontrado");
+            var produto = await _context.Produtos.Where(p => p.ID_USUARIO_FK == id_usuario).ToListAsync();
+            if (produto == null) return NotFound("Produto não encontrado para este usuario");
             return Ok(produto);
         }
 
         //Buscar Produto {id}
-        [HttpGet("{id}")]
+        [HttpGet("produto/{id}")]
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutoId(int id)
         {
             var produto = await _context.Produtos.FindAsync(id);
@@ -71,17 +80,94 @@ namespace TesouroAzulAPI.Controllers
         
         //Buscar Produto {campo}
         [HttpGet("Buscar-por-campo")]
-        public async Task<ActionResult<IEnumerable<Produto>>> BurcarPorCampo(string campo, string novoValor)
+        public async Task<ActionResult<IEnumerable<Produto>>> BurcarPorCampo(int id_usuario_fk, [FromBody] camposDtos filtro)
         {
-            
+            // tratamento de erro
+            int id_usuario = id_usuario_fk;
+            var usuario = await _context.Usuarios.FindAsync(id_usuario);
+            if (usuario == null) return NotFound("Usuario não encontrado");
+            var usuario_fk = await _context.Produtos.FindAsync(id_usuario);
+            if (usuario == null) return NotFound("Usuario não cadastrou nenhum produto");
+            if (string.IsNullOrEmpty(filtro.Campo) || string.IsNullOrEmpty(filtro.NovoValor)) return BadRequest("Campo ou valor não pode ser vazio");
 
-            // temporario para não dar erro
-            return StatusCode(501, "Não implementado");
+            switch (filtro.Campo)
+            {
+                case "cod_produto":
+                    var produtoCod = await _context.Produtos.Where(p => p.COD_PRODUTO == filtro.NovoValor).ToListAsync();
+                    if (produtoCod == null) return NotFound("Código não encontrado");
+                    return Ok(produtoCod);
+                    break;
+                case "nome_produto":
+                    var produtoNome = await _context.Produtos.Where(p => p.NOME_PRODUTO == filtro.NovoValor).ToListAsync();
+                    if (produtoNome == null) return NotFound("Nome não encontrado");
+                    return Ok(produtoNome);
+                    break;
+                case "tipo_produto":
+                    var produtoTipo = await _context.Produtos.Where(p => p.TIPO_PRODUTO == filtro.NovoValor).ToListAsync();
+                    if (produtoTipo == null) return NotFound("Tipo não encontrado");
+                    return Ok(produtoTipo);
+                    break;
+                case "data_val_produto":
+                    var produtoData = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO == DateTime.Parse(filtro.NovoValor)).ToListAsync();
+                    if (produtoData == null) return NotFound("Data não encontrada");
+                    return Ok(produtoData);
+                    break;
+                case "não_vencidos":
+                    var produtoNaoVencidos = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO > DateTime.Now).ToListAsync();
+                    if (produtoNaoVencidos == null) return NotFound("Produto não encontrado");
+                    return Ok(produtoNaoVencidos);
+                    break;
+                case "vencidos":
+                    var produtoVencidos = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO < DateTime.Now).ToListAsync();
+                    if (produtoVencidos == null) return NotFound("Produto não encontrado");
+                    return Ok(produtoVencidos);
+                    break;
+                default:
+                    return BadRequest("Campos permitidos : cod_produto, nome_produto, tipo_produto, data_val_produto, não_vencidos, vencidos");
+            }
+
         }
 
         //PATCHs
         //Alterar Produto {campo}
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> AlterarProduto(int id, [FromBody] camposDtos campo)
+        {
+            // tratamento de erro
+            var produto = await _context.Produtos.FindAsync(id);
+            if (produto == null) return NotFound("Produto não encontrado");
 
+            switch(campo.Campo)
+            {
+                case "cod_produto":
+                    produto.COD_PRODUTO = campo.NovoValor;
+                    break;
+                case "nome_produto":
+                    produto.NOME_PRODUTO = campo.NovoValor;
+                    break;
+                case "tipo_produto":
+                    produto.TIPO_PRODUTO = campo.NovoValor;
+                    break;
+                case "data_val_produto":
+                    if (DateTime.TryParse(campo.NovoValor, out DateTime dataVal))
+                    {
+                        produto.DATA_VAL_PRODUTO = dataVal;
+                    }
+                    else
+                    {
+                        return BadRequest("Novo Valor para Data deve ser uma data válida.");
+                    }
+                    break;
+                default:
+                    return BadRequest("Campos permitidos : cod_produto, nome_produto, tipo_produto, data_val_produto");
+                    break;
+            }
+
+            _context.Produtos.Update(produto);
+            await _context.SaveChangesAsync();
+            return Ok(produto);
+
+        }
         //Alterar Imagem
 
         //DELETs
