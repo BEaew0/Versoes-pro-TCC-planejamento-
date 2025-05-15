@@ -6,6 +6,7 @@ using TesouroAzulAPI.Dtos;
 using TesouroAzulAPI.Models;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Numerics;
+using Microsoft.OpenApi.Any;
 
 namespace TesouroAzulAPI.Controllers
 {
@@ -40,7 +41,7 @@ namespace TesouroAzulAPI.Controllers
                 COD_PRODUTO = produtoDto.COD_PRODUTO,
                 NOME_PRODUTO = produtoDto.NOME_PRODUTO,
                 TIPO_PRODUTO = produtoDto.TIPO_PRODUTO,
-                DATA_VAL_PRODUTO = produtoDto.DATA_VAL_PRODUTO, // Problema por se tratar de um datetime, para caso o dado seja NULL
+                DATA_VAL_PRODUTO = produtoDto.DATA_VAL_PRODUTO,
                 IMG_PRODUTO = produtoDto.IMG_PRODUTO
             };
 
@@ -64,7 +65,7 @@ namespace TesouroAzulAPI.Controllers
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutoIdUsuario(int id_usuario)
         {
             var produto = await _context.Produtos.Where(p => p.ID_USUARIO_FK == id_usuario).ToListAsync();
-            if (produto == null) return NotFound("Produto não encontrado para este usuario");
+            if (!produto.Any()) return NotFound("Produto não encontrado para este usuario");
             return Ok(produto);
         }
 
@@ -79,7 +80,7 @@ namespace TesouroAzulAPI.Controllers
 
         
         //Buscar Produto {campo}
-        [HttpGet("Buscar-por-campo")]
+        [HttpGet("Buscar-por-campo")] // alterar aqui o get por post, por causa do body
         public async Task<ActionResult<IEnumerable<Produto>>> BurcarPorCampo(int id_usuario_fk, [FromBody] camposDtos filtro)
         {
             // tratamento de erro
