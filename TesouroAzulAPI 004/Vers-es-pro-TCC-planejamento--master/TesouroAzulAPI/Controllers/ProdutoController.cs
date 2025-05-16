@@ -47,7 +47,7 @@ namespace TesouroAzulAPI.Controllers
 
             _context.Produtos.Add(produto);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(BuscarProdutoId), new {id = produto.ID_PRODUTO});
+            return Ok();
             
         }
 
@@ -100,6 +100,7 @@ namespace TesouroAzulAPI.Controllers
 
         }
 
+        // criar um post especifico somente para validade
         //GETs
         //Buscar Produtos
         [HttpGet]
@@ -130,10 +131,10 @@ namespace TesouroAzulAPI.Controllers
         //PATCHs
         //Alterar Produto {campo}
         [HttpPatch("{id}")]
-        public async Task<IActionResult> AlterarProduto(int id_produto, [FromBody] camposDtos campo)
+        public async Task<IActionResult> AlterarProduto(int id, [FromBody] camposDtos campo)
         {
             // tratamento de erro
-            var produto = await _context.Produtos.FindAsync(id_produto);
+            var produto = await _context.Produtos.FindAsync(id);
             if (produto == null) return NotFound("Produto não encontrado");
 
             switch(campo.Campo)
