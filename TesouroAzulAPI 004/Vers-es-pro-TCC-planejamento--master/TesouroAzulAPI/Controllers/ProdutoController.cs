@@ -89,38 +89,38 @@ namespace TesouroAzulAPI.Controllers
             if (usuario == null) return NotFound("Usuario não encontrado");
             var usuario_fk = await _context.Produtos.FindAsync(id_usuario);
             if (usuario == null) return NotFound("Usuario não cadastrou nenhum produto");
-            if (string.IsNullOrEmpty(filtro.Campo) || string.IsNullOrEmpty(filtro.NovoValor)) return BadRequest("Campo ou valor não pode ser vazio");
+            if (string.IsNullOrEmpty(filtro.Campo) || string.IsNullOrEmpty(filtro.NovoValor)) return BadRequest("Campos permitidos : cod_produto, nome_produto, tipo_produto, data_val_produto, não_vencidos, vencidos");
 
             switch (filtro.Campo)
             {
                 case "cod_produto":
                     var produtoCod = await _context.Produtos.Where(p => p.COD_PRODUTO == filtro.NovoValor).ToListAsync();
-                    if (produtoCod == null) return NotFound("Código não encontrado");
+                    if (produtoCod.Any()) return NotFound("Código não encontrado");
                     return Ok(produtoCod);
                     break;
                 case "nome_produto":
                     var produtoNome = await _context.Produtos.Where(p => p.NOME_PRODUTO == filtro.NovoValor).ToListAsync();
-                    if (produtoNome == null) return NotFound("Nome não encontrado");
+                    if (produtoNome.Any()) return NotFound("Nome não encontrado");
                     return Ok(produtoNome);
                     break;
                 case "tipo_produto":
                     var produtoTipo = await _context.Produtos.Where(p => p.TIPO_PRODUTO == filtro.NovoValor).ToListAsync();
-                    if (produtoTipo == null) return NotFound("Tipo não encontrado");
+                    if (produtoTipo.Any()) return NotFound("Tipo não encontrado");
                     return Ok(produtoTipo);
                     break;
                 case "data_val_produto":
                     var produtoData = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO == DateTime.Parse(filtro.NovoValor)).ToListAsync();
-                    if (produtoData == null) return NotFound("Data não encontrada");
+                    if (produtoData.Any()) return NotFound("Data não encontrada");
                     return Ok(produtoData);
                     break;
                 case "não_vencidos":
                     var produtoNaoVencidos = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO > DateTime.Now).ToListAsync();
-                    if (produtoNaoVencidos == null) return NotFound("Produto não encontrado");
+                    if (produtoNaoVencidos.Any()) return NotFound("Produto não encontrado");
                     return Ok(produtoNaoVencidos);
                     break;
                 case "vencidos":
                     var produtoVencidos = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO < DateTime.Now).ToListAsync();
-                    if (produtoVencidos == null) return NotFound("Produto não encontrado");
+                    if (produtoVencidos.Any()) return NotFound("Produto não encontrado");
                     return Ok(produtoVencidos);
                     break;
                 default:
