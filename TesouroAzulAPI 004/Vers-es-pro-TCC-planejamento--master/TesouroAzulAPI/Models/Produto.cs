@@ -7,7 +7,7 @@ namespace TesouroAzulAPI.Models
     public class Produto
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public int ID_PRODUTO { get; set; }
 
         [Required]
         public int ID_USUARIO_FK { get; set; }
