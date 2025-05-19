@@ -12,16 +12,16 @@ import com.google.gson.Gson;
 
 import android.content.Context;
 
+import android.os.Handler;
 import android.util.Log;
 import android.widget.EditText;
-
-
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,13 +32,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+
 public class EntradaActivity extends AppCompatActivity
 {
-
     //quando tiver eu botoKKKKK
-
-    private String Host="...";
+    private String Host="https://tesouroazul1.hospedagemdesites.ws/api";
     private String url,ret;
+
+    private ProgressBar progressBar;
+
 
     private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
 
@@ -47,7 +49,7 @@ public class EntradaActivity extends AppCompatActivity
 
     Button btnEnter,btnRegister;
 
-    TextView txtRegistrar;
+    private TextView txtRegistrar, txtLoading;
 
     private ApiService apiService;
 
@@ -63,7 +65,7 @@ public class EntradaActivity extends AppCompatActivity
 
             // Configura Retrofit
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://localhost:7221/api/")// <- Coloque a URL base da sua API aqui
+                    .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/")// <- Coloque a URL base da sua API aqui
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
@@ -77,6 +79,11 @@ public class EntradaActivity extends AppCompatActivity
             String senha = txtSenha.getText().toString().trim();
 
             txtRegistrar = (TextView) findViewById(R.id.txtRegistrar);
+
+            progressBar = findViewById(R.id.progressBar);
+            txtLoading = findViewById(R.id.progress_text);
+            
+            ConectarAPI();
 
             btnEnter.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -351,7 +358,7 @@ public class EntradaActivity extends AppCompatActivity
                         Toast.makeText(EntradaActivity.this, json, Toast.LENGTH_SHORT).show();
 
                         Retrofit retrofit = new Retrofit.Builder()
-                                .baseUrl("https://10.0.2.2:7221/api/") // coloque a URL base da sua API
+                                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/usuario") // coloque a URL base da sua API
                                 .addConverterFactory(GsonConverterFactory.create(gson))
                                 .build();
 
@@ -362,7 +369,8 @@ public class EntradaActivity extends AppCompatActivity
 
                         call.enqueue(new Callback<Void>() {
                             @Override
-                            public void onResponse(Call<Void> call, Response<Void> response) {
+                            public void onResponse(Call<Void> call, Response<Void> response)
+                            {
                                 if (response.isSuccessful()) {
                                     Toast.makeText(EntradaActivity.this, "Usuário enviado com sucesso!", Toast.LENGTH_SHORT).show();
                                 } else {
@@ -385,6 +393,35 @@ public class EntradaActivity extends AppCompatActivity
 
 
     }
+    private void ConectarAPI() {
+        ApiService apiService = ApiClient.getRetrofit().create(ApiService.class);
+        Call<Void> call = apiService.verificarConexao();
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    txtLoading.setText("Conexão estabelecida!");
+                    new Handler().postDelayed(() -> {
+                        Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }, 2000);
+                } else {
+                    txtLoading.setText("Erro ao conectar.");
+                    Toast.makeText(EntradaActivity.this, "Erro: " + response.code(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                textLoading.setText("Falha na conexão.");
+                Toast.makeText(LoadingActivity.this, "Falha: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+
 
 
     public class RetrofitInstance{
