@@ -13,6 +13,7 @@ coisas para ver :
 -- Melhorar o tratamento de erro nos dados recebidos
 -- Adicionar logica de criptografia de senha
 -- Adicionar campo para alterar assinatura
+-- Adicionar end-point que busca somente imagem
 
 - Controller de produto
 -- Adicionar Logica de imagem
