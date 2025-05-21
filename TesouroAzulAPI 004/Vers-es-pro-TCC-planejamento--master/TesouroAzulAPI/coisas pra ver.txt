@@ -5,44 +5,17 @@ coisas para ver :
 
 - Pesquisar como criar uma rotina !!!
 
-- preciso de um timer para verificar o tempo de assinatura
 
-- preciso criar no banco um campo de tempo para a assinatura
-
-- Preciso melhorar o update do usuario : acresentar novos campos e apresentar ideia de implementação de imagem
--- Melhorar o tratamento de erro nos dados recebidos
+-- Preciso melhorar o update do usuario : acresentar novos campos e apresentar ideia de implementação de imagem
+--- Melhorar o tratamento de erro nos dados recebidos
 -- Adicionar logica de criptografia de senha
 -- Adicionar campo para alterar assinatura
 -- Adicionar end-point que busca somente imagem
+--- Remover todos os end-points que possua imagem para buscar sem ela (fica muito pesado do jeito que está)
 
 - Controller de produto
 -- Adicionar Logica de imagem
 -- Adicionar end-points especificos para vencimento 
-Modelo JSON de teste :
-
-{
-  "nomE_USUARIO": "Miguel Fonsêca Souza",
-  "emaiL_USUARIO": "MeuEmail@gmail.com",
-  "datA_NASC_USUARIO": "2025-05-06T19:32:34.717Z",
-  "cpF_USUARIO": "00011122233",
-  "cnpJ_USUARIO": "",
-  "iD_ASSINATURA_FK": 2,
-  "fotO_USUARIO": "",
-  "senhA_USUARIO": "01234567",
-  "statuS_USUARIO": "a"
-}
-
-Modelo para o controller de Fornecedor
-
-{
-  "iD_FORNECEDOR": 0,
-  "nomE_FORNECEDOR": "Calcinha Preta",
-  "cnpJ_FORNECEDOR": "00000000000000000000",
-  "emaiL_FORNECEDOR": "Carlos@gmail.com",
-  "teL_FORNECEDOR": "012345678",
-  "ceL_FORNECEDOR": "012345678901234",
-  "enderecO_FORNECEDOR": "Sua Mãe Sabe"
-}	
 
 
 https://centraldocliente.locaweb.com.br/dynamics_tickets/new_treatment

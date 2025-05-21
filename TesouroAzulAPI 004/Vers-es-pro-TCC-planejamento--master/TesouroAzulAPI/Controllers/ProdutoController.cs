@@ -42,7 +42,7 @@ namespace TesouroAzulAPI.Controllers
                 NOME_PRODUTO = produtoDto.NOME_PRODUTO,
                 TIPO_PRODUTO = produtoDto.TIPO_PRODUTO,
                 DATA_VAL_PRODUTO = produtoDto.DATA_VAL_PRODUTO,
-                IMG_PRODUTO = produtoDto.IMG_PRODUTO
+                IMG_PRODUTO = Convert.FromBase64String(produtoDto.IMG_PRODUTO)
             };
 
             _context.Produtos.Add(produto);
@@ -169,7 +169,13 @@ namespace TesouroAzulAPI.Controllers
 
         }
         //Alterar Imagem
+        [HttpPatch("Alterar-Imagem-por-{id}")]
+        public async Task<ActionResult<Produto>> AlterarImagem(int id)
+        {
 
+            // temporario
+            return default;
+        }
         //DELETs
         //Deletar Produto {id}
         [HttpDelete("{id}")]

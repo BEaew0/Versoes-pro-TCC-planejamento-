@@ -45,7 +45,7 @@ namespace TesouroAzulAPI.Controllers
                 CPF_USUARIO = usuarioDto.CPF_USUARIO,
                 CNPJ_USUARIO = usuarioDto.CNPJ_USUARIO,
                 ID_ASSINATURA_FK = usuarioDto.ID_ASSINATURA_FK,
-                FOTO_USUARIO = usuarioDto.FOTO_USUARIO,
+                FOTO_USUARIO = Convert.FromBase64String(usuarioDto.FOTO_USUARIO),
                 SENHA_USUARIO = usuarioDto.SENHA_USUARIO,
                 STATUS_USUARIO = usuarioDto.STATUS_USUARIO
 
@@ -74,7 +74,11 @@ namespace TesouroAzulAPI.Controllers
         }
 
         // Buscar Imagem por ID
-
+        [HttpGet("Buscar-Imagem")]
+        public async Task<ActionResult<Usuario>> BuscarUsuarioFoto(int id)
+        {
+            return default;
+        }
 
         // PATCHs
         // Atualizar Usuario
