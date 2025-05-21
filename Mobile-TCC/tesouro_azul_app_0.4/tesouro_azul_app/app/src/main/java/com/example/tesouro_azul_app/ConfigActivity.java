@@ -6,9 +6,12 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -18,6 +21,11 @@ import android.widget.Toast;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -28,9 +36,20 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.net.URI;
+
 public class ConfigActivity extends AppCompatActivity {
 
+    private String Host="https://tesouroazul1.hospedagemdesites.ws/api";
+    private String url,ret;
+
+    public static String fotox;
+
     private SharedPreferences sharedPreferences;
+
+    private Bitmap bitmap;
 
     ImageView Xleave,themeIcon;
     RelativeLayout trocarSenha,SairConta,ExcluirConta;
@@ -42,7 +61,18 @@ public class ConfigActivity extends AppCompatActivity {
     //Declara uma constante para identificar o código da requisição da galeria,
     // o ícone do usuário e o launcher para abrir a galeria e receber o resultado.
     private static final int REQUEST_CODE_GALLERY = 1001;
+    private static final int PICK_IMAGE = 1;
+
+    private int PICK_IMAGE_REQUEST = 2;
     private ShapeableImageView userIcon;
+    private Uri filePath;
+    private ApiService apiService;
+
+    String bx;
+    Uri imagemUri;
+    Bitmap b;
+
+
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
@@ -67,9 +97,8 @@ public class ConfigActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_config);
 
-    //Ve isso depois carlos
+    userIcon.setImageBitmap(b);
     SwitchMaterial swicthTheme = findViewById(R.id.switchTheme);
-
     userIcon = findViewById(R.id.User_icon);
     themeIcon = findViewById(R.id.ThemeMode);
     Xleave = (ImageView) findViewById(R.id.Xleave);
@@ -77,8 +106,16 @@ public class ConfigActivity extends AppCompatActivity {
     SairConta = (RelativeLayout) findViewById(R.id.SairConta);
     ExcluirConta = (RelativeLayout) findViewById(R.id.ExcluirConta);
 
+        // Configura Retrofit
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/")// <- Coloque a URL base da sua API aqui
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-    // Define o estado inicial do Switch de acordo com a preferência
+        apiService = retrofit.create(ApiService.class);
+
+
+        // Define o estado inicial do Switch de acordo com a preferência
     swicthTheme.setChecked(isNightMode);
     updateThemeIcon(isNightMode);
 
@@ -86,14 +123,16 @@ public class ConfigActivity extends AppCompatActivity {
         try {
             galleryLauncher = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
-                    result -> {
-                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    result ->
+                    {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null)
+                        {
                             Uri imageUri = result.getData().getData();
                             userIcon.setImageURI(imageUri);
                         }
                     });
-        }catch (Exception e)
-        {
+
+        }catch (Exception e) {
             Toast.makeText(this, "Erro ao resgatar imagem", Toast.LENGTH_SHORT).show();
         }
 
@@ -109,7 +148,8 @@ public class ConfigActivity extends AppCompatActivity {
 
         //Ao clicar no ícone do usuário, verifica se tem permissão para acessar a galeria.
         // Se não tiver, solicita. Se tiver, abre a galeria para o usuário escolher uma imagem.
-        userIcon.setOnClickListener(view -> {
+        userIcon.setOnClickListener(view ->
+        {
             if (ContextCompat.checkSelfPermission(ConfigActivity.this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED)
             {
                 openGallery(); // Já tem permissão → Abre direto
@@ -215,16 +255,14 @@ public class ConfigActivity extends AppCompatActivity {
     private void openGallery()
     {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.setType("image/*");
-        galleryLauncher.launch(intent);
+        startActivityForResult(intent, PICK_IMAGE);
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_CODE_GALLERY)// Verifica se é a permissão da galeria
+        if (requestCode == REQUEST_CODE_GALLERY) // Verifica se é a permissão da galeria
         {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
@@ -236,26 +274,86 @@ public class ConfigActivity extends AppCompatActivity {
                 // Permissão negada → Mostra mensagem ou desabilita funcionalidade
                 Toast.makeText(this, "Permissão negada. Não é possível alterar a imagem.", Toast.LENGTH_SHORT).show();
 
-                // Mostrar explicação se o usuário negou permanentemente
+                // Verifica se o usuário *não* marcou "Nunca perguntar de novo"
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_IMAGES))
                 {
                     new AlertDialog.Builder(this)
                             .setTitle("Permissão necessária")
                             .setMessage("Você precisa permitir o acesso à galeria para alterar a imagem.")
                             .setPositiveButton("OK", (dialog, which) -> {
-                                // Solicita novamente
+                                // Solicita novamente a permissão
                                 ActivityCompat.requestPermissions(
                                         this,
                                         new String[]{Manifest.permission.READ_MEDIA_IMAGES},
                                         REQUEST_CODE_GALLERY
                                 );
                             })
-                            .setNegativeButton("Cancelar", null)
+                            .setNegativeButton("Cancelar", null) // Não faz nada se cancelar
                             .show();
                 }
             }
         }
     }
+
+    public String imagem_string(Bitmap fotox)
+    {
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+
+        // Comprime o bitmap em formato JPEG com 100% de qualidade
+        fotox.compress(Bitmap.CompressFormat.JPEG, 100, data);
+
+        // Converte o bitmap em um array de bytes
+        byte[] b1 = data.toByteArray();
+
+        // Codifica os bytes em uma string Base64
+        return Base64.encodeToString(b1, Base64.DEFAULT);
+    }
+
+    public Bitmap getFoto(String s)
+    {
+        // Decodifica a string Base64 de volta para um array de bytes
+        byte[] decodes = Base64.decode(s, Base64.DEFAULT);
+
+        // Converte o array de bytes para um objeto Bitmap
+        return BitmapFactory.decodeByteArray(decodes, 0, decodes.length);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Verifica se a imagem foi selecionada com sucesso
+        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+            imagemUri = data.getData(); // Obtém o URI da imagem
+
+            try {
+                // Carrega a imagem a partir do URI (Uniform Resource Identifier,
+                // ou Identificador Uniforme de Recursos) é uma string (sequência de caracteres) que se refere a um recurso
+
+                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imagemUri));
+
+                userIcon.setImageBitmap(bitmap); // Define a imagem no ImageView
+
+                // Converte o bitmap para string Base64
+                bx = imagem_string(bitmap);
+
+                // Armazena a string Base64 em uma variável
+                fotox = bx;
+
+                // Reconverte a Base64 para Bitmap (talvez para validar ou reutilizar)
+                Bitmap b = getFoto(bx);
+
+                // Atualiza novamente o ImageView com o bitmap reconvertido
+                userIcon.setImageBitmap(b);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace(); // Exibe erro caso o arquivo não seja encontrado
+            }
+        }
+    }
+
+
+
 
 
 }
