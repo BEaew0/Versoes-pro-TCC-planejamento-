@@ -60,6 +60,8 @@ public class EntradaActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         try {
 
+            ApiOperation apiOperation = new ApiOperation();
+
             super.onCreate(savedInstanceState);
             setContentView(R.layout.entrada);
 
@@ -83,7 +85,7 @@ public class EntradaActivity extends AppCompatActivity
             progressBar = findViewById(R.id.progressBar);
             txtLoading = findViewById(R.id.progress_text);
             
-            ConectarAPI();
+            apiOperation.ConectarAPI();
 
             btnEnter.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -393,45 +395,48 @@ public class EntradaActivity extends AppCompatActivity
 
 
     }
-    private void ConectarAPI() {
-        ApiService apiService = ApiClient.getRetrofit().create(ApiService.class);
-        Call<Void> call = apiService.verificarConexao();
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    txtLoading.setText("Conexão estabelecida!");
-                    new Handler().postDelayed(() -> {
-                        Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }, 2000);
-                } else {
-                    txtLoading.setText("Erro ao conectar.");
-                    Toast.makeText(EntradaActivity.this, "Erro: " + response.code(), Toast.LENGTH_LONG).show();
-                }
-            }
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                textLoading.setText("Falha na conexão.");
-                Toast.makeText(LoadingActivity.this, "Falha: " + t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-
-
-
-
-    public class RetrofitInstance{
-        private static final String BASE_URL = "https://localhost:7221/api/";
-
-        
-
-    }
 
     public class ApiOperation {
+        private void ConectarAPI() {
+            ApiService apiService = ApiClient.getRetrofit().create(ApiService.class);
+
+            Call<Void> call = ApiService.verificarConexao();
+
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response)
+                {
+                    if (response.isSuccessful()) {
+                        txtLoading.setText("Conexão estabelecida!");
+
+                        //Aguarda 1 segundo (delay) antes de deixar as opções de login e registar disponiveis disponivel
+                        new Handler().postDelayed(() ->
+                        {
+                            txtLoading.setVisibility(View.GONE);
+                            progressBar.setVisibility(View.GONE);
+
+                            txtCPF_CNPJ.setVisibility(View.VISIBLE);
+                            txtSenha.setVisibility(View.VISIBLE);
+                            btnEnter.setVisibility(View.VISIBLE);
+                            txtRegistrar.setVisibility(View.VISIBLE);
+
+                            finish();
+                        }, 2000);
+
+                    } else {
+                        txtLoading.setText("Erro ao conectar.");
+                        Toast.makeText(EntradaActivity.this, "Erro: " + response.code(), Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    txtLoading.setText("Falha na conexão.");
+                    Toast.makeText(EntradaActivity.this, "Falha: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
 
         //Serve para login
         public void buscarUsuarios() {

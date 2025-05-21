@@ -24,6 +24,12 @@ public interface ApiService {
         return null;
     }
 
+    @GET("https://tesouroazul1.hospedagemdesites.ws/api/getImagem")
+    static Call<Void> Imagem()//Isso prepara a requisição, mas ainda não a executa!
+    {
+        return null;
+    }
+
     @POST("https://tesouroazul1.hospedagemdesites.ws/api/produto/CriarProduto")
     Call<Void> criarProduto(@Body ProdutoObject produtoObject);
 
