@@ -33,7 +33,7 @@ namespace TesouroAzulAPI.Models
         public int ID_ASSINATURA_FK { get; set; } = 0; // 1 para não assinante; 2 para assinante
 
         [Column(TypeName = "MEDIUMBLOB")]
-        public byte[] FOTO_USUARIO { get; set; }
+        public byte[]? FOTO_USUARIO { get; set; }
 
         [Required, MinLength(8), MaxLength(20)]
         public string SENHA_USUARIO { get; set; }       
