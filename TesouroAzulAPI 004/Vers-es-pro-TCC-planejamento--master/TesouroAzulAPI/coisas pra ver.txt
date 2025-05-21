@@ -17,5 +17,7 @@ coisas para ver :
 -- Adicionar Logica de imagem
 -- Adicionar end-points especificos para vencimento 
 
+- Controller e Model de Fornecedor
+-- Atualizar o campo ID_USUARIO
 
 https://centraldocliente.locaweb.com.br/dynamics_tickets/new_treatment

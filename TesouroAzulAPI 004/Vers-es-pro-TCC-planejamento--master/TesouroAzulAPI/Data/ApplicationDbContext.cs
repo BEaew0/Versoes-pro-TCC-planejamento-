@@ -14,11 +14,24 @@ namespace TesouroAzulAPI.Data
 
         public DbSet<Fornecedor> Fornecedores { get; set; }
 
+        public DbSet<PedidosCompra> PedidoCompra { get; set; }
+
+        public DbSet<ItensCompra> ItensCompra { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             // Aqui pode realizar configurações adicionais, como definir chaves primárias compostas, etc.
             // Somente em casos de criar o DB atravez da propia API
+
+            // PedidoCompra 1:N ItemCompra
+            /*      
+             *      CORRIGIR AQUI!!!!
+            modelBuilder.Entity<PedidoCompra>()
+                .HasMany(p => p.ItensCompra)
+                .WithOne(i => i.PedidoCompra)
+                .HasForeignKey(i => i.ID_PEDIDO_FK);
+            */
         }
     }
 }
