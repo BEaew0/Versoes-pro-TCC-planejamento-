@@ -40,7 +40,8 @@ namespace TesouroAzulAPI.Controllers
                 ID_USUARIO_FK = produtoDto.ID_USUARIO,
                 COD_PRODUTO = produtoDto.COD_PRODUTO,
                 NOME_PRODUTO = produtoDto.NOME_PRODUTO,
-                TIPO_PRODUTO = produtoDto.TIPO_PRODUTO,
+                VALOR_PRODUTO = produtoDto.VALOR_PRODUTO,
+                TIPO_PRODUTO = Convert.ToString(produtoDto.TIPO_PRODUTO),
                 DATA_VAL_PRODUTO = produtoDto.DATA_VAL_PRODUTO,
                 IMG_PRODUTO = Convert.FromBase64String(produtoDto.IMG_PRODUTO)
             };
@@ -147,6 +148,9 @@ namespace TesouroAzulAPI.Controllers
                     break;
                 case "tipo_produto":
                     produto.TIPO_PRODUTO = campo.NovoValor;
+                    break;
+                case "valor_produto":
+                    produto.VALOR_PRODUTO = Convert.ToDecimal(campo.NovoValor);
                     break;
                 case "data_val_produto":
                     if (DateTime.TryParse(campo.NovoValor, out DateTime dataVal))

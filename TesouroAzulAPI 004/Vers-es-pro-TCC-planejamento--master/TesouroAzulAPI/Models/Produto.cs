@@ -18,6 +18,9 @@ namespace TesouroAzulAPI.Models
         [Required, MaxLength(20)]
         public string NOME_PRODUTO { get; set;}
 
+        [Required, Column(TypeName = "decimal(8,2)")]
+        public decimal VALOR_PRODUTO { get; set;}
+
         [Required, MaxLength(40)]
         public string TIPO_PRODUTO { get; set;}
 

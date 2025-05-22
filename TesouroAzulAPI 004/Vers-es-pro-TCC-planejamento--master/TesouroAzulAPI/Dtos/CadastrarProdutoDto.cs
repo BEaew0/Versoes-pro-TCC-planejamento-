@@ -11,6 +11,7 @@ namespace TesouroAzulAPI.Dtos
         public string COD_PRODUTO { get; set; }
         [MaxLength(20), Required]
         public string NOME_PRODUTO { get; set; }
+        public decimal VALOR_PRODUTO { get; set; }
         [MaxLength(40), Required]
         public string TIPO_PRODUTO { get; set; }
         public DateTime? DATA_VAL_PRODUTO { get; set; }
