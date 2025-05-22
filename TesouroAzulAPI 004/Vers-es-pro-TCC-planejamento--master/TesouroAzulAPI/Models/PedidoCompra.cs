@@ -18,7 +18,7 @@ namespace TesouroAzulAPI.Models
         public int ID_FORNECEDOR_FK { get; set; }
 
         [Required]
-        public DateTime DATA_PEDIDO { get; set;}
+        public DateTime DATA_PEDIDO { get; set;} = DateTime.Now;
 
         [Required, Column(TypeName ="decimal(5,2)")] // Verificar aqui como fica tamanho para double
         public decimal QTD_PEDIDO { get; set;}
