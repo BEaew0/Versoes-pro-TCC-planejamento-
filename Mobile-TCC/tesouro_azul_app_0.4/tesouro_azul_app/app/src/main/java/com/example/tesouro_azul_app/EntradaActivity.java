@@ -13,7 +13,9 @@ import com.google.gson.Gson;
 import android.content.Context;
 
 import android.os.Handler;
+import android.text.InputType;
 import android.util.Log;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import android.content.Intent;
@@ -40,14 +42,14 @@ public class EntradaActivity extends AppCompatActivity
     private String url,ret;
 
     private ProgressBar progressBar;
-
-
     private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
 
     public static String nomeReg,senhaReg,conSenhaReg,emailReg,CPF_CNPJ_reg,nascReg;
     private EditText txtCPF_CNPJ,txtSenha;
 
     Button btnEnter,btnRegister;
+
+    CheckBox mostrarSenha,showSenhaReg,showSenhaConfir;
 
     private TextView txtRegistrar, txtLoading;
 
@@ -73,6 +75,7 @@ public class EntradaActivity extends AppCompatActivity
 
             apiService = retrofit.create(ApiService.class);
 
+            mostrarSenha = (CheckBox) findViewById(R.id.mostrarSenhas);
             txtCPF_CNPJ = (EditText) findViewById(R.id.txtCPF_CNPJ);
             txtSenha = (EditText) findViewById(R.id.txtSenha);
             btnEnter = (Button) findViewById(R.id.btnEnter);
@@ -97,7 +100,16 @@ public class EntradaActivity extends AppCompatActivity
 
                 }
             });
-        } catch (Exception e) {
+        } catch (Exception e) {}
+
+
+        if (mostrarSenha.isChecked())
+        {
+            txtSenha.setInputType(InputType.TYPE_CLASS_TEXT);
+        }
+        else
+        {
+            txtSenha.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         }
 
         txtRegistrar.setOnClickListener(v ->
@@ -111,6 +123,22 @@ public class EntradaActivity extends AppCompatActivity
             txtEmail = (EditText) findViewById(R.id.txtEmail);
             txtNascimento = (EditText) findViewById(R.id.txtNascimento);
             btnRegister = (Button) findViewById(R.id.btnRegister);
+            showSenhaReg = (CheckBox) findViewById(R.id.mostrarSenha);
+            showSenhaConfir = (CheckBox) findViewById(R.id.mostrarSenhaConfir);
+
+            if (showSenhaConfir.isChecked())
+            {
+                txtConfirmSenha.setInputType(InputType.TYPE_CLASS_TEXT);
+            }else{
+                txtConfirmSenha.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            }
+
+            if (showSenhaReg.isChecked())
+            {
+                txtSenhaReg.setInputType(InputType.TYPE_CLASS_TEXT);
+            }else{
+                txtSenhaReg.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            }
 
             txtNascimento.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -135,8 +163,6 @@ public class EntradaActivity extends AppCompatActivity
                         Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
                         startActivity(intent);
                     }
-
-
                 }
 
 
@@ -435,7 +461,16 @@ public class EntradaActivity extends AppCompatActivity
                     txtLoading.setText("Falha na conexão.");
                     Toast.makeText(EntradaActivity.this, "Falha: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 }
+
+
             });
+        }
+
+        private void mostrarErro (String mensagem){
+            Toast.makeText(EntradaActivity.this,mensagem,Toast.LENGTH_LONG).show();
+
+            //volta a tentar após alguns segundos
+            new Handler().postDelayed(this::ConectarAPI, 3000);
         }
 
         //Serve para login
@@ -468,10 +503,12 @@ public class EntradaActivity extends AppCompatActivity
                     Toast.makeText(EntradaActivity.this, "falha na conexão", Toast.LENGTH_SHORT).show();
                     Log.e("API", "Erro: ", t);
                 }
+
             });
 
-
         }
+
+
 
 
     }

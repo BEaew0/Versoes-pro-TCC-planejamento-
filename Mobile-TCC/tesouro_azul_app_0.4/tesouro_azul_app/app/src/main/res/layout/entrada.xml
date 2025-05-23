@@ -8,7 +8,9 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-16dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -28,7 +30,6 @@
 
 
             <EditText
-                android:visibility="gone"
                 android:id="@+id/txtCPF_CNPJ"
                 android:layout_width="365dp"
                 android:layout_height="56dp"
@@ -36,15 +37,15 @@
                 android:layout_marginTop="28dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
-                android:textColorHint="@color/cinza"
                 android:hint="CPF/CNPJ"
                 android:inputType="text"
+                android:textColorHint="@color/cinza"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnGraficos"
                 tools:ignore="HardcodedText" />
 
             <EditText
-                android:visibility="gone"
                 android:id="@+id/txtSenha"
                 android:layout_width="365dp"
                 android:layout_height="56dp"
@@ -52,36 +53,36 @@
                 android:layout_marginTop="24dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
-                android:textColorHint="@color/cinza"
                 android:hint="Senha"
-                android:inputType="text"
+                android:inputType="textPassword"
+                android:textColorHint="@color/cinza"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtCPF_CNPJ"
                 tools:ignore="HardcodedText" />
 
             <Button
-                android:visibility="gone"
                 android:id="@+id/btnEnter"
                 android:layout_width="151dp"
                 android:layout_height="67dp"
                 android:layout_marginStart="128dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="52dp"
                 android:backgroundTint="@color/blueButton"
                 android:text="Entre"
                 android:textSize="20sp"
-
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtSenha"
                 tools:ignore="HardcodedText" />
 
             <TextView
-                android:visibility="gone"
                 android:id="@+id/txtRegistrar"
                 android:layout_width="147dp"
                 android:layout_height="44dp"
                 android:layout_marginStart="138dp"
                 android:layout_marginEnd="130dp"
                 android:text="Não tem conta? Registre-se"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -98,6 +99,7 @@
                 android:layout_marginStart="140dp"
                 android:text="Carregando..."
                 android:textSize="22sp"
+                android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
@@ -110,10 +112,19 @@
                 android:layout_marginStart="136dp"
                 android:layout_marginTop="8dp"
                 android:indeterminateTint="@color/blueButton"
+                android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnGraficos" />
 
-
+            <CheckBox
+                android:id="@+id/mostrarSenhas"
+                android:layout_width="136dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="16dp"
+                android:text="Mostrar senha"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtSenha" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
