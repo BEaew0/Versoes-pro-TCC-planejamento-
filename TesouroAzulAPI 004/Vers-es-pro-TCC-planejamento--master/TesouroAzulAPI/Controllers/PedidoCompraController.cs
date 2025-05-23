@@ -46,6 +46,7 @@ namespace TesouroAzulAPI.Controllers
             // Adicionar busca aqui para descobrir o ID do pedido criado e adicionar na variavel
             int idPedido = pedido.ID_PEDIDO;
 
+
             var itemCompra = new ItensCompra
             {
                 ID_PRODUTO_FK = dto.Item.ID_PRODUTO_FK,

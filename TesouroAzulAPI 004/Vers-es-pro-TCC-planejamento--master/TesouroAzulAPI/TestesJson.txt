@@ -25,3 +25,27 @@ Modelo para o controller de Fornecedor
   "ceL_FORNECEDOR": "012345678901234",
   "enderecO_FORNECEDOR": "Sua Mãe Sabe"
 }	
+
+Modelo para o controller de Fornecedor
+
+{
+  "iD_FORNECEDOR": 1,
+  "nomE_FORNECEDOR": "Victor",
+  "cnpJ_FORNECEDOR": "123",
+  "emaiL_FORNECEDOR": "user@example.com",
+  "teL_FORNECEDOR": "012345678",
+  "ceL_FORNECEDOR": "1",
+  "enderecO_FORNECEDOR": "Rua batatais"
+}
+
+Modelo para o controller de produto
+
+{
+  "iD_USUARIO": 1,
+  "coD_PRODUTO": "123",
+  "nomE_PRODUTO": "Carlos",
+  "valoR_PRODUTO": 500,
+  "tipO_PRODUTO": "Toy",
+  "datA_VAL_PRODUTO": "2025-05-23T18:19:46.581Z",
+  "imG_PRODUTO": ""
+}

@@ -20,8 +20,6 @@ namespace TesouroAzulAPI.Models
         [Required]
         public DateTime DATA_PEDIDO { get; set;} = DateTime.Now;
 
-        [Required, Column(TypeName ="decimal(5,2)")] // Verificar aqui como fica tamanho para double
-        public decimal QTD_PEDIDO { get; set;}
 
         [Required, Column(TypeName = "decimal(7,2)")]
         public decimal VALOR_PEDIDO { get; set;}
