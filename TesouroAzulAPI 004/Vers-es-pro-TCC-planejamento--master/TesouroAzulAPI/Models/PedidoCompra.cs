@@ -23,9 +23,6 @@ namespace TesouroAzulAPI.Models
         [Required, Column(TypeName ="decimal(5,2)")] // Verificar aqui como fica tamanho para double
         public decimal QTD_PEDIDO { get; set;}
 
-        [Required, StringLength(50)]
-        public string NOME_PRODUTO_PEDIDO { get; set; }
-
         [Required, Column(TypeName = "decimal(7,2)")]
         public decimal VALOR_PEDIDO { get; set;}
 
@@ -49,7 +46,7 @@ namespace TesouroAzulAPI.Models
         public int ID_PEDIDO_FK { get; set; }
 
         [MaxLength(25)]
-        public string LOTE_COMRPA { get; set; }
+        public string LOTE_COMPRA { get; set; }
 
         [Required, Column(TypeName ="decimal(8,2)")]
         public decimal QUANTIDADE_ITEM_COMPRA { get; set;}

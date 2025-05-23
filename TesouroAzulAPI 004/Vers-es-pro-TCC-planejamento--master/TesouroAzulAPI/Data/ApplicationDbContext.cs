@@ -14,7 +14,7 @@ namespace TesouroAzulAPI.Data
 
         public DbSet<Fornecedor> Fornecedores { get; set; }
 
-        public DbSet<PedidosCompra> PedidoCompra { get; set; }
+        public DbSet<PedidosCompra> PedidosCompra { get; set; }
 
         public DbSet<ItensCompra> ItensCompra { get; set; }
 
