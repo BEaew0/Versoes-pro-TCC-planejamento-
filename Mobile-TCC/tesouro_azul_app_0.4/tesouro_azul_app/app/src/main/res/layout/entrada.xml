@@ -40,7 +40,7 @@
                 android:hint="CPF/CNPJ"
                 android:inputType="text"
                 android:textColorHint="@color/cinza"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnGraficos"
                 tools:ignore="HardcodedText" />
@@ -56,7 +56,7 @@
                 android:hint="Senha"
                 android:inputType="textPassword"
                 android:textColorHint="@color/cinza"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtCPF_CNPJ"
                 tools:ignore="HardcodedText" />
@@ -70,8 +70,7 @@
                 android:backgroundTint="@color/blueButton"
                 android:text="Entre"
                 android:textSize="20sp"
-                android:visibility="visible"
-
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtSenha"
                 tools:ignore="HardcodedText" />
@@ -100,7 +99,7 @@
                 android:layout_marginStart="140dp"
                 android:text="Carregando..."
                 android:textSize="22sp"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
@@ -113,7 +112,7 @@
                 android:layout_marginStart="136dp"
                 android:layout_marginTop="8dp"
                 android:indeterminateTint="@color/blueButton"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnGraficos" />
 
@@ -123,6 +122,7 @@
                 android:layout_height="52dp"
                 android:layout_marginStart="16dp"
                 android:text="Mostrar senha"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtSenha" />
 

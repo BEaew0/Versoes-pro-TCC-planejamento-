@@ -42,8 +42,6 @@ public class EntradaActivity extends AppCompatActivity
     private String url,ret;
 
     private ProgressBar progressBar;
-
-
     private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
 
     public static String nomeReg,senhaReg,conSenhaReg,emailReg,CPF_CNPJ_reg,nascReg;
@@ -463,7 +461,16 @@ public class EntradaActivity extends AppCompatActivity
                     txtLoading.setText("Falha na conexão.");
                     Toast.makeText(EntradaActivity.this, "Falha: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 }
+
+
             });
+        }
+
+        private void mostrarErro (String mensagem){
+            Toast.makeText(EntradaActivity.this,mensagem,Toast.LENGTH_LONG).show();
+
+            //volta a tentar após alguns segundos
+            new Handler().postDelayed(this::ConectarAPI, 3000);
         }
 
         //Serve para login
@@ -496,10 +503,12 @@ public class EntradaActivity extends AppCompatActivity
                     Toast.makeText(EntradaActivity.this, "falha na conexão", Toast.LENGTH_SHORT).show();
                     Log.e("API", "Erro: ", t);
                 }
+
             });
 
-
         }
+
+
 
 
     }
