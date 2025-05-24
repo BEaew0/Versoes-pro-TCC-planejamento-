@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TesouroAzulAPI.Data;
 using TesouroAzulAPI.Dtos;
 using TesouroAzulAPI.Models;
 
 namespace TesouroAzulAPI.Controllers
 {
-    [Route ("api/PedidoCompra"), ApiController]
+    [Route("api/PedidoCompra"), ApiController]
     public class PedidoCompraController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -18,7 +19,9 @@ namespace TesouroAzulAPI.Controllers
         // DTO para switch de campos
         public class CamposDtos
         {
+            [Required]
             public string Campo { get; set; } = string.Empty;
+            [Required]
             public string NovoValor { get; set; } = string.Empty;
         }
 
@@ -41,87 +44,115 @@ namespace TesouroAzulAPI.Controllers
 
             _context.PedidosCompra.Add(pedido);
             await _context.SaveChangesAsync();
-            
+
 
             // Adicionar busca aqui para descobrir o ID do pedido criado e adicionar na variavel
             int idPedido = pedido.ID_PEDIDO;
 
-
-            var itemCompra = new ItensCompra
+            var itensSalvo = new List<ItensCompra>();
+            foreach (var item in dto.Item)
             {
-                ID_PRODUTO_FK = dto.Item.ID_PRODUTO_FK,
-                ID_PEDIDO_FK = idPedido,
-                LOTE_COMPRA = dto.Item.LOTE_COMPRA,
-                QUANTIDADE_ITEM_COMPRA = dto.Item.QUANTIDADE_ITEM_COMPRA,
-                N_ITEM_COMPRA = dto.Item.N_ITEM_COMPRA
-            };
+                var itemCompra = new ItensCompra
+                {
+                    ID_PRODUTO_FK = item.ID_PRODUTO_FK,
+                    ID_PEDIDO_FK = idPedido, // Usando o ID do pedido criado
+                    LOTE_COMPRA = item.LOTE_COMPRA,
+                    QUANTIDADE_ITEM_COMPRA = item.QUANTIDADE_ITEM_COMPRA,
+                    N_ITEM_COMPRA = item.N_ITEM_COMPRA
+                };
 
-            _context.ItensCompra.Add(itemCompra);
+                _context.ItensCompra.Add(itemCompra);
+                itensSalvo.Add(itemCompra);
+            }
             await _context.SaveChangesAsync();
 
-            return Ok(new { PedidoID = pedido.ID_PEDIDO, ItemID = itemCompra.ID_ITEM_COMPRA});
+            // Retorno do JSON com o pedido e seus items
+            return Ok(new
+            {
+                PedidoID = pedido.ID_PEDIDO,
+                Itens = itensSalvo.Select(i => new
+                {
+                    i.ID_ITEM_COMPRA,
+                    i.ID_PRODUTO_FK,
+                    i.QUANTIDADE_ITEM_COMPRA
+                })
+            });
         }
+
+        // Inserir item em compra
+        [HttpPost("Itens")]
+        public async Task<IActionResult> InserirItemCompra([FromBody] List<ItensCompraDto> dto)
+        {
+            if (dto == null || !dto.Any()) return BadRequest("Lista de itens não pode ser vazia");
+            var itensSalvos = new List<ItensCompra>();
+            foreach (var item in dto)
+            {
+                var itemCompra = new ItensCompra
+                {
+                    ID_PRODUTO_FK = item.ID_PRODUTO_FK,
+                    ID_PEDIDO_FK = item.ID_PEDIDO_FK,
+                    LOTE_COMPRA = item.LOTE_COMPRA,
+                    QUANTIDADE_ITEM_COMPRA = item.QUANTIDADE_ITEM_COMPRA,
+                    N_ITEM_COMPRA = item.N_ITEM_COMPRA
+                };
+                _context.ItensCompra.Add(itemCompra);
+                itensSalvos.Add(itemCompra);
+            }
+            await _context.SaveChangesAsync();
+            return Ok(itensSalvos);
+        }
+
         // Buscar por campo do pedido
         [HttpPost("Pedido/Buscar-por-campo")]
         public async Task<ActionResult<IEnumerable<PedidosCompra>>> PedidoBuscarPorCampo(int id_usuario_fk, [FromBody] CamposDtos filtro)
         {
             // tratamento de erro
-            int id_usuario = id_usuario_fk;
-            if (id_usuario == 0) return BadRequest("ID do usuário não pode ser 0");
-            // Verifica se o campo existe na tabela
-            var campo = _context.PedidosCompra.FirstOrDefault(x => x.GetType().GetProperty(filtro.Campo) != null);
-            if (campo == null) return BadRequest("Campo não existe na tabela");
+            if (id_usuario_fk == 0) return BadRequest("ID do usuário não pode ser 0");
+            List<PedidosCompra> pedidoCampo = new();
 
-            switch (filtro.Campo) 
+            switch (filtro.Campo.ToLower())
             {
                 case "fornecedor_pedido":
-                    var pedidoFornecedor = await _context.PedidosCompra.Where(p => p.Fornecedor.NOME_FORNECEDOR == filtro.NovoValor).ToListAsync();
-                    if(!pedidoFornecedor.Any()) return NotFound("Fornecedor não encontrado");
-                    return Ok(pedidoFornecedor);
+                    pedidoCampo = await _context.PedidosCompra.Where(p => p.ID_FORNECEDOR_FK == Convert.ToInt16(filtro.NovoValor)).ToListAsync();
+
                     break;
                 case "data_pedido":
-                    var pedidoData = await _context.PedidosCompra.Where(p => p.DATA_PEDIDO == Convert.ToDateTime(filtro.NovoValor)).ToListAsync();
-                    if (!pedidoData.Any()) return NotFound("Data não encontrada");
-                    return Ok(pedidoData);
+                    if (!DateTime.TryParse(filtro.NovoValor, out DateTime dataPedido)) return BadRequest("Novo Valor para Data deve ser uma data válida.");
+                    pedidoCampo = await _context.PedidosCompra.Where(p => p.DATA_PEDIDO == Convert.ToDateTime(filtro.NovoValor)).ToListAsync();
+
                     break;
+                // Retorna os pedidos com data anterior
                 case "data_anterior_pedido":
-                    var pedidoDataAnterior = await _context.PedidosCompra.Where(p => p.DATA_PEDIDO < Convert.ToDateTime(filtro.NovoValor)).ToListAsync();
-                    if (!pedidoDataAnterior.Any()) return NotFound("Data não encontrada");
-                    // Retorna os pedidos com data anterior
-                    return Ok(pedidoDataAnterior);
+                    if(!DateTime.TryParse(filtro.NovoValor, out DateTime dataAnterior)) return BadRequest("Novo Valor para Data deve ser uma data válida.");
+                    pedidoCampo = await _context.PedidosCompra.Where(p => p.DATA_PEDIDO < Convert.ToDateTime(filtro.NovoValor)).ToListAsync();
+
                     break;
+                // Retorna os pedidos com data posterior
                 case "data_posterior_pedido":
-                    var pedidoDataPosterior = await _context.PedidosCompra.Where(p => p.DATA_PEDIDO > Convert.ToDateTime(filtro.NovoValor)).ToListAsync();
-                    if (!pedidoDataPosterior.Any()) return NotFound("Data não encontrada");
-                    // Retorna os pedidos com data posterior
-                    return Ok(pedidoDataPosterior);
-                    break;
-                case "cod_lote_pedido":
-                    var pedidoLote = await _context.ItensCompra.Where(p => p.LOTE_COMPRA == filtro.NovoValor).ToListAsync();
-                    if (!pedidoLote.Any()) return NotFound("Lote não encontrado");
-                    return Ok(pedidoLote);
+                    if (!DateTime.TryParse(filtro.NovoValor, out DateTime dataPosterior)) return BadRequest("Novo Valor para Data deve ser uma data válida.");
+                    pedidoCampo = await _context.PedidosCompra.Where(p => p.DATA_PEDIDO > Convert.ToDateTime(filtro.NovoValor)).ToListAsync();
                     break;
                 case "valor_pedido":
-                    var pedidoValor = await _context.PedidosCompra.Where(p => p.VALOR_PEDIDO == Convert.ToDecimal(filtro.NovoValor)).ToListAsync();
-                    if (!pedidoValor.Any()) return NotFound("Valor não encontrado");
-                    return Ok(pedidoValor);
+                    pedidoCampo = await _context.PedidosCompra.Where(p => p.VALOR_PEDIDO == Convert.ToDecimal(filtro.NovoValor)).ToListAsync();
+
                     break;
                 case "valor_menor_pedido":
-                    var pedidoValorMenor = await _context.PedidosCompra.Where(p => p.VALOR_PEDIDO < Convert.ToDecimal(filtro.NovoValor)).ToListAsync();
-                    if (!pedidoValorMenor.Any()) return NotFound("Valor não encontrado");
-                    return Ok(pedidoValorMenor);
+                    pedidoCampo = await _context.PedidosCompra.Where(p => p.VALOR_PEDIDO < Convert.ToDecimal(filtro.NovoValor)).ToListAsync();
+
                     break;
                 case "valor_maior_pedido":
-                    var pedidoValorMaior = await _context.PedidosCompra.Where(p => p.VALOR_PEDIDO > Convert.ToDecimal(filtro.NovoValor)).ToListAsync();
-                    if (!pedidoValorMaior.Any()) return NotFound("Valor não encontrado");
-                    return Ok(pedidoValorMaior);
+                    pedidoCampo = await _context.PedidosCompra.Where(p => p.VALOR_PEDIDO > Convert.ToDecimal(filtro.NovoValor)).ToListAsync();
                     break;
                 default:
-                    return BadRequest("Somente os campos são aceitos : fornecedor_pedido, data_pedido, data_anterior_pedido, data_posterior_pedido, cod_lote_pedido, valor_pedido," +
+                    return BadRequest("Somente os campos são aceitos : fornecedor_pedido, data_pedido, data_anterior_pedido, data_posterior_pedido, valor_pedido," +
                         "valor_menor_pedido, valor_maior_pedido");
                     break;
             }
+
+            if (!pedidoCampo.Any()) return NotFound("Valor não encontrado");
+            return Ok(pedidoCampo);
         }
+
         //GETs
         //Buscar Compras Pedido
         [HttpGet]
@@ -131,14 +162,102 @@ namespace TesouroAzulAPI.Controllers
             if (!pedido.Any()) return NotFound("Nenhum pedido encontrado");
             return Ok(pedido);
         }
+        //Bucsar Itens das compras por pedido
+        [HttpGet("Itens/{id_pedido}")]
+        public async Task<ActionResult<IEnumerable<ItensCompra>>> BuscarItensCompraPorPedido(int id_pedido)
+        {
+            var itens = await _context.ItensCompra.Where(i => i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+            if (!itens.Any()) return NotFound("Nenhum item encontrado para o pedido");
+            return Ok(itens);
+        }
+
         //Buscar Compras Pedido por usuario
+        [HttpGet("Usuario/{id_usuario}")]
+        public async Task<ActionResult<IEnumerable<PedidosCompra>>> BuscarComprasPedidoPorUsuario(int id_usuario)
+        {
+            // tratamento de erro
+            if (id_usuario == 0) return BadRequest("ID do usuário não pode ser 0");
+            var pedido = await _context.PedidosCompra.Where(p => p.ID_USUARIO_FK == id_usuario).ToListAsync();
+            if (!pedido.Any()) return NotFound("Nenhum pedido encontrado para este usuário");
+            return Ok(pedido);
+        }
 
         //PATCHs
         //Alterar Pedido Compra {campo}
+        [HttpPatch("{id_pedido}")]
+        public async Task<IActionResult> AlterarPedidoCompra(int id_pedido, [FromBody] CamposDtos dto)
+        {
+            // tratamento de erro
+            var pedido = await _context.PedidosCompra.FindAsync(id_pedido);
+            if (pedido == null) return NotFound("Pedido não encontrado");
+            // Inicia busca dinamica
+            switch (dto.Campo.ToLower())
+            {
+                case "fornecedor_pedido":
+                    pedido.ID_FORNECEDOR_FK = Convert.ToInt16(dto.NovoValor);
+                    break;
+                case "data_pedido":
+                    if (DateTime.TryParse(dto.NovoValor, out DateTime dataVal)) { pedido.DATA_PEDIDO = dataVal; }
+                    else { return BadRequest("Novo Valor para Data deve ser uma data válida."); }
+                    break;
+                case "valor_pedido":
+                    pedido.VALOR_PEDIDO = Convert.ToDecimal(dto.NovoValor);
+                    break;
+                default:
+                    return BadRequest("Campos permitidos : fornecedor_pedido, data_pedido, valor_pedido");
+            }
+            _context.PedidosCompra.Update(pedido);
+            await _context.SaveChangesAsync();
+            return Ok(pedido);
+        }
+        // Alterar Itens Compra {campo}
+        [HttpPatch("Itens/{id_item}")]
+        public async Task<IActionResult> AlterarItemCompra(int id_item, [FromBody] CamposDtos dto)
+        {
+            // tratamento de erro
+            var item = await _context.ItensCompra.FindAsync(id_item);
+            if (item == null) return NotFound("Item não encontrado");
+            switch (dto.Campo.ToLower())
+            {
+                case "produto_item":
+                    item.ID_PRODUTO_FK = Convert.ToInt16(dto.NovoValor);
+                    break;
+                case "lote_item":
+                    item.LOTE_COMPRA = dto.NovoValor;
+                    break;
+                case "quantidade_item":
+                    item.QUANTIDADE_ITEM_COMPRA = Convert.ToDecimal(dto.NovoValor);
+                    break;
+                case "n_item_compra":
+                    item.N_ITEM_COMPRA = Convert.ToInt16(dto.NovoValor);
+                    break;
+                default:
+                    return BadRequest("Campos permitidos : produto_item, lote_item, quantidade_item, n_item_compra");
+            }
+            _context.ItensCompra.Update(item);
+            await _context.SaveChangesAsync();
+            return Ok(item);
+        }
 
         //DElETEs
         //Deletar pedido compra
+        [HttpDelete("{id_pedido}")]
+        public async Task<IActionResult> DeletarPedidoCompra(int id_pedido)
+        {
+            // tratamento de erro
+            var pedido = await _context.PedidosCompra.FindAsync(id_pedido);
+            if (pedido == null) return NotFound("Pedido não encontrado");
+            _context.PedidosCompra.Remove(pedido);
+            await _context.SaveChangesAsync();
+            return Ok("Pedido deletado com sucesso");
 
+        }
+        // Deletar Itens Compra
+        [HttpDelete("Itens/{id_item}")]
+        public async Task<IActionResult> DeletarITemCompra(int id_pedido, int id_item)
+        {
 
+            return default;
+        }
     }
 }

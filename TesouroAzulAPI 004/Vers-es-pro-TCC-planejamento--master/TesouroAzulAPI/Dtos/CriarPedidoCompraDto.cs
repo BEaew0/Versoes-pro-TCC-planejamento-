@@ -22,6 +22,6 @@ namespace TesouroAzulAPI.Dtos
     public class PedidoCompraCompleto
     {
         public CriarPedidoCompraDto Pedido { get; set; }
-        public ItensCompraDto Item { get; set; }
+        public List<ItensCompraDto>Item { get; set; }
     }
 }
