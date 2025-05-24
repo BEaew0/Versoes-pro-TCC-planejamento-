@@ -56,6 +56,7 @@ namespace TesouroAzulAPI.Controllers
                 {
                     ID_PRODUTO_FK = item.ID_PRODUTO_FK,
                     ID_PEDIDO_FK = idPedido, // Usando o ID do pedido criado
+                    VAL_ITEM_COMPRA = item.VAL_ITEM_COMPRA ?? null,
                     LOTE_COMPRA = item.LOTE_COMPRA,
                     QUANTIDADE_ITEM_COMPRA = item.QUANTIDADE_ITEM_COMPRA,
                     N_ITEM_COMPRA = item.N_ITEM_COMPRA
@@ -91,6 +92,7 @@ namespace TesouroAzulAPI.Controllers
                 {
                     ID_PRODUTO_FK = item.ID_PRODUTO_FK,
                     ID_PEDIDO_FK = item.ID_PEDIDO_FK,
+                    VAL_ITEM_COMPRA = item.VAL_ITEM_COMPRA ?? null,
                     LOTE_COMPRA = item.LOTE_COMPRA,
                     QUANTIDADE_ITEM_COMPRA = item.QUANTIDADE_ITEM_COMPRA,
                     N_ITEM_COMPRA = item.N_ITEM_COMPRA
@@ -102,7 +104,7 @@ namespace TesouroAzulAPI.Controllers
             return Ok(itensSalvos);
         }
 
-        // Buscar por campo do pedido
+        // Buscar pedido por campo do pedido
         [HttpPost("Pedido/Buscar-por-campo")]
         public async Task<ActionResult<IEnumerable<PedidosCompra>>> PedidoBuscarPorCampo(int id_usuario_fk, [FromBody] CamposDtos filtro)
         {
@@ -152,10 +154,50 @@ namespace TesouroAzulAPI.Controllers
             if (!pedidoCampo.Any()) return NotFound("Valor não encontrado");
             return Ok(pedidoCampo);
         }
-
-        //GETs
-        //Buscar Compras Pedido
-        [HttpGet]
+        // Buscar por campo do item
+        [HttpPost("item-compra/Buscar-por-campo")]
+        public async Task<ActionResult<IEnumerable<ItensCompra>>> ItemBuscarPorCampo(int id_pedido, [FromBody] CamposDtos filtro)
+        {
+            // tratamento de erro
+            if (id_pedido == 0) return BadRequest("ID do pedido não pode ser 0");
+            List<ItensCompra> itemCampo = new();
+            switch (filtro.Campo.ToLower())
+            {
+                case "produto_item":
+                    itemCampo = await _context.ItensCompra.Where(i => i.ID_PRODUTO_FK == Convert.ToInt16(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                case "lote_item":
+                    itemCampo = await _context.ItensCompra.Where(i => i.LOTE_COMPRA == filtro.NovoValor && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                case "quantidade_item":
+                    itemCampo = await _context.ItensCompra.Where(i => i.QUANTIDADE_ITEM_COMPRA == Convert.ToDecimal(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                case "n_item_compra":
+                    itemCampo = await _context.ItensCompra.Where(i => i.N_ITEM_COMPRA == Convert.ToInt16(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                case "val_item":
+                    if (!DateTime.TryParse(filtro.NovoValor, out DateTime valItem)) return BadRequest("Novo Valor para Data deve ser uma data válida.");
+                    itemCampo = await _context.ItensCompra.Where(i => i.VAL_ITEM_COMPRA == Convert.ToDateTime(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                // Item vencido
+                case "item_vencido":
+                    filtro.NovoValor = DateTime.Now.ToString("yyyy-MM-dd");
+                    itemCampo = await _context.ItensCompra.Where(i => i.VAL_ITEM_COMPRA < Convert.ToDateTime(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                // Item não vencido
+                case "item_nao_vencido":
+                    filtro.NovoValor = DateTime.Now.ToString("yyyy-MM-dd");
+                    itemCampo = await _context.ItensCompra.Where(i => i.VAL_ITEM_COMPRA > Convert.ToDateTime(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                default:
+                    return BadRequest("Somente os campos são aceitos : produto_item, lote_item, quantidade_item, n_item_compra, val_item, item_vencido, item_nao_vencido");
+            }
+            if (!itemCampo.Any()) return NotFound("Item não encontrado");
+            return Ok(itemCampo);
+        }
+            //GETs
+            //Buscar Compras Pedido
+            [HttpGet]
         public async Task<ActionResult<IEnumerable<PedidosCompra>>> BuscarComprasPedido()
         {
             var pedido = await _context.PedidosCompra.ToListAsync();

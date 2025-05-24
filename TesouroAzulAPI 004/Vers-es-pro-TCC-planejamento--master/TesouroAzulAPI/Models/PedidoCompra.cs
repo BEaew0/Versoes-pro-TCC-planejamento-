@@ -43,6 +43,8 @@ namespace TesouroAzulAPI.Models
         [Required]
         public int ID_PEDIDO_FK { get; set; }
 
+        public DateTime? VAL_ITEM_COMPRA { get; set; } = null;
+
         [MaxLength(25)]
         public string LOTE_COMPRA { get; set; }
 
