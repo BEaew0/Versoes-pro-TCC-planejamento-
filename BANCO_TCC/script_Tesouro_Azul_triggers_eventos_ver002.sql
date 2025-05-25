@@ -29,121 +29,162 @@ BEGIN
     WHERE ID_VENDA = NEW.ID_VENDA_FK;
 
     SELECT VALOR_PEDIDO INTO v_compra FROM TB_PEDIDO_COMPRA
-    WHERE ID_COMPRA = NEW.ID_COMPRA_FK;
+    WHERE ID_PEDIDO = NEW.ID_COMPRA_FK;
 
     -- Calcular lucro
     SET v_lucro = v_venda - v_compra;
 
-    -- Atualizar o valor do lucro na tabela TB_LUCRO
+    -- Atualizar valor do lucro na tabela TB_LUCRO
     UPDATE TB_LUCRO
-    SET VALOR_LUCRO = IFNULL(VALOR_LUCRO, 0) + v_lucro
+    SET VALOR_LUCRO = v_lucro
     WHERE ID_LUCRO = NEW.ID_LUCRO_FK;
+END;//
+DELIMITER ;
+
+
+-- Triggers relacionados à TB_ESTOQUE_PRODUTO
+
+-- = Trigger que ativa OnCreate de TB_ITEM_COMPRA para adicionar item na tabela  TB_ESTOQUE_PRODUTO
+DELIMITER //
+CREATE TRIGGER trg_after_insert_item_compra
+AFTER INSERT ON TB_ITEM_COMPRA
+FOR EACH ROW
+BEGIN
+  DECLARE v_id_estoque INT;
+
+  SELECT ID_ESTOQUE INTO v_id_estoque
+  FROM TB_ESTOQUE_PRODUTO
+  WHERE ID_PRODUTO_FK = NEW.ID_PRODUTO_FK AND ID_USUARIO_FK = (
+    SELECT ID_USUARIO_FK FROM TB_PEDIDO_COMPRA WHERE ID_PEDIDO_COMPRA = NEW.ID_PEDIDO_FK
+  );
+
+  IF v_id_estoque IS NULL THEN
+    INSERT INTO TB_ESTOQUE_PRODUTO (
+      ID_PRODUTO_FK, ID_USUARIO_FK, QTD_TOTAL_ESTOQUE, VALOR_GASTO_TOTAL_ESTOQUE
+    ) VALUES (
+      NEW.ID_PRODUTO_FK,
+      (SELECT ID_USUARIO_FK FROM TB_PEDIDO_COMPRA WHERE ID_PEDIDO_COMPRA = NEW.ID_PEDIDO_FK),
+      NEW.QUANTIDADE_ITEM_COMPRA * NEW.N_ITEM_COMPRA,
+      (SELECT VALOR_PEDIDO FROM TB_PEDIDO_COMPRA WHERE ID_PEDIDO_COMPRA = NEW.ID_PEDIDO_FK)
+    );
+  ELSE
+    UPDATE TB_ESTOQUE_PRODUTO
+    SET
+      QTD_TOTAL_ESTOQUE = QTD_TOTAL_ESTOQUE + (NEW.QUANTIDADE_ITEM_COMPRA * NEW.N_ITEM_COMPRA),
+      VALOR_GASTO_TOTAL_ESTOQUE = VALOR_GASTO_TOTAL_ESTOQUE + (
+        SELECT VALOR_PEDIDO FROM TB_PEDIDO_COMPRA WHERE ID_PEDIDO_COMPRA = NEW.ID_PEDIDO_FK
+      )
+    WHERE ID_ESTOQUE = v_id_estoque;
+  END IF;
 END;
 //
 DELIMITER ;
 
--- Trigger para inserir no estoque ao registrar compra
-DELIMITER $$
-
-CREATE TRIGGER trg_after_insert_item_compra_estoque
-AFTER INSERT ON TB_ITEM_COMPRA
+-- = Trigger que ativa OnDelete para remover item na tabela TB_ESTOQUE_PRODUTO
+DELIMITER //
+CREATE TRIGGER trg_after_delete_item_compra
+AFTER DELETE ON TB_ITEM_COMPRA
 FOR EACH ROW
 BEGIN
-    DECLARE v_qtd DECIMAL(10,2);
-    DECLARE v_valor_unitario DECIMAL(10,2);
-    DECLARE v_valor_total DECIMAL(10,2);
-    DECLARE v_id_usuario INT;
+  DECLARE v_id_estoque INT;
 
-    -- Quantidade e valor total
-    SET v_qtd = NEW.QUANTIDADE_ITEM;
-    
-    -- Buscar valor unitário da compra
-    SELECT VALOR_PEDIDO / QTD_COMPRA, ID_USUARIO_FK
-    INTO v_valor_unitario, v_id_usuario
-    FROM TB_PEDIDO_COMPRA
-    WHERE ID_COMPRA = NEW.ID_COMPRA;
+  SELECT ID_ESTOQUE INTO v_id_estoque
+  FROM TB_ESTOQUE_PRODUTO
+  WHERE ID_PRODUTO_FK = OLD.ID_PRODUTO_FK AND ID_USUARIO_FK = (
+    SELECT ID_USUARIO_FK FROM TB_PEDIDO_COMPRA WHERE ID_PEDIDO_COMPRA = OLD.ID_PEDIDO_FK
+  );
 
-    SET v_valor_total = v_valor_unitario * v_qtd;
-
-    -- Se já existe no estoque, atualiza
-    IF EXISTS (
-        SELECT 1 FROM TB_ESTOQUE_PRODUTO
-        WHERE ID_PRODUTO_FK = NEW.ID_PRODUTO AND ID_USUARIO_FK = v_id_usuario
-    ) THEN
-        UPDATE TB_ESTOQUE_PRODUTO
-        SET 
-            QTD_TOTAL_ESTOQUE_ESTOQUE = QTD_TOTAL_ESTOQUE_ESTOQUE + v_qtd,
-            VALOR_GASTO_TOTAL_ESTOQUE = VALOR_GASTO_TOTAL_ESTOQUE + v_valor_total,
-            VALOR_POTENCIAL_VENDA_ESTOQUE = VALOR_POTENCIAL_VENDA_ESTOQUE + (v_valor_total * 2) -- Exemplo: markup 100%
-        WHERE ID_PRODUTO_FK = NEW.ID_PRODUTO AND ID_USUARIO_FK = v_id_usuario;
-
-    -- Se não existe, insere
-    ELSE
-        INSERT INTO TB_ESTOQUE_PRODUTO (
-            ID_PRODUTO_FK,
-            ID_USUARIO_FK,
-            QTD_TOTAL_ESTOQUE_ESTOQUE,
-            VALOR_GASTO_TOTAL_ESTOQUE,
-            VALOR_POTENCIAL_VENDA_ESTOQUE
-        ) VALUES (
-            NEW.ID_PRODUTO,
-            v_id_usuario,
-            v_qtd,
-            v_valor_total,
-            v_valor_total * 2 -- markup exemplo
-        );
-    END IF;
-END$$
-
+  IF v_id_estoque IS NOT NULL THEN
+    UPDATE TB_ESTOQUE_PRODUTO
+    SET
+      QTD_TOTAL_ESTOQUE = QTD_TOTAL_ESTOQUE - (OLD.QUANTIDADE_ITEM_COMPRA * OLD.N_ITEM_COMPRA),
+      VALOR_GASTO_TOTAL_ESTOQUE = VALOR_GASTO_TOTAL_ESTOQUE - (
+        SELECT VALOR_PEDIDO FROM TB_PEDIDO_COMPRA WHERE ID_PEDIDO_COMPRA = OLD.ID_PEDIDO_FK
+      )
+    WHERE ID_ESTOQUE = v_id_estoque;
+  END IF;
+END;
+//
 DELIMITER ;
 
--- Trigger para atualizar o estoque ao produto ser vendido
-DELIMITER $$
-
-CREATE TRIGGER trg_after_insert_item_venda_estoque
+-- = Trigger que ativa OnUpdate para atualizar item na tabela TB_ESTOQUE_PRODUTO
+DELIMITER //
+CREATE TRIGGER trg_after_insert_item_venda
 AFTER INSERT ON TB_ITEM_VENDA
 FOR EACH ROW
 BEGIN
-    DECLARE v_qtd_vendida DECIMAL(10,2);
-    DECLARE v_valor_unitario DECIMAL(10,2);
-    DECLARE v_id_usuario INT;
+  DECLARE v_id_estoque INT;
 
-    SET v_qtd_vendida = NEW.QTS_ITEM_VENDA;
-    SET v_desconto_total = NEW.DESCONTO_ITEM_VENDA;
+  SELECT ID_ESTOQUE INTO v_id_estoque
+  FROM TB_ESTOQUE_PRODUTO
+  WHERE ID_PRODUTO_FK = NEW.ID_PRODUTO AND ID_USUARIO_FK = (
+    SELECT ID_USUARIO_FK FROM TB_PEDIDO_VENDA WHERE ID_VENDA = NEW.ID_VENDA
+  );
 
-    -- Buscar ID do usuário associado ao produto
-    SELECT ID_USUARIO_FK
-    INTO v_id_usuario
-    FROM TB_PRODUTO
-    WHERE ID_PRODUTO = NEW.ID_PRODUTO;
-
-    -- Custo médio por unidade
-    SELECT 
-        VALOR_GASTO_TOTAL_ESTOQUE / QTD_TOTAL_ESTOQUE_ESTOQUE
-    INTO 
-        v_valor_unitario
-    FROM TB_ESTOQUE_PRODUTO
-    WHERE ID_PRODUTO_FK = NEW.ID_PRODUTO AND ID_USUARIO_FK = v_id_usuario;
-
-    -- Atualizar o estoque
+  IF v_id_estoque IS NOT NULL THEN
     UPDATE TB_ESTOQUE_PRODUTO
-    SET 
-        QTD_TOTAL_ESTOQUE_ESTOQUE = QTD_TOTAL_ESTOQUE_ESTOQUE - v_qtd_vendida,
-        VALOR_GASTO_TOTAL_ESTOQUE = VALOR_GASTO_TOTAL_ESTOQUE - (v_qtd_vendida * v_valor_unitario),
-        VALOR_POTENCIAL_VENDA_ESTOQUE = VALOR_POTENCIAL_VENDA_ESTOQUE - (v_qtd_vendida * v_valor_unitario)
-    WHERE ID_PRODUTO_FK = NEW.ID_PRODUTO AND ID_USUARIO_FK = v_id_usuario;
-END$$
-
+    SET
+      QTD_TOTAL_ESTOQUE = QTD_TOTAL_ESTOQUE - (NEW.QTS_ITEM_VENDA * NEW.N_ITEM_VENDA),
+      VALOR_POTENCIAL_VENDA_ESTOQUE = VALOR_POTENCIAL_VENDA_ESTOQUE - NEW.DESCONTO_ITEM_VENDA
+    WHERE ID_ESTOQUE = v_id_estoque;
+  END IF;
+END;
+//
 DELIMITER ;
 
 
+-- Trigger relacionados à TB_PEDIDO_COMRPA
 
+-- = Trigger que ativa OnCreate para acresentar o VALOR_PEDIDO na tabela TB_PEDIDO_COMPRA
+DELIMITER //
+CREATE TRIGGER trg_after_delete_item_venda
+AFTER DELETE ON TB_ITEM_VENDA
+FOR EACH ROW
+BEGIN
+  DECLARE v_id_estoque INT;
 
--- Trigger para remover item do estoque em sua venda
+  SELECT ID_ESTOQUE INTO v_id_estoque
+  FROM TB_ESTOQUE_PRODUTO
+  WHERE ID_PRODUTO_FK = OLD.ID_PRODUTO AND ID_USUARIO_FK = (
+    SELECT ID_USUARIO_FK FROM TB_PEDIDO_VENDA WHERE ID_VENDA = OLD.ID_VENDA
+  );
 
--- Trigger para adicionar item no estoque em sua compra
+  IF v_id_estoque IS NOT NULL THEN
+    UPDATE TB_ESTOQUE_PRODUTO
+    SET
+      QTD_TOTAL_ESTOQUE = QTD_TOTAL_ESTOQUE + (OLD.QTS_ITEM_VENDA * OLD.N_ITEM_VENDA),
+      VALOR_POTENCIAL_VENDA_ESTOQUE = VALOR_POTENCIAL_VENDA_ESTOQUE + OLD.DESCONTO_ITEM_VENDA
+    WHERE ID_ESTOQUE = v_id_estoque;
+  END IF;
+END;
+//
+DELIMITER ;
 
--- 
+-- = Trigger que ativa OnDelete para remover o VALOR_PEDIDO na tabela TB_PEDIDO_COMPRA
+DELIMITER ?
+CREATE TRIGGER trg_atualiza_valor_pedido_delete
+AFTER DELETE ON TB_ITEM_COMPRA
+FOR EACH ROW
+BEGIN
+    UPDATE TB_PEDIDO_COMPRA
+    SET VALOR_PEDIDO = VALOR_PEDIDO - OLD.VALOR_TOTAL
+    WHERE ID_PEDIDO_COMPRA = OLD.ID_PEDIDO_COMPRA_FK;
+END;
+?
+DELIMITER ;
+
+-- = Trigger que ativa OnUpdate para atualizar o VALOR_PEDIDO na tabela TB_PEDIDO_COMPRA
+DELIMITER ?
+CREATE TRIGGER trg_atualiza_valor_pedido_update
+AFTER UPDATE ON TB_ITEM_COMPRA
+FOR EACH ROW
+BEGIN
+    UPDATE TB_PEDIDO_COMPRA
+    SET VALOR_PEDIDO = VALOR_PEDIDO - OLD.VALOR_TOTAL + NEW.VALOR_TOTAL
+    WHERE ID_PEDIDO_COMPRA = NEW.ID_PEDIDO_COMPRA_FK;
+END;
+?
+DELIMITER ;
 
 -- EVENTOS
 -- Evento para desativar usuários com assinatura vencida
