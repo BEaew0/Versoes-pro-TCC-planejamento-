@@ -59,7 +59,8 @@ namespace TesouroAzulAPI.Controllers
                     VAL_ITEM_COMPRA = item.VAL_ITEM_COMPRA ?? null,
                     LOTE_COMPRA = item.LOTE_COMPRA,
                     QUANTIDADE_ITEM_COMPRA = item.QUANTIDADE_ITEM_COMPRA,
-                    N_ITEM_COMPRA = item.N_ITEM_COMPRA
+                    N_ITEM_COMPRA = item.N_ITEM_COMPRA,
+                    VALOR_TOTAL_ITEM_COMPRA = item.VALOR_TOTAL_ITEM_COMPRA
                 };
 
                 _context.ItensCompra.Add(itemCompra);
@@ -95,7 +96,8 @@ namespace TesouroAzulAPI.Controllers
                     VAL_ITEM_COMPRA = item.VAL_ITEM_COMPRA ?? null,
                     LOTE_COMPRA = item.LOTE_COMPRA,
                     QUANTIDADE_ITEM_COMPRA = item.QUANTIDADE_ITEM_COMPRA,
-                    N_ITEM_COMPRA = item.N_ITEM_COMPRA
+                    N_ITEM_COMPRA = item.N_ITEM_COMPRA,
+                    VALOR_TOTAL_ITEM_COMPRA = item.VALOR_TOTAL_ITEM_COMPRA
                 };
                 _context.ItensCompra.Add(itemCompra);
                 itensSalvos.Add(itemCompra);
@@ -189,15 +191,24 @@ namespace TesouroAzulAPI.Controllers
                     filtro.NovoValor = DateTime.Now.ToString("yyyy-MM-dd");
                     itemCampo = await _context.ItensCompra.Where(i => i.VAL_ITEM_COMPRA > Convert.ToDateTime(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
                     break;
+                case "valor_total_item":
+                    itemCampo = await _context.ItensCompra.Where(i => i.VALOR_TOTAL_ITEM_COMPRA == Convert.ToDecimal(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                case "valor_total_item_maior":
+                    itemCampo = await _context.ItensCompra.Where(i => i.VALOR_TOTAL_ITEM_COMPRA > Convert.ToDecimal(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
+                case "valor_total_item_menor":
+                    itemCampo = await _context.ItensCompra.Where(i => i.VALOR_TOTAL_ITEM_COMPRA < Convert.ToDecimal(filtro.NovoValor) && i.ID_PEDIDO_FK == id_pedido).ToListAsync();
+                    break;
                 default:
-                    return BadRequest("Somente os campos são aceitos : produto_item, lote_item, quantidade_item, n_item_compra, val_item, item_vencido, item_nao_vencido");
+                    return BadRequest("Somente os campos são aceitos : produto_item, lote_item, quantidade_item, n_item_compra, val_item, item_vencido, item_nao_vencido, valor_total_item, valor_total_item_maior, valor_total_item_menor ");
             }
             if (!itemCampo.Any()) return NotFound("Item não encontrado");
             return Ok(itemCampo);
         }
-            //GETs
-            //Buscar Compras Pedido
-            [HttpGet]
+        //GETs
+        //Buscar Compras Pedido
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<PedidosCompra>>> BuscarComprasPedido()
         {
             var pedido = await _context.PedidosCompra.ToListAsync();
@@ -273,8 +284,11 @@ namespace TesouroAzulAPI.Controllers
                 case "n_item_compra":
                     item.N_ITEM_COMPRA = Convert.ToInt16(dto.NovoValor);
                     break;
+                case "val_total_item":
+                    item.VALOR_TOTAL_ITEM_COMPRA = Convert.ToDecimal(dto.NovoValor);
+                    break;
                 default:
-                    return BadRequest("Campos permitidos : produto_item, lote_item, quantidade_item, n_item_compra");
+                    return BadRequest("Campos permitidos : produto_item, lote_item, quantidade_item, n_item_compra, val_total_item");
             }
             _context.ItensCompra.Update(item);
             await _context.SaveChangesAsync();
@@ -296,10 +310,14 @@ namespace TesouroAzulAPI.Controllers
         }
         // Deletar Itens Compra
         [HttpDelete("Itens/{id_item}")]
-        public async Task<IActionResult> DeletarITemCompra(int id_pedido, int id_item)
+        public async Task<IActionResult> DeletarITemCompra(int id_item)
         {
+            var id_item_compra = await _context.ItensCompra.FindAsync(id_item);
+            if (id_item_compra == null) return NotFound("Item não encontrado");
 
-            return default;
+            _context.ItensCompra.Remove(id_item_compra);
+            await _context.SaveChangesAsync();
+            return Ok(new { mensagem = "Item removido com sucesso" });
         }
     }
 }

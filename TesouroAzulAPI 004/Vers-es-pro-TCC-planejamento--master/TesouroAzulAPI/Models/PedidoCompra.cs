@@ -22,7 +22,7 @@ namespace TesouroAzulAPI.Models
 
 
         [Required, Column(TypeName = "decimal(7,2)")]
-        public decimal VALOR_PEDIDO { get; set;}
+        public decimal VALOR_PEDIDO { get; set;} // Calculado dentro do DB
 
         [ForeignKey(nameof(ID_USUARIO_FK))]
         public Usuario Usuario { get; set; }
@@ -53,6 +53,9 @@ namespace TesouroAzulAPI.Models
 
         [Required]
         public int N_ITEM_COMPRA { get; set;}
+
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal VALOR_TOTAL_ITEM_COMPRA { get; set; }
 
         [ForeignKey(nameof(ID_PRODUTO_FK))]
         public Produto Produto { get; set; }
