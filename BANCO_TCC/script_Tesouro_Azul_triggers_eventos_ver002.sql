@@ -43,6 +43,7 @@ DELIMITER ;
 
 
 -- Triggers relacionados à TB_ESTOQUE_PRODUTO
+-- Triggers checados manualmente, resta apenas testar
 
 -- = Trigger que ativa OnCreate de TB_ITEM_COMPRA para adicionar item na tabela  TB_ESTOQUE_PRODUTO
 DELIMITER //
@@ -80,7 +81,7 @@ END;
 //
 DELIMITER ;
 
--- = Trigger que ativa OnDelete para remover item na tabela TB_ESTOQUE_PRODUTO
+-- = Trigger que ativa After Delete para remover item na tabela TB_ESTOQUE_PRODUTO
 DELIMITER //
 CREATE TRIGGER trg_after_delete_item_compra
 AFTER DELETE ON TB_ITEM_COMPRA
@@ -107,84 +108,77 @@ END;
 //
 DELIMITER ;
 
--- = Trigger que ativa OnUpdate para atualizar item na tabela TB_ESTOQUE_PRODUTO
+-- = Trigger que ativa After Upload para atualizar item na tabela TB_ESTOQUE_PRODUTO
 DELIMITER //
-CREATE TRIGGER trg_after_insert_item_venda
-AFTER INSERT ON TB_ITEM_VENDA
+CREATE TRIGGER trg_atualiza_estoque_item_compra_update
+AFTER UPDATE ON TB_ITEM_COMPRA
 FOR EACH ROW
 BEGIN
   DECLARE v_id_estoque INT;
 
+  -- Descobrir o ID do estoque referente ao produto e usuário da compra
   SELECT ID_ESTOQUE INTO v_id_estoque
   FROM TB_ESTOQUE_PRODUTO
-  WHERE ID_PRODUTO_FK = NEW.ID_PRODUTO AND ID_USUARIO_FK = (
-    SELECT ID_USUARIO_FK FROM TB_PEDIDO_VENDA WHERE ID_VENDA = NEW.ID_VENDA
-  );
+  WHERE ID_PRODUTO_FK = NEW.ID_PRODUTO_FK
+    AND ID_USUARIO_FK = (
+      SELECT ID_USUARIO_FK
+      FROM TB_PEDIDO_COMPRA
+      WHERE ID_PEDIDO_COMPRA = NEW.ID_PEDIDO_FK
+    );
 
+  -- Atualiza a quantidade no estoque se o ID for encontrado
   IF v_id_estoque IS NOT NULL THEN
     UPDATE TB_ESTOQUE_PRODUTO
-    SET
-      QTD_TOTAL_ESTOQUE = QTD_TOTAL_ESTOQUE - (NEW.QTS_ITEM_VENDA * NEW.N_ITEM_VENDA),
-      VALOR_POTENCIAL_VENDA_ESTOQUE = VALOR_POTENCIAL_VENDA_ESTOQUE - NEW.DESCONTO_ITEM_VENDA
+    SET QTD_TOTAL_ESTOQUE = QTD_TOTAL_ESTOQUE - OLD.QUANTIDADE_ITEM_COMPRA + NEW.QUANTIDADE_ITEM_COMPRA
     WHERE ID_ESTOQUE = v_id_estoque;
   END IF;
 END;
 //
 DELIMITER ;
 
-
 -- Trigger relacionados à TB_PEDIDO_COMRPA
+-- Triggers checados manualmente, resta apenas testar
 
 -- = Trigger que ativa OnCreate para acresentar o VALOR_PEDIDO na tabela TB_PEDIDO_COMPRA
 DELIMITER //
-CREATE TRIGGER trg_after_delete_item_venda
-AFTER DELETE ON TB_ITEM_VENDA
+CREATE TRIGGER trg_atualiza_valor_pedido_insert
+AFTER INSERT ON TB_ITEM_COMPRA
 FOR EACH ROW
 BEGIN
-  DECLARE v_id_estoque INT;
-
-  SELECT ID_ESTOQUE INTO v_id_estoque
-  FROM TB_ESTOQUE_PRODUTO
-  WHERE ID_PRODUTO_FK = OLD.ID_PRODUTO AND ID_USUARIO_FK = (
-    SELECT ID_USUARIO_FK FROM TB_PEDIDO_VENDA WHERE ID_VENDA = OLD.ID_VENDA
-  );
-
-  IF v_id_estoque IS NOT NULL THEN
-    UPDATE TB_ESTOQUE_PRODUTO
-    SET
-      QTD_TOTAL_ESTOQUE = QTD_TOTAL_ESTOQUE + (OLD.QTS_ITEM_VENDA * OLD.N_ITEM_VENDA),
-      VALOR_POTENCIAL_VENDA_ESTOQUE = VALOR_POTENCIAL_VENDA_ESTOQUE + OLD.DESCONTO_ITEM_VENDA
-    WHERE ID_ESTOQUE = v_id_estoque;
-  END IF;
+    UPDATE TB_PEDIDO_COMPRA
+    SET VALOR_PEDIDO = VALOR_PEDIDO + NEW.VALOR_TOTAL_ITEM_COMPRA
+    WHERE ID_PEDIDO_FK = NEW.ID_PEDIDO_FK;
 END;
 //
 DELIMITER ;
 
+
 -- = Trigger que ativa OnDelete para remover o VALOR_PEDIDO na tabela TB_PEDIDO_COMPRA
-DELIMITER ?
+DELIMITER //
 CREATE TRIGGER trg_atualiza_valor_pedido_delete
 AFTER DELETE ON TB_ITEM_COMPRA
 FOR EACH ROW
 BEGIN
     UPDATE TB_PEDIDO_COMPRA
-    SET VALOR_PEDIDO = VALOR_PEDIDO - OLD.VALOR_TOTAL
-    WHERE ID_PEDIDO_COMPRA = OLD.ID_PEDIDO_COMPRA_FK;
+    SET VALOR_PEDIDO = VALOR_PEDIDO - OLD.VALOR_TOTAL_ITEM_COMPRA
+    WHERE ID_PEDIDO_FK = OLD.ID_PEDIDO_FK;
 END;
-?
+//
 DELIMITER ;
 
 -- = Trigger que ativa OnUpdate para atualizar o VALOR_PEDIDO na tabela TB_PEDIDO_COMPRA
-DELIMITER ?
+DELIMITER //
 CREATE TRIGGER trg_atualiza_valor_pedido_update
 AFTER UPDATE ON TB_ITEM_COMPRA
 FOR EACH ROW
 BEGIN
     UPDATE TB_PEDIDO_COMPRA
-    SET VALOR_PEDIDO = VALOR_PEDIDO - OLD.VALOR_TOTAL + NEW.VALOR_TOTAL
-    WHERE ID_PEDIDO_COMPRA = NEW.ID_PEDIDO_COMPRA_FK;
+    SET VALOR_PEDIDO = VALOR_PEDIDO - OLD.VALOR_TOTAL_ITEM_COMPRA + NEW.VALOR_TOTAL_ITEM_COMPRA
+    WHERE ID_PEDIDO_FK = NEW.ID_PEDIDO_FK;
 END;
-?
+//
 DELIMITER ;
+
 
 -- EVENTOS
 -- Evento para desativar usuários com assinatura vencida
