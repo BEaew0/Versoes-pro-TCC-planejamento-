@@ -334,8 +334,92 @@ public class EntradaActivity extends AppCompatActivity
 
                 }
 
-
                 public void CriarUsuario() {
+                    String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
+                    ValidarClass validator = new ValidarClass();
+
+                    // Validação dos campos (usando o método existente)
+                    if (!validarCadastro(v, EntradaActivity.this)) {
+                        return; // Se a validação falhar, interrompe a execução
+                    }
+
+                    // Identifica o tipo de documento
+                    String tipoDocumento = validator.identificarTipo(CPF_CNPJreg);
+
+                    String CPF_USUARIO = null;
+                    String CNPJ_USUARIO = null;
+
+                    if ("CPF".equals(tipoDocumento)) {
+                        CPF_USUARIO = CPF_CNPJreg.replaceAll("\\D", ""); // Remove caracteres não numéricos
+                    } else if ("CNPJ".equals(tipoDocumento)) {
+                        CNPJ_USUARIO = CPF_CNPJreg.replaceAll("\\D", ""); // Remove caracteres não numéricos
+                    } else {
+                        Toast.makeText(EntradaActivity.this, "Documento inválido!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String STATUS_USUARIO = "a"; // "a" para ativo (ou ajuste conforme sua regra)
+                    String EMAIL_USUARIO = txtEmail.getText().toString().trim();
+                    String SENHA_USUARIO = txtSenhaReg.getText().toString().trim();
+                    String NOME_USUARIO = txtNomeReg.getText().toString().trim();
+                    String birthUser = txtNascimento.getText().toString().trim();
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                    Date DATA_NASC_USUARIO = null;
+
+                    try {
+                        DATA_NASC_USUARIO = sdf.parse(birthUser);
+                    } catch (ParseException e) {
+                        Toast.makeText(EntradaActivity.this, "Formato de data inválido!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Cria o objeto UsuarioPost (ignorando fotO_USUARIO e iD_ASSINATURA_FK)
+                    superClassUser.UsuarioPost usuario = new superClassUser.UsuarioPost(
+                            NOME_USUARIO,
+                            EMAIL_USUARIO,
+                            DATA_NASC_USUARIO,
+                            CPF_USUARIO,
+                            CNPJ_USUARIO,
+                            0, // iD_ASSINATURA_FK (ignorado, mas o construtor exige um valor)
+                            null, // fotO_USUARIO (ignorado, pode ser null ou "")
+                            SENHA_USUARIO,
+                            STATUS_USUARIO
+                    );
+
+                    // Conversão para JSON (opcional, apenas para debug)
+                    Gson gson = new Gson();
+                    String json = gson.toJson(usuario);
+                    Log.d("UsuarioPost", json); // Para verificar no Logcat
+
+                    // Configuração do Retrofit
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/usuario")
+                            .addConverterFactory(GsonConverterFactory.create(gson))
+                            .build();
+
+                    ApiService apiService = retrofit.create(ApiService.class);
+                    Call<Void> call = apiService.enviarUsuario(usuario);
+
+                    call.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(EntradaActivity.this, "Erro no servidor: " + response.code(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Toast.makeText(EntradaActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                /*
+                public void CriarUsuarioVelho() {
 
 
                     String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
@@ -415,7 +499,7 @@ public class EntradaActivity extends AppCompatActivity
 
                     }
 
-                }
+                }*/
             });
         });
 
@@ -473,20 +557,24 @@ public class EntradaActivity extends AppCompatActivity
             new Handler().postDelayed(this::ConectarAPI, 3000);
         }
 
+        //Depois arrume
         //Serve para login
         public void buscarUsuarios() {
-            Call<List<Usuario>> call = ApiService.getUsuario();
+            Call<List<superClassUser.UsuarioGet>> call = ApiService.getUsuario();
 
-            call.enqueue(new Callback<List<Usuario>>() {
+            call.enqueue(new Callback<List<superClassUser.UsuarioGet>>() {
                 @Override
-                public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
+                public void onResponse(Call<List<superClassUser.UsuarioGet>> call, Response<List<superClassUser.UsuarioGet>> response) {
                     if (response.isSuccessful()) {
-                        List<Usuario> usuarios = response.body();
+                        List<superClassUser.UsuarioGet> usuarios = response.body();
                         StringBuilder resultado = new StringBuilder();
 
-                        for (Usuario u : usuarios) {
-                            resultado.append("CPF: ").append(u.getCPF_USUARIO())
-                                    .append("\nSenha: ").append(u.getSENHA_USUARIO())
+                        for (superClassUser.UsuarioGet u : usuarios) {
+                            resultado.append("CPF: ").append(u.getCpF_USUARIO())
+                                    .append("\nSenha: ").append(u.getSenhA_USUARIO())
+                                    .append("\nNome: ").append(u.getNomE_USUARIO())
+                                    .append("\nEmail: ").append(u.getEmaiL_USUARIO())
+                                    .append("\nStatus: ").append(u.getStatuS_USUARIO())
                                     .append("\n\n");
                         }
                         String resultadoToast = resultado.toString();
@@ -495,17 +583,14 @@ public class EntradaActivity extends AppCompatActivity
                     } else {
                         Toast.makeText(EntradaActivity.this, "Erro ao executar", Toast.LENGTH_SHORT).show();
                     }
-
                 }
 
                 @Override
-                public void onFailure(Call<List<Usuario>> call, Throwable t) {
+                public void onFailure(Call<List<superClassUser.UsuarioGet>> call, Throwable t) {
                     Toast.makeText(EntradaActivity.this, "falha na conexão", Toast.LENGTH_SHORT).show();
                     Log.e("API", "Erro: ", t);
                 }
-
             });
-
         }
 
 
