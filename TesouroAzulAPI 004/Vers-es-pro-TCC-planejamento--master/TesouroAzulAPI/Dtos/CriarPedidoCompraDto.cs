@@ -18,6 +18,7 @@ namespace TesouroAzulAPI.Dtos
         public string LOTE_COMPRA { get; set; }
         public decimal QUANTIDADE_ITEM_COMPRA { get; set; }
         public int N_ITEM_COMPRA { get; set; }
+        public decimal VALOR_TOTAL_ITEM_COMPRA { get; set; }
 
     }
     public class PedidoCompraCompleto
