@@ -418,88 +418,6 @@ public class EntradaActivity extends AppCompatActivity
                     });
                 }
 
-                /*
-                public void CriarUsuarioVelho() {
-
-
-                    String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
-
-                    ValidarClass validator = new ValidarClass();
-
-                    if (validarCadastro(v, EntradaActivity.this)) {
-                        // Identifica o tipo de documento
-                        String tipoDocumento = validator.identificarTipo(CPF_CNPJreg);
-
-                        String CPF_USUARIO = null;
-                        String CNPJ_USUARIO = null;
-
-                        if ("CPF".equals(tipoDocumento)) {
-                            CPF_USUARIO = txtCPF_CNPJ_Reg.getText().toString().trim();
-                        } else if ("CNPJ".equals(tipoDocumento)) {
-                            CNPJ_USUARIO = txtCPF_CNPJ_Reg.getText().toString().trim();
-                        } else {
-                            Toast.makeText(EntradaActivity.this, "Documento inválido!", Toast.LENGTH_SHORT).show();
-                            return; // Interrompe a execução se o documento for inválido
-
-                        }
-                        String STATUS_USUARIO = "a";
-
-                        String EMAIL_USUARIO = txtEmail.getText().toString().trim();
-                        String SENHA_USUARIO = txtSenhaReg.getText().toString().trim();
-
-                        String NOME_USUARIO = txtNomeReg.getText().toString().trim();
-
-                        String birthUser = txtNascimento.getText().toString().trim();
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                        Date DATA_NASC_USUARIO = null;
-
-                        try {
-                            DATA_NASC_USUARIO = sdf.parse(birthUser);
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        Usuario usuario = new Usuario(NOME_USUARIO, EMAIL_USUARIO, DATA_NASC_USUARIO, CPF_USUARIO, CNPJ_USUARIO, SENHA_USUARIO,STATUS_USUARIO);
-
-                        //Conversão para JSON
-                        Gson gson = new Gson();
-                        String json = gson.toJson(usuario);
-
-                        Toast.makeText(EntradaActivity.this, json, Toast.LENGTH_SHORT).show();
-
-                        Retrofit retrofit = new Retrofit.Builder()
-                                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/usuario") // coloque a URL base da sua API
-                                .addConverterFactory(GsonConverterFactory.create(gson))
-                                .build();
-
-                        // Crie uma instância da interface da API
-                        ApiService apiService = retrofit.create(ApiService.class);
-
-                        Call<Void> call = apiService.enviarUsuario(usuario);
-
-                        call.enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> call, Response<Void> response)
-                            {
-                                if (response.isSuccessful()) {
-                                    Toast.makeText(EntradaActivity.this, "Usuário enviado com sucesso!", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(EntradaActivity.this, "Erro ao enviar: " + response.code(), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Void> call, Throwable t) {
-                                Toast.makeText(EntradaActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-
-                    }
-
-                }*/
             });
         });
 
@@ -509,44 +427,54 @@ public class EntradaActivity extends AppCompatActivity
 
     public class ApiOperation {
         private void ConectarAPI() {
-            ApiService apiService = ApiClient.getRetrofit().create(ApiService.class);
+            // 1. Obter o serviço API através do RetrofitClient
+            ApiService apiService = RetrofitClient.getApiService(EntradaActivity.this);
 
-            Call<Void> call = ApiService.verificarConexao();
+            // 2. Fazer a chamada correta ao método da interface
+            Call<Void> call = ApiService.verificarConexao(); // Note o uso da instância apiService
 
             call.enqueue(new Callback<Void>() {
                 @Override
-                public void onResponse(Call<Void> call, Response<Void> response)
-                {
+                public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
                         txtLoading.setText("Conexão estabelecida!");
 
-                        //Aguarda 1 segundo (delay) antes de deixar as opções de login e registar disponiveis disponivel
+                        // Aguarda 2 segundos antes de mostrar a interface
                         new Handler().postDelayed(() ->
                         {
                             txtLoading.setVisibility(View.GONE);
                             progressBar.setVisibility(View.GONE);
 
+                            // Mostrar componentes de UI
                             txtCPF_CNPJ.setVisibility(View.VISIBLE);
                             txtSenha.setVisibility(View.VISIBLE);
                             btnEnter.setVisibility(View.VISIBLE);
                             txtRegistrar.setVisibility(View.VISIBLE);
 
-                            finish();
+                            // Removi o finish() pois parece ser a Activity principal
                         }, 2000);
 
                     } else {
                         txtLoading.setText("Erro ao conectar.");
-                        Toast.makeText(EntradaActivity.this, "Erro: " + response.code(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(EntradaActivity.this,
+                                "Erro na API: " + response.code(),
+                                Toast.LENGTH_LONG).show();
+
+                        // Tentar reconexão após 5 segundos
+                        new Handler().postDelayed(() -> ConectarAPI(), 5000);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
-                    txtLoading.setText("Falha na conexão.");
-                    Toast.makeText(EntradaActivity.this, "Falha: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    txtLoading.setText("Falha na conexão");
+                    Toast.makeText(EntradaActivity.this,
+                            "Erro de rede: " + t.getMessage(),
+                            Toast.LENGTH_LONG).show();
+
+                    // Tentar reconexão após 5 segundos
+                    new Handler().postDelayed(() -> ConectarAPI(), 5000);
                 }
-
-
             });
         }
 
@@ -562,7 +490,8 @@ public class EntradaActivity extends AppCompatActivity
         public void buscarUsuarios() {
             Call<List<superClassUser.UsuarioGet>> call = ApiService.getUsuario();
 
-            call.enqueue(new Callback<List<superClassUser.UsuarioGet>>() {
+            call.enqueue(new Callback<List<superClassUser.UsuarioGet>>()
+            {
                 @Override
                 public void onResponse(Call<List<superClassUser.UsuarioGet>> call, Response<List<superClassUser.UsuarioGet>> response) {
                     if (response.isSuccessful()) {
@@ -592,8 +521,6 @@ public class EntradaActivity extends AppCompatActivity
                 }
             });
         }
-
-
 
 
     }

@@ -29,12 +29,8 @@ import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -84,7 +80,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Configura Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://seuservidor.com/")// <- Coloque a URL base da sua API aqui
+                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/")// <- Coloque a URL base da sua API aqui
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -172,8 +168,8 @@ public class ProdutosActivity extends AppCompatActivity {
         // Mostrar progress bar (opcional)
         progressBar.setVisibility(View.VISIBLE);
 
-        ApiService apiService = RetrofitClient.getApiService();
-        Call<List<SuperClassProd.ProdutoGet>> call = apiService.getProdutos();
+        ApiService apiService = RetrofitClient.getApiService(ProdutosActivity.this);
+        Call<List<SuperClassProd.ProdutoGet>> call = ApiService.getProdutos();
 
         call.enqueue(new Callback<List<SuperClassProd.ProdutoGet>>() {
             @Override
