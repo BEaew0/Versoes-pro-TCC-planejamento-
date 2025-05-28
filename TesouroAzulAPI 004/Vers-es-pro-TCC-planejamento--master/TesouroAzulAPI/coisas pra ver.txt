@@ -20,4 +20,8 @@ coisas para ver :
 - Controller e Model de Fornecedor
 -- Atualizar o campo ID_USUARIO
 
+
+Preciso adicionar uma logica de busca por codigo de barras do produtos, da mesma forma que preciso criar um campo que indica que o produto foi vendido em TB_PEDIDO_COMPRA para
+aderir à validade dele
+
 https://centraldocliente.locaweb.com.br/dynamics_tickets/new_treatment

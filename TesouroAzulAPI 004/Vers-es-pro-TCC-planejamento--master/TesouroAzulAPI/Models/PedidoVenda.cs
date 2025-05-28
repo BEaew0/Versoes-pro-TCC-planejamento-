@@ -41,7 +41,7 @@ namespace TesouroAzulAPI.Models
         */
 
         [MaxLength(255)]
-        public string LOTE_VENDA { get; set; }
+        public string? LOTE_VENDA { get; set; }
         
         [Required, Column(TypeName = "decimal(8,2)")]
         public decimal QTS_ITEM_VENDA { get; set; }
