@@ -13,11 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.imageview.ShapeableImageView;
@@ -55,6 +58,7 @@ public class ProdutosActivity extends AppCompatActivity {
     EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd;
     Button btnVenderProd, btnAdicionarProd, btnAlterarProd, btnEstoque;
     ShapeableImageView prodImage;
+    ProgressBar progressBar;
 
     private ApiService apiService;
 
@@ -67,13 +71,16 @@ public class ProdutosActivity extends AppCompatActivity {
         btnAdicionarProd = findViewById(R.id.btnAdicionarProd);
         btnAlterarProd = findViewById(R.id.btnAlterarProd);
         prodImage = findViewById(R.id.prod_image);
+        recyclerView = findViewById(R.id.recyclerViewProdutos);
 
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         NomeProd = (EditText) findViewById(R.id.txtNomeProd) ;
         ValorProd = (EditText) findViewById(R.id.txtValorProd);
         TipoProd = (EditText) findViewById(R.id.txtTipo);
         QuantProd = (EditText) findViewById(R.id.txtQuant);
         ValProd = (EditText) findViewById(R.id.txtValidade);
         CodProd = (EditText) findViewById(R.id.txtCodProd);
+
 
         // Configura Retrofit
         Retrofit retrofit = new Retrofit.Builder()
@@ -83,7 +90,27 @@ public class ProdutosActivity extends AppCompatActivity {
 
         apiService = retrofit.create(ApiService.class);
 
-      prodImage.setOnClickListener(new View.OnClickListener() {
+        // Configura o LayoutManager (define como os itens são organizados)
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Adiciona divisor entre itens (opcional)
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+        // Inicializa o Adapter com os dados e um listener de clique
+        adapter = new ProdutoAdapter(listaProdutos, this, produto ->
+        {
+            // Ação ao clicar em um item (ex: abrir detalhes)
+            Intent intent = new Intent(this, DetalhesProdutoActivity.class);
+            intent.putExtra("PRODUTO_ID", produto.getiD_PRODUTO());
+            startActivity(intent);
+        });
+
+        // Define o adapter no RecyclerView
+        recyclerView.setAdapter(adapter);
+
+        carregarProdutos();
+
+        prodImage.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View view) {
               if (ContextCompat.checkSelfPermission(ProdutosActivity.this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED)
@@ -141,6 +168,43 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
+    private void carregarProdutos() {
+        // Mostrar progress bar (opcional)
+        progressBar.setVisibility(View.VISIBLE);
+
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<List<SuperClassProd.ProdutoGet>> call = apiService.getProdutos();
+
+        call.enqueue(new Callback<List<SuperClassProd.ProdutoGet>>() {
+            @Override
+            public void onResponse(Call<List<SuperClassProd.ProdutoGet>> call,
+                                   Response<List<SuperClassProd.ProdutoGet>> response) {
+
+                progressBar.setVisibility(View.GONE);
+
+                if (response.isSuccessful() && response.body() != null)
+                {
+                    List<SuperClassProd.ProdutoGet> produtos = response.body();
+                    adapter.atualizarLista(produtos);
+                }
+                else {
+                    Toast.makeText(ProdutosActivity.this,
+                            "Erro ao cargar produtos: " + response.code(),
+                            Toast.LENGTH_SHORT).show();
+                    Log.e("API_ERROR", "Código: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<SuperClassProd.ProdutoGet>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(ProdutosActivity.this,
+                        "Falha na conexão: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+                Log.e("API_FAILURE", "Erro: ", t);
+            }
+        });
+    }
     private void CriarProd() {
         // Obter valores dos campos de texto (assumindo que são EditText)
         String coD_PRODUTO = CodProd.getText().toString().trim();

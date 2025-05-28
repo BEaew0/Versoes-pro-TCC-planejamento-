@@ -171,7 +171,7 @@
             android:layout_width="365dp"
             android:layout_height="56dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="76dp"
             android:layout_marginEnd="30dp"
             android:background="@drawable/edittext_background"
             android:hint="Pesquisar Produto"
@@ -179,8 +179,23 @@
             android:padding="12dp"
             android:textColor="@android:color/black"
             android:textColorHint="@color/cinza"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnAlterarProd"
+            />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="140dp"
+            android:layout_height="129dp"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="132dp"
+            android:layout_marginTop="76dp"
+            android:indeterminateTint="@color/blueButton"
+            android:visibility="visible"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnAlterarProd" />
 
@@ -190,9 +205,12 @@
             android:layout_height="match_parent"
             android:layout_marginTop="15dp"
             android:padding="4dp"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/txtPesquisaProd" />
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

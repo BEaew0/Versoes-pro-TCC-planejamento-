@@ -15,6 +15,12 @@ public interface ApiService {
         return null;
     }
 
+    @GET("https://tesouroazul1.hospedagemdesites.ws/api/Produto/BuscarProdutoIdUsuario")
+    static Call<List<SuperClassProd.ProdutoGet>> getProdutos()//Isso prepara a requisição, mas ainda não a executa!
+    {
+        return null;
+    }
+
     @GET("https://tesouroazul1.hospedagemdesites.ws/api/conexao")
     static Call<Void> verificarConexao()//Isso prepara a requisição, mas ainda não a executa!
     {
