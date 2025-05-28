@@ -17,25 +17,13 @@ Modelo para o controller de Usuario
 Modelo para o controller de Fornecedor
 
 {
-  "iD_FORNECEDOR": 0,
-  "nomE_FORNECEDOR": "Calcinha Preta",
-  "cnpJ_FORNECEDOR": "00000000000000000000",
-  "emaiL_FORNECEDOR": "Carlos@gmail.com",
-  "teL_FORNECEDOR": "012345678",
-  "ceL_FORNECEDOR": "012345678901234",
-  "enderecO_FORNECEDOR": "Sua Mãe Sabe"
-}	
-
-Modelo para o controller de Fornecedor
-
-{
   "iD_FORNECEDOR": 1,
   "nomE_FORNECEDOR": "Victor",
   "cnpJ_FORNECEDOR": "123",
   "emaiL_FORNECEDOR": "user@example.com",
   "teL_FORNECEDOR": "012345678",
   "ceL_FORNECEDOR": "1",
-  "enderecO_FORNECEDOR": "Rua batatais"
+  "enderecO_FORNECEDOR": "Rua batata recheada"
 }
 
 Modelo para o controller de produto
@@ -46,6 +34,5 @@ Modelo para o controller de produto
   "nomE_PRODUTO": "Carlos",
   "valoR_PRODUTO": 500,
   "tipO_PRODUTO": "Toy",
-  "datA_VAL_PRODUTO": "2025-05-23T18:19:46.581Z",
   "imG_PRODUTO": ""
 }

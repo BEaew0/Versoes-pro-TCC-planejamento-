@@ -42,7 +42,6 @@ namespace TesouroAzulAPI.Controllers
                 NOME_PRODUTO = produtoDto.NOME_PRODUTO,
                 VALOR_PRODUTO = produtoDto.VALOR_PRODUTO,
                 TIPO_PRODUTO = Convert.ToString(produtoDto.TIPO_PRODUTO),
-                DATA_VAL_PRODUTO = produtoDto.DATA_VAL_PRODUTO,
                 IMG_PRODUTO = Convert.FromBase64String(produtoDto.IMG_PRODUTO)
             };
 
@@ -79,23 +78,8 @@ namespace TesouroAzulAPI.Controllers
                     if (!produtoTipo.Any()) return NotFound("Tipo não encontrado");
                     return Ok(produtoTipo);
                     break;
-                case "data_val_produto":
-                    var produtoData = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO == DateTime.Parse(filtro.NovoValor)).ToListAsync();
-                    if (!produtoData.Any()) return NotFound("Data não encontrada");
-                    return Ok(produtoData);
-                    break;
-                case "não_vencidos":
-                    var produtoNaoVencidos = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO > DateTime.Now).ToListAsync();
-                    if (!produtoNaoVencidos.Any()) return NotFound("Produto não encontrado");
-                    return Ok(produtoNaoVencidos);
-                    break;
-                case "vencidos":
-                    var produtoVencidos = await _context.Produtos.Where(p => p.DATA_VAL_PRODUTO < DateTime.Now).ToListAsync();
-                    if (!produtoVencidos.Any()) return NotFound("Produto não encontrado");
-                    return Ok(produtoVencidos);
-                    break;
                 default:
-                    return BadRequest("Campos permitidos : cod_produto, nome_produto, tipo_produto, data_val_produto, não_vencidos, vencidos");
+                    return BadRequest("Campos permitidos : cod_produto, nome_produto, tipo_produto");
             }
 
 
@@ -152,18 +136,8 @@ namespace TesouroAzulAPI.Controllers
                 case "valor_produto":
                     produto.VALOR_PRODUTO = Convert.ToDecimal(campo.NovoValor);
                     break;
-                case "data_val_produto":
-                    if (DateTime.TryParse(campo.NovoValor, out DateTime dataVal))
-                    {
-                        produto.DATA_VAL_PRODUTO = dataVal;
-                    }
-                    else
-                    {
-                        return BadRequest("Novo Valor para Data deve ser uma data válida.");
-                    }
-                    break;
                 default:
-                    return BadRequest("Campos permitidos : cod_produto, nome_produto, tipo_produto, data_val_produto");
+                    return BadRequest("Campos permitidos : cod_produto, nome_produto, tipo_produto");
                     break;
             }
 

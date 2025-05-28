@@ -24,8 +24,6 @@ namespace TesouroAzulAPI.Models
         [Required, MaxLength(40)]
         public string TIPO_PRODUTO { get; set;}
 
-        public DateTime? DATA_VAL_PRODUTO { get; set;}
-
         [Column(TypeName = "MEDIUMBLOB")]
         public byte[]? IMG_PRODUTO { get; set;}
 

@@ -18,6 +18,10 @@ namespace TesouroAzulAPI.Data
 
         public DbSet<ItensCompra> ItensCompra { get; set; }
 
+        public DbSet<PedidosVenda> PedidosVenda { get; set; }
+
+        public DbSet<ItensVenda> ItensVenda { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
