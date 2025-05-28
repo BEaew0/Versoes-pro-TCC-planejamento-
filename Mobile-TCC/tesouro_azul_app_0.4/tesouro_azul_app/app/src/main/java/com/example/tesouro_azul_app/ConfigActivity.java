@@ -252,6 +252,7 @@ public class ConfigActivity extends AppCompatActivity {
             galleryLauncher.unregister(); // Libera o registro do launcher
         }
     }
+
     private void openGallery()
     {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -351,9 +352,6 @@ public class ConfigActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
 
 
 }

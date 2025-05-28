@@ -11,158 +11,189 @@
         android:layout_height="wrap_content"
         android:id="@+id/constraintLayout">
 
-    <Button
-        android:id="@+id/btnEstoque"
-        android:layout_width="171dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="6dp"
-        android:layout_marginTop="20dp"
-        android:backgroundTint="@color/blueButton"
-        android:text="Estoque"
-        android:textSize="20dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnVenderProd" />
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/prod_image"
+            android:layout_width="154dp"
+            android:layout_height="133dp"
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="2dp"
+            android:clickable="true"
+            android:contentDescription="@string/descricao_user_icon"
+            android:focusable="true"
+            app:shapeAppearanceOverlay="@style/RoundedRectangleImageView"
+            android:scaleType="centerCrop"
+            android:src="@drawable/camera_icon"
+            app:layout_constraintEnd_toStartOf="@+id/txtQuant"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtValidade" />
 
-    <Button
-        android:id="@+id/btnAdicionarProd"
-        android:layout_width="171dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="37dp"
-        android:layout_marginTop="22dp"
-        android:backgroundTint="@color/blueButton"
-        android:text="Adicionar"
-        android:textSize="20dp"
-        app:layout_constraintStart_toEndOf="@+id/btnVenderProd"
-        app:layout_constraintTop_toBottomOf="@+id/txtQuant" />
+        <Button
+            android:id="@+id/btnAdicionarProd"
+            android:layout_width="171dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="124dp"
+            android:backgroundTint="@color/blueButton"
+            android:text="Adicionar"
+            android:textSize="20dp"
+            app:layout_constraintStart_toEndOf="@+id/btnVenderProd"
+            app:layout_constraintTop_toBottomOf="@+id/txtQuant" />
 
-    <EditText
-        android:id="@+id/txtCodProd"
-        android:layout_width="365dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="28dp"
-        android:background="@drawable/edittext_background"
-        android:hint="Codigo do produto"
-        android:inputType="text"
-        android:padding="12dp"
-        android:textColor="@android:color/black"
-        android:textColorHint="@color/cinza"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <EditText
+            android:id="@+id/txtCodProd"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="42dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Codigo do produto"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/txtNomeProd"
-        android:layout_width="365dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/edittext_background"
-        android:hint="Produto"
-        android:inputType="text"
-        android:padding="12dp"
-        android:textColor="@android:color/black"
-        android:textColorHint="@color/cinza"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtCodProd" />
+        <EditText
+            android:id="@+id/txtNomeProd"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="42dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Produto"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtCodProd" />
 
-    <EditText
-        android:id="@+id/txtValorProd"
-        android:layout_width="365dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="6dp"
-        android:layout_marginTop="25dp"
-        android:background="@drawable/edittext_background"
-        android:hint="Preço em R$"
-        android:textColorHint="@color/cinza"
-        android:inputType="text"
-        android:padding="12dp"
-        android:textColor="@android:color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtNomeProd" />
+        <EditText
+            android:id="@+id/txtValorProd"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Preço em R$"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtNomeProd" />
 
 
-    <EditText
-        android:id="@+id/txtTipo"
-        android:layout_width="198dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="37dp"
-        android:layout_marginEnd="11dp"
-        android:background="@drawable/edittext_background"
-        android:hint="Tipo de produto"
-        android:textColorHint="@color/cinza"
-        android:inputType="text"
-        android:padding="12dp"
-        android:textColor="@android:color/black"
-        app:layout_constraintEnd_toStartOf="@+id/txtQuant"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtValidade" />
+        <EditText
+            android:id="@+id/txtTipo"
+            android:layout_width="198dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Tipo de produto"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtQuant" />
 
-    <EditText
-        android:id="@+id/txtQuant"
-        android:layout_width="165dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="11dp"
-        android:layout_marginTop="37dp"
-        android:background="@drawable/edittext_background"
-        android:textColorHint="@color/cinza"
-        android:hint="Quant produto"
-        android:inputType="number"
-        android:padding="12dp"
-        android:textColor="@android:color/black"
-        app:layout_constraintStart_toEndOf="@+id/txtTipo"
-        app:layout_constraintTop_toBottomOf="@+id/txtValidade" />
+        <EditText
+            android:id="@+id/txtQuant"
+            android:layout_width="199dp"
+            android:layout_height="53dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Quant produto"
+            android:inputType="number"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtValidade" />
 
-    <EditText
-        android:id="@+id/txtValidade"
-        android:layout_width="365dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="6dp"
-        android:layout_marginTop="21dp"
-        android:background="@drawable/edittext_background"
-        android:hint="Data de vencimento"
-        android:textColorHint="@color/cinza"
-        android:inputType="date"
-        android:padding="12dp"
-        android:textColor="@android:color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtValorProd" />
+        <EditText
+            android:id="@+id/txtValidade"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="21dp"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Data de vencimento"
+            android:inputType="date"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtValorProd" />
 
-    <Button
-        android:id="@+id/btnAlterarProd"
-        android:layout_width="171dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="23dp"
-        android:backgroundTint="@color/blueButton"
-        android:text="Alterar"
-        android:textSize="20dp"
-        app:layout_constraintStart_toEndOf="@+id/btnVenderProd"
-        app:layout_constraintTop_toBottomOf="@+id/btnAdicionarProd" />
+        <Button
+            android:id="@+id/btnAlterarProd"
+            android:layout_width="171dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginEnd="17dp"
+            android:backgroundTint="@color/blueButton"
+            android:text="Alterar"
+            android:textSize="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnVenderProd"
+            app:layout_constraintTop_toBottomOf="@+id/btnAdicionarProd" />
 
-    <Button
-        android:id="@+id/btnVenderProd"
-        android:layout_width="171dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="22dp"
-        android:backgroundTint="@color/blueButton"
-        android:text="Vender"
-        android:textSize="20dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtTipo" />
+        <Button
+            android:id="@+id/btnVenderProd"
+            android:layout_width="171dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="60dp"
+            android:backgroundTint="@color/blueButton"
+            android:text="Vender"
+            android:textSize="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prod_image" />
 
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="371dp"
-        android:layout_height="119dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="5dp"
-        android:text="Caso você ja tenha o produto no estoque não é necessario preencher tipo, e caso for vender não é necessário data de vencimento e tipo de produto"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnAlterarProd" />
+        <EditText
+            android:id="@+id/txtPesquisaProd"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginEnd="30dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Pesquisar Produto"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnAlterarProd" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewProdutos"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="15dp"
+            android:padding="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtPesquisaProd" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
