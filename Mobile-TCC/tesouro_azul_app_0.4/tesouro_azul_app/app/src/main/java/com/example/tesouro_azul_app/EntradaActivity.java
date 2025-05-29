@@ -2,6 +2,7 @@ package com.example.tesouro_azul_app;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -33,6 +34,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 
 
 public class EntradaActivity extends AppCompatActivity
@@ -364,56 +366,63 @@ public class EntradaActivity extends AppCompatActivity
                     String NOME_USUARIO = txtNomeReg.getText().toString().trim();
                     String birthUser = txtNascimento.getText().toString().trim();
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                    Date DATA_NASC_USUARIO = null;
+                    // Formatar a data para o padrão esperado pela API (yyyy-MM-dd)
+                    SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy");
+                    SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd");
+                    String DATA_NASC_USUARIO = "";
 
                     try {
-                        DATA_NASC_USUARIO = sdf.parse(birthUser);
+                        Date date = sdfInput.parse(birthUser);
+                        DATA_NASC_USUARIO = sdfOutput.format(date);
                     } catch (ParseException e) {
                         Toast.makeText(EntradaActivity.this, "Formato de data inválido!", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    // Cria o objeto UsuarioPost (ignorando fotO_USUARIO e iD_ASSINATURA_FK)
-                    superClassUser.UsuarioPost usuario = new superClassUser.UsuarioPost(
+                    // Cria o objeto CriarUsuarioDto
+                    SuperClassUser.CriarUsuarioDto usuarioDto = new SuperClassUser.CriarUsuarioDto(
                             NOME_USUARIO,
                             EMAIL_USUARIO,
                             DATA_NASC_USUARIO,
                             CPF_USUARIO,
                             CNPJ_USUARIO,
-                            0, // iD_ASSINATURA_FK (ignorado, mas o construtor exige um valor)
-                            null, // fotO_USUARIO (ignorado, pode ser null ou "")
+                            1, // ID_ASSINATURA_FK (valor padrão 1, ajuste conforme necessário)
+                            null, // FOTO_USUARIO (pode ser null ou string base64)
                             SENHA_USUARIO,
                             STATUS_USUARIO
                     );
 
                     // Conversão para JSON (opcional, apenas para debug)
                     Gson gson = new Gson();
-                    String json = gson.toJson(usuario);
+                    String json = gson.toJson(usuarioDto);
                     Log.d("UsuarioPost", json); // Para verificar no Logcat
 
-                    // Configuração do Retrofit
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/usuario")
-                            .addConverterFactory(GsonConverterFactory.create(gson))
-                            .build();
+                    // Usa o RetrofitClient já configurado
+                    ApiService apiService = RetrofitClient.getApiService();
+                    Call<SuperClassUser.Usuario> call = apiService.criarUsuario(usuarioDto);
 
-                    ApiService apiService = retrofit.create(ApiService.class);
-                    Call<Void> call = apiService.enviarUsuario(usuario);
-
-                    call.enqueue(new Callback<Void>() {
+                    call.enqueue(new Callback<SuperClassUser.Usuario>() {
                         @Override
-                        public void onResponse(Call<Void> call, Response<Void> response) {
+                        public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response) {
                             if (response.isSuccessful()) {
-                                Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
+                                SuperClassUser.Usuario usuarioCriado = response.body();
+                                Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso! ID: " + usuarioCriado.getID_USUARIO(), Toast.LENGTH_SHORT).show();
+                                // Aqui você pode redirecionar para outra activity ou limpar os campos
                             } else {
-                                Toast.makeText(EntradaActivity.this, "Erro no servidor: " + response.code(), Toast.LENGTH_SHORT).show();
+                                try {
+                                    String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
+                                    Toast.makeText(EntradaActivity.this, "Erro no cadastro: " + errorBody, Toast.LENGTH_LONG).show();
+                                    Log.e("API Error", "Código: " + response.code() + ", Mensagem: " + errorBody);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
 
                         @Override
-                        public void onFailure(Call<Void> call, Throwable t) {
+                        public void onFailure(Call<SuperClassUser.Usuario> call, Throwable t) {
                             Toast.makeText(EntradaActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            Log.e("API Failure", "Erro: ", t);
                         }
                     });
                 }
@@ -427,21 +436,18 @@ public class EntradaActivity extends AppCompatActivity
 
     public class ApiOperation {
         private void ConectarAPI() {
-            // 1. Obter o serviço API através do RetrofitClient
-            ApiService apiService = RetrofitClient.getApiService(EntradaActivity.this);
+            ApiService apiService = RetrofitClient.getApiService();
 
-            // 2. Fazer a chamada correta ao método da interface
-            Call<Void> call = ApiService.verificarConexao(); // Note o uso da instância apiService
+            Call<Void> call = apiService.verificarConexao();
 
             call.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
-                        txtLoading.setText("Conexão estabelecida!");
+                        txtLoading.setText("Conexão estabelecida com sucesso!");
 
                         // Aguarda 2 segundos antes de mostrar a interface
-                        new Handler().postDelayed(() ->
-                        {
+                        new Handler().postDelayed(() -> {
                             txtLoading.setVisibility(View.GONE);
                             progressBar.setVisibility(View.GONE);
 
@@ -450,15 +456,27 @@ public class EntradaActivity extends AppCompatActivity
                             txtSenha.setVisibility(View.VISIBLE);
                             btnEnter.setVisibility(View.VISIBLE);
                             txtRegistrar.setVisibility(View.VISIBLE);
-
-                            // Removi o finish() pois parece ser a Activity principal
                         }, 2000);
 
                     } else {
-                        txtLoading.setText("Erro ao conectar.");
-                        Toast.makeText(EntradaActivity.this,
-                                "Erro na API: " + response.code(),
-                                Toast.LENGTH_LONG).show();
+                        try {
+                            // Tenta ler o corpo do erro se existir
+                            String errorBody = response.errorBody() != null ?
+                                    response.errorBody().string() : "Erro desconhecido";
+
+                            txtLoading.setText("Erro na API");
+                            Toast.makeText(EntradaActivity.this,
+                                    "Erro na API: " + response.code() + " - " + errorBody,
+                                    Toast.LENGTH_LONG).show();
+
+                            Log.e("API Error", "Code: " + response.code() + ", Error: " + errorBody);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Toast.makeText(EntradaActivity.this,
+                                    "Erro ao processar resposta",
+                                    Toast.LENGTH_LONG).show();
+                        }
 
                         // Tentar reconexão após 5 segundos
                         new Handler().postDelayed(() -> ConectarAPI(), 5000);
@@ -471,6 +489,8 @@ public class EntradaActivity extends AppCompatActivity
                     Toast.makeText(EntradaActivity.this,
                             "Erro de rede: " + t.getMessage(),
                             Toast.LENGTH_LONG).show();
+
+                    Log.e("Network Failure", "Error: ", t);
 
                     // Tentar reconexão após 5 segundos
                     new Handler().postDelayed(() -> ConectarAPI(), 5000);
@@ -488,40 +508,67 @@ public class EntradaActivity extends AppCompatActivity
         //Depois arrume
         //Serve para login
         public void buscarUsuarios() {
-            Call<List<superClassUser.UsuarioGet>> call = ApiService.getUsuario();
 
-            call.enqueue(new Callback<List<superClassUser.UsuarioGet>>()
+            ApiService apiService = RetrofitClient.getApiService();
+
+
+            Call<List<SuperClassUser.Usuario>> call = apiService.buscarUsuarios();
+
+            call.enqueue(new Callback<List<SuperClassUser.Usuario>>()
             {
                 @Override
-                public void onResponse(Call<List<superClassUser.UsuarioGet>> call, Response<List<superClassUser.UsuarioGet>> response) {
+                public void onResponse(Call<List<SuperClassUser.Usuario>> call, Response<List<SuperClassUser.Usuario>> response)
+                {
                     if (response.isSuccessful()) {
-                        List<superClassUser.UsuarioGet> usuarios = response.body();
+                        List<SuperClassUser.Usuario> usuarios = response.body();
                         StringBuilder resultado = new StringBuilder();
 
-                        for (superClassUser.UsuarioGet u : usuarios) {
-                            resultado.append("CPF: ").append(u.getCpF_USUARIO())
-                                    .append("\nSenha: ").append(u.getSenhA_USUARIO())
-                                    .append("\nNome: ").append(u.getNomE_USUARIO())
-                                    .append("\nEmail: ").append(u.getEmaiL_USUARIO())
-                                    .append("\nStatus: ").append(u.getStatuS_USUARIO())
-                                    .append("\n\n");
+                        if (usuarios != null && !usuarios.isEmpty())
+                        {
+                            for (SuperClassUser.Usuario u : usuarios)
+                            {
+                                resultado.append("ID: ").append(u.getID_USUARIO())
+                                        .append("\nNome: ").append(u.getNOME_USUARIO())
+                                        .append("\nEmail: ").append(u.getEMAIL_USUARIO())
+                                        .append("\nCPF: ").append(u.getCPF_USUARIO())
+                                        .append("\nCNPJ: ").append(u.getCNPJ_USUARIO())
+                                        .append("\nStatus: ").append(u.getSTATUS_USUARIO())
+                                        .append("\n\n");
+                            }
+                        } else {
+                            resultado.append("Nenhum usuário encontrado");
                         }
-                        String resultadoToast = resultado.toString();
 
-                        Toast.makeText(EntradaActivity.this, resultadoToast, Toast.LENGTH_SHORT).show();
+                        // Mostrar resultado em um Toast (limitado a 4000 caracteres)
+                        String resultadoToast = resultado.toString();
+                        int toastLength = resultadoToast.length() > 100 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
+                        Toast.makeText(EntradaActivity.this, resultadoToast, toastLength).show();
+
+                        // Alternativa: mostrar em um Log ou TextView para muitos dados
+                        Log.d("Usuarios", resultado.toString());
+
                     } else {
-                        Toast.makeText(EntradaActivity.this, "Erro ao executar", Toast.LENGTH_SHORT).show();
+                        try {
+                            String errorBody = response.errorBody() != null ?
+                                    response.errorBody().string() : "Erro desconhecido";
+                            Toast.makeText(EntradaActivity.this,
+                                    "Erro: " + response.code() + " - " + errorBody,
+                                    Toast.LENGTH_LONG).show();
+                            Log.e("API Error", "Code: " + response.code() + ", Error: " + errorBody);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
                 @Override
-                public void onFailure(Call<List<superClassUser.UsuarioGet>> call, Throwable t) {
-                    Toast.makeText(EntradaActivity.this, "falha na conexão", Toast.LENGTH_SHORT).show();
-                    Log.e("API", "Erro: ", t);
+                public void onFailure(Call<List<SuperClassUser.Usuario>> call, Throwable t) {
+                    Toast.makeText(EntradaActivity.this,
+                            "Falha na conexão: " + t.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                    Log.e("API Failure", "Erro: ", t);
                 }
             });
         }
-
-
     }
 }

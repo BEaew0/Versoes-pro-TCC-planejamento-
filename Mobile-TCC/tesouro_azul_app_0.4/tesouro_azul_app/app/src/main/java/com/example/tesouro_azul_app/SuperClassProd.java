@@ -2,156 +2,120 @@ package com.example.tesouro_azul_app;
 
 public class SuperClassProd {
 
-    static class ProdutoPost {
-        public int iD_USUARIO;
-        public String coD_PRODUTO;
-        public String nomE_PRODUTO;
-        public Double valoR_PRODUTO;
-        public String tipO_PRODUTO;
-        public String imG_PRODUTO;
+    static class CadastrarProdutoDto {
+        private int ID_USUARIO;
+        private String COD_PRODUTO;
+        private String NOME_PRODUTO;
+        private double VALOR_PRODUTO;
+        private String TIPO_PRODUTO;
+        private String IMG_PRODUTO;
 
-        public ProdutoPost(int iD_USUARIO, String coD_PRODUTO, String nomE_PRODUTO, Double valoR_PRODUTO, String tipO_PRODUTO, String imG_PRODUTO) {
-            this.iD_USUARIO = iD_USUARIO;
-            this.coD_PRODUTO = coD_PRODUTO;
-            this.nomE_PRODUTO = nomE_PRODUTO;
-            this.valoR_PRODUTO = valoR_PRODUTO;
-            this.tipO_PRODUTO = tipO_PRODUTO;
-            this.imG_PRODUTO = imG_PRODUTO;
+        // Construtor
+        public CadastrarProdutoDto(int idUsuario, String codProduto, String nomeProduto,
+                                   double valorProduto, String tipoProduto, String imgProduto) {
+            this.ID_USUARIO = idUsuario;
+            this.COD_PRODUTO = codProduto;
+            this.NOME_PRODUTO = nomeProduto;
+            this.VALOR_PRODUTO = valorProduto;
+            this.TIPO_PRODUTO = tipoProduto;
+            this.IMG_PRODUTO = imgProduto;
         }
 
-        public int getiD_USUARIO() {
-            return iD_USUARIO;
+        // Getters e Setters...
+
+        public void setID_USUARIO(int ID_USUARIO) {
+            this.ID_USUARIO = ID_USUARIO;
         }
 
-        public void setiD_USUARIO(int iD_USUARIO) {
-            this.iD_USUARIO = iD_USUARIO;
+        public void setCOD_PRODUTO(String COD_PRODUTO) {
+            this.COD_PRODUTO = COD_PRODUTO;
         }
 
-        public String getCoD_PRODUTO() {
-            return coD_PRODUTO;
+        public void setNOME_PRODUTO(String NOME_PRODUTO) {
+            this.NOME_PRODUTO = NOME_PRODUTO;
         }
 
-        public void setCoD_PRODUTO(String coD_PRODUTO) {
-            this.coD_PRODUTO = coD_PRODUTO;
+        public void setVALOR_PRODUTO(double VALOR_PRODUTO) {
+            this.VALOR_PRODUTO = VALOR_PRODUTO;
         }
 
-        public String getNomE_PRODUTO() {
-            return nomE_PRODUTO;
+        public void setTIPO_PRODUTO(String TIPO_PRODUTO) {
+            this.TIPO_PRODUTO = TIPO_PRODUTO;
         }
 
-        public void setNomE_PRODUTO(String nomE_PRODUTO) {
-            this.nomE_PRODUTO = nomE_PRODUTO;
+        public void setIMG_PRODUTO(String IMG_PRODUTO) {
+            this.IMG_PRODUTO = IMG_PRODUTO;
         }
 
-        public Double getValoR_PRODUTO() {
-            return valoR_PRODUTO;
-        }
-
-        public void setValoR_PRODUTO(Double valoR_PRODUTO) {
-            this.valoR_PRODUTO = valoR_PRODUTO;
-        }
-
-        public String getTipO_PRODUTO() {
-            return tipO_PRODUTO;
-        }
-
-        public void setTipO_PRODUTO(String tipO_PRODUTO) {
-            this.tipO_PRODUTO = tipO_PRODUTO;
-        }
-
-        public String getImG_PRODUTO() {
-            return imG_PRODUTO;
-        }
-
-        public void setImG_PRODUTO(String imG_PRODUTO) {
-            this.imG_PRODUTO = imG_PRODUTO;
-        }
+        public int getID_USUARIO() { return ID_USUARIO; }
+        public String getCOD_PRODUTO() { return COD_PRODUTO; }
+        public String getNOME_PRODUTO() { return NOME_PRODUTO; }
+        public double getVALOR_PRODUTO() { return VALOR_PRODUTO; }
+        public String getTIPO_PRODUTO() { return TIPO_PRODUTO; }
+        public String getIMG_PRODUTO() { return IMG_PRODUTO; }
     }
 
-    static class ProdutoGet {
-        public int iD_PRODUTO;
-        public int iD_USUARIO_FK;
-        public String coD_PRODUTO;
-        public String nomE_PRODUTO;
-        public Double valoR_PRODUTO;
-        public String tipO_PRODUTO;
-        public String imG_PRODUTO;
-        public String fornecedor;
+    // DTO para atualização de campos
+   static class CamposProdutoDto {
+        private String Campo;
+        private String NovoValor;
 
-        public ProdutoGet(int iD_PRODUTO, int iD_USUARIO_FK, String coD_PRODUTO, String nomE_PRODUTO, Double valoR_PRODUTO, String tipO_PRODUTO, String imG_PRODUTO, String fornecedor) {
-            this.iD_PRODUTO = iD_PRODUTO;
-            this.iD_USUARIO_FK = iD_USUARIO_FK;
-            this.coD_PRODUTO = coD_PRODUTO;
-            this.nomE_PRODUTO = nomE_PRODUTO;
-            this.valoR_PRODUTO = valoR_PRODUTO;
-            this.tipO_PRODUTO = tipO_PRODUTO;
-            this.imG_PRODUTO = imG_PRODUTO;
-            this.fornecedor = fornecedor;
+        public CamposProdutoDto(String campo, String novoValor) {
+            this.Campo = campo;
+            this.NovoValor = novoValor;
         }
 
-        public int getiD_PRODUTO() {
-            return iD_PRODUTO;
+        public String getCampo() { return Campo; }
+        public String getNovoValor() { return NovoValor; }
+    }
+
+    // Modelo de Produto
+   static class Produto {
+        private int ID_PRODUTO;
+        private int ID_USUARIO_FK;
+        private String COD_PRODUTO;
+        private String NOME_PRODUTO;
+        private double VALOR_PRODUTO;
+        private String TIPO_PRODUTO;
+        private byte[] IMG_PRODUTO;
+
+        // Getters e Setters...
+
+        public void setID_PRODUTO(int ID_PRODUTO) {
+            this.ID_PRODUTO = ID_PRODUTO;
         }
 
-        public void setiD_PRODUTO(int iD_PRODUTO) {
-            this.iD_PRODUTO = iD_PRODUTO;
+        public void setID_USUARIO_FK(int ID_USUARIO_FK) {
+            this.ID_USUARIO_FK = ID_USUARIO_FK;
         }
 
-        public int getiD_USUARIO_FK() {
-            return iD_USUARIO_FK;
+        public void setCOD_PRODUTO(String COD_PRODUTO) {
+            this.COD_PRODUTO = COD_PRODUTO;
         }
 
-        public void setiD_USUARIO_FK(int iD_USUARIO_FK) {
-            this.iD_USUARIO_FK = iD_USUARIO_FK;
+        public void setNOME_PRODUTO(String NOME_PRODUTO) {
+            this.NOME_PRODUTO = NOME_PRODUTO;
         }
 
-        public String getCoD_PRODUTO() {
-            return coD_PRODUTO;
+        public void setVALOR_PRODUTO(double VALOR_PRODUTO) {
+            this.VALOR_PRODUTO = VALOR_PRODUTO;
         }
 
-        public void setCoD_PRODUTO(String coD_PRODUTO) {
-            this.coD_PRODUTO = coD_PRODUTO;
+        public void setTIPO_PRODUTO(String TIPO_PRODUTO) {
+            this.TIPO_PRODUTO = TIPO_PRODUTO;
         }
 
-        public String getNomE_PRODUTO() {
-            return nomE_PRODUTO;
+        public void setIMG_PRODUTO(byte[] IMG_PRODUTO) {
+            this.IMG_PRODUTO = IMG_PRODUTO;
         }
 
-        public void setNomE_PRODUTO(String nomE_PRODUTO) {
-            this.nomE_PRODUTO = nomE_PRODUTO;
-        }
-
-        public Double getValoR_PRODUTO() {
-            return valoR_PRODUTO;
-        }
-
-        public void setValoR_PRODUTO(Double valoR_PRODUTO) {
-            this.valoR_PRODUTO = valoR_PRODUTO;
-        }
-
-        public String getTipO_PRODUTO() {
-            return tipO_PRODUTO;
-        }
-
-        public void setTipO_PRODUTO(String tipO_PRODUTO) {
-            this.tipO_PRODUTO = tipO_PRODUTO;
-        }
-
-        public String getImG_PRODUTO() {
-            return imG_PRODUTO;
-        }
-
-        public void setImG_PRODUTO(String imG_PRODUTO) {
-            this.imG_PRODUTO = imG_PRODUTO;
-        }
-
-        public String getFornecedor() {
-            return fornecedor;
-        }
-
-        public void setFornecedor(String fornecedor) {
-            this.fornecedor = fornecedor;
-        }
+        public int getID_PRODUTO() { return ID_PRODUTO; }
+        public int getID_USUARIO_FK() { return ID_USUARIO_FK; }
+        public String getCOD_PRODUTO() { return COD_PRODUTO; }
+        public String getNOME_PRODUTO() { return NOME_PRODUTO; }
+        public double getVALOR_PRODUTO() { return VALOR_PRODUTO; }
+        public String getTIPO_PRODUTO() { return TIPO_PRODUTO; }
+        public byte[] getIMG_PRODUTO() { return IMG_PRODUTO; }
     }
 }
 

@@ -1,218 +1,249 @@
 package com.example.tesouro_azul_app;
 
-import java.util.Date;
+public class SuperClassUser {
 
-public class superClassUser {
+    // CriarUsuarioDto.java
+    public static class CriarUsuarioDto {
+        private String NOME_USUARIO;
+        private String EMAIL_USUARIO;
+        private String DATA_NASC_USUARIO;
+        private String CPF_USUARIO;
+        private String CNPJ_USUARIO;
+        private int ID_ASSINATURA_FK;
+        private String FOTO_USUARIO;
+        private String SENHA_USUARIO;
+        private String STATUS_USUARIO;
 
-    static class UsuarioPost {
-        public UsuarioPost(String nomE_USUARIO, String emaiL_USUARIO, Date datA_NASC_USUARIO, String cpF_USUARIO, String cnpJ_USUARIO, int iD_ASSINATURA_FK, String fotO_USUARIO, String senhA_USUARIO, String statuS_USUARIO) {
-            this.nomE_USUARIO = nomE_USUARIO;
-            this.emaiL_USUARIO = emaiL_USUARIO;
-            this.datA_NASC_USUARIO = datA_NASC_USUARIO;
-            this.cpF_USUARIO = cpF_USUARIO;
-            this.cnpJ_USUARIO = cnpJ_USUARIO;
-            this.iD_ASSINATURA_FK = iD_ASSINATURA_FK;
-            this.fotO_USUARIO = fotO_USUARIO;
-            this.senhA_USUARIO = senhA_USUARIO;
-            this.statuS_USUARIO = statuS_USUARIO;
+        // Construtores, getters e setters
+        public CriarUsuarioDto(String nome, String email, String dataNasc, String cpf,
+                               String cnpj, int idAssinatura, String foto, String senha, String status) {
+            this.NOME_USUARIO = nome;
+            this.EMAIL_USUARIO = email;
+            this.DATA_NASC_USUARIO = dataNasc;
+            this.CPF_USUARIO = cpf;
+            this.CNPJ_USUARIO = cnpj;
+            this.ID_ASSINATURA_FK = idAssinatura;
+            this.FOTO_USUARIO = foto;
+            this.SENHA_USUARIO = senha;
+            this.STATUS_USUARIO = status;
         }
 
-        public String nomE_USUARIO;
-        public String emaiL_USUARIO;
-        public Date datA_NASC_USUARIO;
-        public String cpF_USUARIO;
-        public String cnpJ_USUARIO;
-        public int iD_ASSINATURA_FK;
-        public String fotO_USUARIO;
-        public String senhA_USUARIO;
-        public String statuS_USUARIO;
+        // Getters e Setters...
 
-        public String getNomE_USUARIO() {
-            return nomE_USUARIO;
+        public String getNOME_USUARIO() {
+            return NOME_USUARIO;
         }
 
-        public void setNomE_USUARIO(String nomE_USUARIO) {
-            this.nomE_USUARIO = nomE_USUARIO;
+        public void setNOME_USUARIO(String NOME_USUARIO) {
+            this.NOME_USUARIO = NOME_USUARIO;
         }
 
-        public String getEmaiL_USUARIO() {
-            return emaiL_USUARIO;
+        public String getEMAIL_USUARIO() {
+            return EMAIL_USUARIO;
         }
 
-        public void setEmaiL_USUARIO(String emaiL_USUARIO) {
-            this.emaiL_USUARIO = emaiL_USUARIO;
+        public void setEMAIL_USUARIO(String EMAIL_USUARIO) {
+            this.EMAIL_USUARIO = EMAIL_USUARIO;
         }
 
-        public Date getDatA_NASC_USUARIO() {
-            return datA_NASC_USUARIO;
+        public String getDATA_NASC_USUARIO() {
+            return DATA_NASC_USUARIO;
         }
 
-        public void setDatA_NASC_USUARIO(Date datA_NASC_USUARIO) {
-            this.datA_NASC_USUARIO = datA_NASC_USUARIO;
+        public void setDATA_NASC_USUARIO(String DATA_NASC_USUARIO) {
+            this.DATA_NASC_USUARIO = DATA_NASC_USUARIO;
         }
 
-        public String getCpF_USUARIO() {
-            return cpF_USUARIO;
+        public String getCPF_USUARIO() {
+            return CPF_USUARIO;
         }
 
-        public void setCpF_USUARIO(String cpF_USUARIO) {
-            this.cpF_USUARIO = cpF_USUARIO;
+        public void setCPF_USUARIO(String CPF_USUARIO) {
+            this.CPF_USUARIO = CPF_USUARIO;
         }
 
-        public String getCnpJ_USUARIO() {
-            return cnpJ_USUARIO;
+        public String getCNPJ_USUARIO() {
+            return CNPJ_USUARIO;
         }
 
-        public void setCnpJ_USUARIO(String cnpJ_USUARIO) {
-            this.cnpJ_USUARIO = cnpJ_USUARIO;
+        public void setCNPJ_USUARIO(String CNPJ_USUARIO) {
+            this.CNPJ_USUARIO = CNPJ_USUARIO;
         }
 
-        public int getiD_ASSINATURA_FK() {
-            return iD_ASSINATURA_FK;
+        public int getID_ASSINATURA_FK() {
+            return ID_ASSINATURA_FK;
         }
 
-        public void setiD_ASSINATURA_FK(int iD_ASSINATURA_FK) {
-            this.iD_ASSINATURA_FK = iD_ASSINATURA_FK;
+        public void setID_ASSINATURA_FK(int ID_ASSINATURA_FK) {
+            this.ID_ASSINATURA_FK = ID_ASSINATURA_FK;
         }
 
-        public String getFotO_USUARIO() {
-            return fotO_USUARIO;
+        public String getFOTO_USUARIO() {
+            return FOTO_USUARIO;
         }
 
-        public void setFotO_USUARIO(String fotO_USUARIO) {
-            this.fotO_USUARIO = fotO_USUARIO;
+        public void setFOTO_USUARIO(String FOTO_USUARIO) {
+            this.FOTO_USUARIO = FOTO_USUARIO;
         }
 
-        public String getSenhA_USUARIO() {
-            return senhA_USUARIO;
+        public String getSENHA_USUARIO() {
+            return SENHA_USUARIO;
         }
 
-        public void setSenhA_USUARIO(String senhA_USUARIO) {
-            this.senhA_USUARIO = senhA_USUARIO;
+        public void setSENHA_USUARIO(String SENHA_USUARIO) {
+            this.SENHA_USUARIO = SENHA_USUARIO;
         }
 
-        public String getStatuS_USUARIO() {
-            return statuS_USUARIO;
+        public String getSTATUS_USUARIO() {
+            return STATUS_USUARIO;
         }
 
-        public void setStatuS_USUARIO(String statuS_USUARIO) {
-            this.statuS_USUARIO = statuS_USUARIO;
+        public void setSTATUS_USUARIO(String STATUS_USUARIO) {
+            this.STATUS_USUARIO = STATUS_USUARIO;
         }
     }
 
-    static class UsuarioGet {
-        public String nomE_USUARIO;
-        public String emaiL_USUARIO;
-        public Date datA_NASC_USUARIO;
-        public String cpF_USUARIO;
-        public String cnpJ_USUARIO;
-        public int iD_ASSINATURA_FK;
-        public String fotO_USUARIO;
-        public String senhA_USUARIO;
-        public String statuS_USUARIO;
-        public Date datA_INICIO_ASSINATURA_USUARIO;
-        public Date datA_VALIDADE_ASSINATURA_USUARIO;
+    // AtualizarCampoUsuarioDto.java
+    public class AtualizarCampoUsuarioDto {
+        private String Campo;
+        private String NovoValor;
 
-        public UsuarioGet(String nomE_USUARIO, String emaiL_USUARIO, Date datA_NASC_USUARIO, String cpF_USUARIO, String cnpJ_USUARIO, int iD_ASSINATURA_FK, String fotO_USUARIO, String senhA_USUARIO, String statuS_USUARIO, Date datA_INICIO_ASSINATURA_USUARIO, Date datA_VALIDADE_ASSINATURA_USUARIO) {
-            this.nomE_USUARIO = nomE_USUARIO;
-            this.emaiL_USUARIO = emaiL_USUARIO;
-            this.datA_NASC_USUARIO = datA_NASC_USUARIO;
-            this.cpF_USUARIO = cpF_USUARIO;
-            this.cnpJ_USUARIO = cnpJ_USUARIO;
-            this.iD_ASSINATURA_FK = iD_ASSINATURA_FK;
-            this.fotO_USUARIO = fotO_USUARIO;
-            this.senhA_USUARIO = senhA_USUARIO;
-            this.statuS_USUARIO = statuS_USUARIO;
-            this.datA_INICIO_ASSINATURA_USUARIO = datA_INICIO_ASSINATURA_USUARIO;
-            this.datA_VALIDADE_ASSINATURA_USUARIO = datA_VALIDADE_ASSINATURA_USUARIO;
+        public AtualizarCampoUsuarioDto(String campo, String novoValor) {
+            this.Campo = campo;
+            this.NovoValor = novoValor;
         }
 
-        public String getNomE_USUARIO() {
-            return nomE_USUARIO;
+        // Getters e Setters...
+
+        public String getCampo() {
+            return Campo;
         }
 
-        public void setNomE_USUARIO(String nomE_USUARIO) {
-            this.nomE_USUARIO = nomE_USUARIO;
+        public void setCampo(String campo) {
+            Campo = campo;
         }
 
-        public String getEmaiL_USUARIO() {
-            return emaiL_USUARIO;
+        public String getNovoValor() {
+            return NovoValor;
         }
 
-        public void setEmaiL_USUARIO(String emaiL_USUARIO) {
-            this.emaiL_USUARIO = emaiL_USUARIO;
+        public void setNovoValor(String novoValor) {
+            NovoValor = novoValor;
+        }
+    }
+
+    // ImagemDto.java
+    public class ImagemDto {
+        private String ImagemBase64;
+
+        public ImagemDto(String imagemBase64) {
+            this.ImagemBase64 = imagemBase64;
         }
 
-        public Date getDatA_NASC_USUARIO() {
-            return datA_NASC_USUARIO;
+        // Getters e Setters...
+
+        public String getImagemBase64() {
+            return ImagemBase64;
         }
 
-        public void setDatA_NASC_USUARIO(Date datA_NASC_USUARIO) {
-            this.datA_NASC_USUARIO = datA_NASC_USUARIO;
+        public void setImagemBase64(String imagemBase64) {
+            ImagemBase64 = imagemBase64;
+        }
+    }
+
+    // Usuario.java (modelo de retorno)
+    public class Usuario {
+        private int ID_USUARIO;
+        private String NOME_USUARIO;
+        private String EMAIL_USUARIO;
+        private String DATA_NASC_USUARIO;
+        private String CPF_USUARIO;
+        private String CNPJ_USUARIO;
+        private int ID_ASSINATURA_FK;
+        private byte[] FOTO_USUARIO;
+        private String SENHA_USUARIO;
+        private String STATUS_USUARIO;
+
+        // Getters e Setters...
+
+        public int getID_USUARIO() {
+            return ID_USUARIO;
         }
 
-        public String getCpF_USUARIO() {
-            return cpF_USUARIO;
+        public void setID_USUARIO(int ID_USUARIO) {
+            this.ID_USUARIO = ID_USUARIO;
         }
 
-        public void setCpF_USUARIO(String cpF_USUARIO) {
-            this.cpF_USUARIO = cpF_USUARIO;
+        public String getNOME_USUARIO() {
+            return NOME_USUARIO;
         }
 
-        public String getCnpJ_USUARIO() {
-            return cnpJ_USUARIO;
+        public void setNOME_USUARIO(String NOME_USUARIO) {
+            this.NOME_USUARIO = NOME_USUARIO;
         }
 
-        public void setCnpJ_USUARIO(String cnpJ_USUARIO) {
-            this.cnpJ_USUARIO = cnpJ_USUARIO;
+        public String getEMAIL_USUARIO() {
+            return EMAIL_USUARIO;
         }
 
-        public int getiD_ASSINATURA_FK() {
-            return iD_ASSINATURA_FK;
+        public void setEMAIL_USUARIO(String EMAIL_USUARIO) {
+            this.EMAIL_USUARIO = EMAIL_USUARIO;
         }
 
-        public void setiD_ASSINATURA_FK(int iD_ASSINATURA_FK) {
-            this.iD_ASSINATURA_FK = iD_ASSINATURA_FK;
+        public String getDATA_NASC_USUARIO() {
+            return DATA_NASC_USUARIO;
         }
 
-        public String getFotO_USUARIO() {
-            return fotO_USUARIO;
+        public void setDATA_NASC_USUARIO(String DATA_NASC_USUARIO) {
+            this.DATA_NASC_USUARIO = DATA_NASC_USUARIO;
         }
 
-        public void setFotO_USUARIO(String fotO_USUARIO) {
-            this.fotO_USUARIO = fotO_USUARIO;
+        public String getCPF_USUARIO() {
+            return CPF_USUARIO;
         }
 
-        public String getSenhA_USUARIO() {
-            return senhA_USUARIO;
+        public void setCPF_USUARIO(String CPF_USUARIO) {
+            this.CPF_USUARIO = CPF_USUARIO;
         }
 
-        public void setSenhA_USUARIO(String senhA_USUARIO) {
-            this.senhA_USUARIO = senhA_USUARIO;
+        public String getCNPJ_USUARIO() {
+            return CNPJ_USUARIO;
         }
 
-        public String getStatuS_USUARIO() {
-            return statuS_USUARIO;
+        public void setCNPJ_USUARIO(String CNPJ_USUARIO) {
+            this.CNPJ_USUARIO = CNPJ_USUARIO;
         }
 
-        public void setStatuS_USUARIO(String statuS_USUARIO) {
-            this.statuS_USUARIO = statuS_USUARIO;
+        public int getID_ASSINATURA_FK() {
+            return ID_ASSINATURA_FK;
         }
 
-        public Date getDatA_INICIO_ASSINATURA_USUARIO() {
-            return datA_INICIO_ASSINATURA_USUARIO;
+        public void setID_ASSINATURA_FK(int ID_ASSINATURA_FK) {
+            this.ID_ASSINATURA_FK = ID_ASSINATURA_FK;
         }
 
-        public void setDatA_INICIO_ASSINATURA_USUARIO(Date datA_INICIO_ASSINATURA_USUARIO) {
-            this.datA_INICIO_ASSINATURA_USUARIO = datA_INICIO_ASSINATURA_USUARIO;
+        public byte[] getFOTO_USUARIO() {
+            return FOTO_USUARIO;
         }
 
-        public Date getDatA_VALIDADE_ASSINATURA_USUARIO() {
-            return datA_VALIDADE_ASSINATURA_USUARIO;
+        public void setFOTO_USUARIO(byte[] FOTO_USUARIO) {
+            this.FOTO_USUARIO = FOTO_USUARIO;
         }
 
-        public void setDatA_VALIDADE_ASSINATURA_USUARIO(Date datA_VALIDADE_ASSINATURA_USUARIO) {
-            this.datA_VALIDADE_ASSINATURA_USUARIO = datA_VALIDADE_ASSINATURA_USUARIO;
+        public String getSENHA_USUARIO() {
+            return SENHA_USUARIO;
+        }
+
+        public void setSENHA_USUARIO(String SENHA_USUARIO) {
+            this.SENHA_USUARIO = SENHA_USUARIO;
+        }
+
+        public String getSTATUS_USUARIO() {
+            return STATUS_USUARIO;
+        }
+
+        public void setSTATUS_USUARIO(String STATUS_USUARIO) {
+            this.STATUS_USUARIO = STATUS_USUARIO;
         }
     }
 

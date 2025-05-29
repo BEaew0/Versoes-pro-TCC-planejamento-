@@ -18,15 +18,15 @@ import java.util.List;
 
 public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoViewHolder> {
 
-    private List<SuperClassProd.ProdutoGet> produtos;
+    private List<SuperClassProd.Produto> produtos;
     private Context context;
     private OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(SuperClassProd.ProdutoGet produto);
+        void onItemClick(SuperClassProd.Produto produto);
     }
 
-    public ProdutoAdapter(List<SuperClassProd.ProdutoGet> produtos, Context context, OnItemClickListener listener) {
+    public ProdutoAdapter(List<SuperClassProd.Produto> produtos, Context context, OnItemClickListener listener) {
         this.produtos = produtos;
         this.context = context;
         this.listener = listener;
@@ -56,11 +56,11 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
 
     @Override
     public void onBindViewHolder(@NonNull ProdutoViewHolder holder, int position) {
-        SuperClassProd.ProdutoGet produto = produtos.get(position);
+        SuperClassProd.Produto produto = produtos.get(position);
 
         // Carregamento de imagem com Glide
         Glide.with(context)
-                .load(produto.getImG_PRODUTO())
+                .load(produto.getIMG_PRODUTO())
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error_image)
                 .transition(DrawableTransitionOptions.withCrossFade())
@@ -68,10 +68,10 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
                 .centerCrop()
                 .into(holder.imgProduto);
 
-        holder.txtNome.setText(produto.getNomE_PRODUTO());
-        holder.txtCodigo.setText("Código: " + produto.getCoD_PRODUTO());
-        holder.txtValor.setText(String.format("R$ %.2f", produto.getValoR_PRODUTO()));
-        holder.txtTipo.setText("Categoria: " + produto.getTipO_PRODUTO());
+        holder.txtNome.setText(produto.getNOME_PRODUTO());
+        holder.txtCodigo.setText("Código: " + produto.getCOD_PRODUTO());
+        holder.txtValor.setText(String.format("R$ %.2f", produto.getVALOR_PRODUTO()));
+        holder.txtTipo.setText("Categoria: " + produto.getTIPO_PRODUTO());
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -85,7 +85,7 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
         return produtos != null ? produtos.size() : 0;
     }
 
-    public void atualizarLista(List<SuperClassProd.ProdutoGet> novaLista) {
+    public void atualizarLista(List<SuperClassProd.Produto> novaLista) {
         produtos = novaLista;
         notifyDataSetChanged();
     }

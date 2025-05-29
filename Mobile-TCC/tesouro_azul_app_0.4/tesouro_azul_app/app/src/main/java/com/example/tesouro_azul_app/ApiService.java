@@ -4,43 +4,78 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.POST;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
 
-    @GET("https://tesouroazul1.hospedagemdesites.ws/api/usuario/BuscarUsuarios")
-    static Call<List<superClassUser.UsuarioGet>> getUsuario()//Isso prepara a requisição, mas ainda não a executa!
-    {
-        return null;
-    }
+    // Criar Usuario
+    @POST("api/Usuarios")
+    Call<SuperClassUser.Usuario> criarUsuario(@Body SuperClassUser.CriarUsuarioDto usuarioDto);
 
-    @GET("https://tesouroazul1.hospedagemdesites.ws/api/Produto/BuscarProdutoIdUsuario")
-    static Call<List<SuperClassProd.ProdutoGet>> getProdutos()//Isso prepara a requisição, mas ainda não a executa!
-    {
-        return null;
-    }
+    // Buscar todos os Usuarios
+    @GET("api/Usuarios")
+    Call<List<SuperClassUser.Usuario>> buscarUsuarios();
 
-    @GET("https://tesouroazul1.hospedagemdesites.ws/api/conexao")
-    static Call<Void> verificarConexao()//Isso prepara a requisição, mas ainda não a executa!
-    {
-        return null;
-    }
+    // Buscar Usuario por ID
+    @GET("api/Usuarios/{id}")
+    Call<SuperClassUser.Usuario> buscarUsuarioPorId(@Path("id") int id);
 
-    @GET("https://tesouroazul1.hospedagemdesites.ws/api/getImagem")
-    static Call<Void> Imagem()//Isso prepara a requisição, mas ainda não a executa!
-    {
-        return null;
-    }
+    // Atualizar campo do Usuario
+    @PATCH("api/Usuarios/{id}/alterar-campo")
+    Call<SuperClassUser.Usuario> alterarCamposUsuario(@Path("id") int id, @Body SuperClassUser.AtualizarCampoUsuarioDto dto);
 
-    @POST("https://tesouroazul1.hospedagemdesites.ws/api/produto/CriarProduto")
-    Call<Void> criarProduto(@Body SuperClassProd.ProdutoPost produtoPost);
+    // Atualizar Imagem
+    @PATCH("api/Usuarios/{id}/imagem")
+    Call<SuperClassUser.Usuario> atualizarImagem(@Path("id") int id, @Body SuperClassUser.ImagemDto dto);
 
-    @POST("https://tesouroazul1.hospedagemdesites.ws/api/Usuarios")
-    Call<Void> enviarUsuario(superClassUser.UsuarioPost usuario);
+    // Deletar Usuario
+    @DELETE("api/Usuarios/{id}")
+    Call<Void> deletarUsuario(@Path("id") int id);
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    @GET("api/TestarConexao")
+    Call<Void> verificarConexao();
 
-    // <-- coloque o endpoint da sua API aqui
-    // Significa que a resposta da API não tem corpo (só código HTTP). Se sua API retorna algo (como um JSON com status ou mensagem)
-    // você pode trocar Void por uma classe de resposta.
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    @POST("api/Produtos")
+    Call<Void> cadastrarProduto(@Body SuperClassProd.CadastrarProdutoDto produtoDto);
+
+    // 2. Buscar Produtos por Campo
+    @POST("api/Produtos/Buscar-por-campo")
+    Call<List<SuperClassProd.Produto>> buscarProdutosPorCampo(
+            @Query("id_usuario_fk") int idUsuario,
+            @Body SuperClassProd.CamposProdutoDto filtro);
+
+    // 3. Listar Todos os Produtos
+    @GET("api/Produtos")
+    Call<List<SuperClassProd.Produto>> buscarTodosProdutos();
+
+    // 4. Buscar Produtos por Usuário
+    @GET("api/Produtos/usuario/{id_usuario}")
+    Call<List<SuperClassProd.Produto>> buscarProdutosPorUsuario(@Path("id_usuario") int idUsuario);
+
+    // 5. Buscar Produto por ID
+    @GET("api/Produtos/produto/{id}")
+    Call<SuperClassProd.Produto> buscarProdutoPorId(@Path("id") int id);
+
+    // 6. Atualizar Campo do Produto
+    @PATCH("api/Produtos/{id}")
+    Call<SuperClassProd.Produto> alterarProduto(
+            @Path("id") int id,
+            @Body SuperClassProd.CamposProdutoDto campo);
+
+    // 7. Alterar Imagem do Produto
+    @PATCH("api/Produtos/Alterar-Imagem-por-{id}")
+    Call<SuperClassProd.Produto> alterarImagemProduto(@Path("id") int id);
+
+    // 8. Deletar Produto
+    @DELETE("api/Produtos/{id}")
+    Call<Void> deletarProduto(@Path("id") int id);
 }
+
+

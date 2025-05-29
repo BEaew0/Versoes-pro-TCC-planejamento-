@@ -1,38 +1,30 @@
 package com.example.tesouro_azul_app;
 
-import android.content.Context;
-
+// ApiClient.java
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import java.util.concurrent.TimeUnit;
 
 public class RetrofitClient {
-    private static Retrofit retrofit = null;
     private static final String BASE_URL = "https://tesouroazul1.hospedagemdesites.ws/api"; // Substitua pela sua URL
+    private static Retrofit retrofit = null;
 
-    // Construtor privado para evitar instanciação
-    private RetrofitClient() {}
+    public static ApiService getApiService() {
+        if (retrofit == null) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-    public static ApiService getApiService(Context context)
-    {
-        if (retrofit == null)
-        {
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(loggingInterceptor)
+                    .build();
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .client(getOkHttpClient())
+                    .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
         return retrofit.create(ApiService.class);
     }
-
-    private static OkHttpClient getOkHttpClient()
-    {
-        return new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .build();
-    }
 }
+

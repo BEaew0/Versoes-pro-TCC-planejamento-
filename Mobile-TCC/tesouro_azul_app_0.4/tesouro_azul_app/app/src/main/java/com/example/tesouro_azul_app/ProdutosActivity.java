@@ -1,6 +1,7 @@
 package com.example.tesouro_azul_app;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -16,6 +17,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -32,6 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,8 +44,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProdutosActivity extends AppCompatActivity {
 
-    private String Host="...";
-    private String url,ret;
+    private SuperClassProd.Produto produtoSelecionado = null;
+
     private static final int REQUEST_CODE_GALLERY = 1001;
     private static final int PICK_IMAGE = 1;
 
@@ -49,7 +53,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ProdutoAdapter adapter;
-    private List<SuperClassProd.ProdutoGet> listaProdutos = new ArrayList<>();
+    private List<SuperClassProd.Produto> listaProdutos = new ArrayList<>();
 
     EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd;
     Button btnVenderProd, btnAdicionarProd, btnAlterarProd, btnEstoque;
@@ -93,13 +97,21 @@ public class ProdutosActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
         // Inicializa o Adapter com os dados e um listener de clique
-        adapter = new ProdutoAdapter(listaProdutos, this, produto ->
+        /*adapter = new ProdutoAdapter(listaProdutos, this, produto ->
         {
-            // Ação ao clicar em um item (ex: abrir detalhes)
-            Intent intent = new Intent(this, DetalhesProdutoActivity.class);
-            intent.putExtra("PRODUTO_ID", produto.getiD_PRODUTO());
-            startActivity(intent);
-        });
+            produtoSelecionado = produto; // Armazena o produto selecionado
+
+            // Preenche os campos com os dados do produto selecionado
+            NomeProd.setText(produto.getNOME_PRODUTO());
+            ValorProd.setText(String.valueOf(produto.getVALOR_PRODUTO()));
+            TipoProd.setText(produto.getTIPO_PRODUTO());
+
+            // Se houver imagem, carrega (opcional)
+            if (produto.getIMG_PRODUTO() != null) {
+                Bitmap bitmap = getFoto(produto.getIMG_PRODUTO());
+                prodImage.setImageBitmap(bitmap);
+            }
+        });*/
 
         // Define o adapter no RecyclerView
         recyclerView.setAdapter(adapter);
@@ -112,6 +124,7 @@ public class ProdutosActivity extends AppCompatActivity {
               if (ContextCompat.checkSelfPermission(ProdutosActivity.this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED)
               {
                   openGallery(); // Já tem permissão → Abre direto
+
               }
               else
               {
@@ -135,7 +148,7 @@ public class ProdutosActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Lógica para o botão "Adicionar"
-                CriarProd();
+                criarProduto();
             }
         });
 
@@ -168,19 +181,19 @@ public class ProdutosActivity extends AppCompatActivity {
         // Mostrar progress bar (opcional)
         progressBar.setVisibility(View.VISIBLE);
 
-        ApiService apiService = RetrofitClient.getApiService(ProdutosActivity.this);
-        Call<List<SuperClassProd.ProdutoGet>> call = ApiService.getProdutos();
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<List<SuperClassProd.Produto>> call = apiService.buscarTodosProdutos();
 
-        call.enqueue(new Callback<List<SuperClassProd.ProdutoGet>>() {
+        call.enqueue(new Callback<List<SuperClassProd.Produto>>() {
             @Override
-            public void onResponse(Call<List<SuperClassProd.ProdutoGet>> call,
-                                   Response<List<SuperClassProd.ProdutoGet>> response) {
+            public void onResponse(Call<List<SuperClassProd.Produto>> call,
+                                   Response<List<SuperClassProd.Produto>> response) {
 
                 progressBar.setVisibility(View.GONE);
 
                 if (response.isSuccessful() && response.body() != null)
                 {
-                    List<SuperClassProd.ProdutoGet> produtos = response.body();
+                    List<SuperClassProd.Produto> produtos = response.body();
                     adapter.atualizarLista(produtos);
                 }
                 else {
@@ -192,7 +205,7 @@ public class ProdutosActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<SuperClassProd.ProdutoGet>> call, Throwable t) {
+            public void onFailure(Call<List<SuperClassProd.Produto>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(ProdutosActivity.this,
                         "Falha na conexão: " + t.getMessage(),
@@ -201,81 +214,199 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
-    private void CriarProd() {
-        // Obter valores dos campos de texto (assumindo que são EditText)
-        String coD_PRODUTO = CodProd.getText().toString().trim();
-        String nomE_PRODUTO = NomeProd.getText().toString().trim();
-        String valoR_PRODUTO_STR = ValorProd.getText().toString().trim();
-        String tipO_PRODUTO = TipoProd.getText().toString().trim();
-        String imG_PRODUTO = "imagem_padrao.jpg"; // Valor padrão ou obtenha de um campo
+    private void venderProduto(){}
 
-        // Converter valor para Double
-        Double valoR_PRODUTO = null;
-        try {
-            valoR_PRODUTO = Double.parseDouble(valoR_PRODUTO_STR);
-        } catch (NumberFormatException e) {
-            Toast.makeText(ProdutosActivity.this, "Valor do produto inválido", Toast.LENGTH_SHORT).show();
+    //Rever
+    private void removerProduto() {
+        // 1. Obter o ID do produto selecionado (você precisará implementar essa lógica)
+        // Por exemplo, se você tiver um produto selecionado no adapter:
+        int produtoId = obterProdutoSelecionado();
+
+        if (produtoId == -1) {
+            Toast.makeText(this, "Selecione um produto para remover", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // ID do usuário (poderia ser obtido de SharedPreferences ou outra fonte)
-        int iD_USUARIO = 1; // Substitua pelo ID real do usuário logado
+        // 2. Mostrar confirmação antes de remover
+        new AlertDialog.Builder(this)
+                .setTitle("Confirmar Exclusão")
+                .setMessage("Tem certeza que deseja remover este produto?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    // 3. Chamada à API para remover
+                    ProgressDialog progressDialog = new ProgressDialog(this);
+                    progressDialog.setMessage("Removendo produto...");
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
 
-        // Criar objeto ProdutoPost
-        SuperClassProd.ProdutoPost produtoPost = new SuperClassProd.ProdutoPost(
-                iD_USUARIO,
-                coD_PRODUTO,
-                nomE_PRODUTO,
-                valoR_PRODUTO,
-                tipO_PRODUTO,
-                imG_PRODUTO
+                    ApiService apiService = RetrofitClient.getApiService();
+                    Call<Void> call = apiService.deletarProduto(produtoId);
+
+                    call.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            progressDialog.dismiss();
+                            if (response.isSuccessful()) {
+                                Toast.makeText(ProdutosActivity.this,
+                                        "Produto removido com sucesso!", Toast.LENGTH_SHORT).show();
+                                carregarProdutos(); // Recarrega a lista
+                            } else {
+                                tratarErroApi(response);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ProdutosActivity.this,
+                                    "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Não", null)
+                .show();
+    }
+
+    //Rever
+    private int obterProdutoSelecionado() {
+        if (produtoSelecionado == null) {
+            Toast.makeText(this, "Nenhum produto selecionado", Toast.LENGTH_SHORT).show();
+            return -1;
+        }
+        return produtoSelecionado.getID_PRODUTO(); // Supondo que Produto tenha um método getID_PRODUTO()
+    }
+
+    private void alterarProduto(){}
+
+    private void criarProduto() {
+        // 1. Validação dos campos de entrada
+        String codProduto = CodProd.getText().toString().trim();
+        String nomeProduto = NomeProd.getText().toString().trim();
+        String valorProdutoStr = ValorProd.getText().toString().trim();
+        String tipoProduto = TipoProd.getText().toString().trim();
+
+        // Validação de campos obrigatórios
+        if (codProduto.isEmpty() || nomeProduto.isEmpty() || valorProdutoStr.isEmpty() || tipoProduto.isEmpty()) {
+            Toast.makeText(this, "Preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 2. Conversão do valor para Double com tratamento de erro
+        double valorProduto;
+        try {
+            valorProduto = Double.parseDouble(valorProdutoStr);
+            if (valorProduto <= 0) {
+                Toast.makeText(this, "O valor do produto deve ser positivo", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Valor do produto inválido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int idUsuario = obterIdUsuarioLogado();
+
+        // 3. Verificar se uma imagem foi selecionada
+        if (fotoProd == null || fotoProd.isEmpty())
+        {
+            // 5. Criar objeto DTO com a imagem em Base64
+            SuperClassProd.CadastrarProdutoDto produtoDto = new SuperClassProd.CadastrarProdutoDto(
+                    idUsuario,       // ID_USUARIO
+                    codProduto,      // COD_PRODUTO
+                    nomeProduto,     // NOME_PRODUTO
+                    valorProduto,    // VALOR_PRODUTO
+                    tipoProduto,// TIPO_PRODUTO
+                    fotoProd = null
+            );
+        }
+
+        // 5. Criar objeto DTO com a imagem em Base64
+        SuperClassProd.CadastrarProdutoDto produtoDto = new SuperClassProd.CadastrarProdutoDto(
+                idUsuario,       // ID_USUARIO
+                codProduto,      // COD_PRODUTO
+                nomeProduto,     // NOME_PRODUTO
+                valorProduto,    // VALOR_PRODUTO
+                tipoProduto,    // TIPO_PRODUTO
+                fotoProd        // IMG_PRODUTO (string Base64)
         );
 
-        // Conversão para JSON (opcional, para debug)
-        Gson gson = new Gson();
-        String json = gson.toJson(produtoPost);
-        Toast.makeText(ProdutosActivity.this, json, Toast.LENGTH_SHORT).show();
 
-        // Configura Retrofit
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        // 7. Mostrar progresso durante o upload
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Enviando produto...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-        // Crie uma instância da interface da API
-        ApiService apiService = retrofit.create(ApiService.class);
+        // 8. Usar o RetrofitClient singleton
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<Void> call = apiService.cadastrarProduto(produtoDto);
 
-        // Fazer a chamada à API
-        Call<Void> call = apiService.criarProduto(produtoPost);
-
+        // 9. Chamada à API com tratamento completo de erros
         call.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                progressDialog.dismiss();
+
                 if (response.isSuccessful()) {
-                    Toast.makeText(ProdutosActivity.this, "Produto criado com sucesso!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProdutosActivity.this,
+                            "Produto criado com sucesso!", Toast.LENGTH_SHORT).show();
+                    limparCampos();
+                    // Resetar a imagem após envio bem-sucedido
+                    prodImage.setImageResource(R.drawable.placeholder);
+                    fotoProd = null;
                 } else
                 {
-                    try
-                    {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
-                        Toast.makeText(ProdutosActivity.this, "Erro ao criar produto: " + response.code() + " - " + errorBody, Toast.LENGTH_SHORT).show();
-                    } catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
+                    tratarErroApi(response);
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(ProdutosActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(ProdutosActivity.this,
+                        "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("API_ERROR", "Erro na chamada API", t);
             }
         });
     }
 
-    public String imagem_string(Bitmap prodFoto)
-    {
+    //Rever
+    private int obterIdUsuarioLogado() {
+        // Implemente a lógica para obter o ID do usuário logado
+        // Exemplo: SharedPreferences, sessão, etc.
+        return 1; // Apenas exemplo - substitua pela implementação real
+    }
+
+    private void limparCampos() {
+        CodProd.setText("");
+        NomeProd.setText("");
+        ValorProd.setText("");
+        TipoProd.setText("");
+        CodProd.requestFocus();
+    }
+
+    private void tratarErroApi(Response<Void> response) {
+        try {
+            String errorBody = response.errorBody() != null ?
+                    response.errorBody().string() : "Erro desconhecido";
+
+            // Você pode parsear o erroBody se a API retornar um JSON estruturado
+            String mensagemErro = "Erro ao criar produto: " + response.code();
+
+            if (response.code() == 400) {
+                mensagemErro = "Dados inválidos: " + errorBody;
+            } else if (response.code() == 401) {
+                mensagemErro = "Acesso não autorizado";
+            } else if (response.code() == 500) {
+                mensagemErro = "Erro no servidor";
+            }
+
+            Toast.makeText(this, mensagemErro, Toast.LENGTH_LONG).show();
+            Log.e("API_RESPONSE", "Código: " + response.code() + " - " + errorBody);
+        } catch (IOException e) {
+            Log.e("API_ERROR", "Erro ao ler errorBody", e);
+        }
+    }
+
+    public String imagem_string(Bitmap prodFoto) {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
 
         // Comprime o bitmap em formato JPEG com 100% de qualidade
@@ -288,8 +419,7 @@ public class ProdutosActivity extends AppCompatActivity {
         return Base64.encodeToString(b1, Base64.DEFAULT);
     }
 
-    public Bitmap getFoto(String s)
-    {
+    public Bitmap getFoto(String s) {
         // Decodifica a string Base64 de volta para um array de bytes
         byte[] decodes = Base64.decode(s, Base64.DEFAULT);
 
@@ -297,8 +427,7 @@ public class ProdutosActivity extends AppCompatActivity {
         return BitmapFactory.decodeByteArray(decodes, 0, decodes.length);
     }
 
-    private void openGallery()
-    {
+    private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE);
     }
