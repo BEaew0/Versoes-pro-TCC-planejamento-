@@ -57,6 +57,9 @@ namespace TesouroAzulAPI.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal VALOR_TOTAL_ITEM_COMPRA { get; set; }
 
+        [Required, StringLength(7)]
+        public string ESTADO_ITEM_COMPRA { get; set; } = String.Empty; // Estado do item para seguir com lógica de vencimento, sempre utilizar os campos "vendido", "vencido" ou o padrão "estoque"
+
         [ForeignKey(nameof(ID_PRODUTO_FK))]
         public Produto Produto { get; set; }
 

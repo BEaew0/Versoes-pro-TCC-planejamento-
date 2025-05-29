@@ -287,8 +287,11 @@ namespace TesouroAzulAPI.Controllers
                 case "val_total_item":
                     item.VALOR_TOTAL_ITEM_COMPRA = Convert.ToDecimal(dto.NovoValor);
                     break;
+                case "estado_item":
+                    item.ESTADO_ITEM_COMPRA = Convert.ToString(dto.NovoValor);
+                    break;
                 default:
-                    return BadRequest("Campos permitidos : produto_item, lote_item, quantidade_item, n_item_compra, val_total_item");
+                    return BadRequest("Campos permitidos : produto_item, lote_item, quantidade_item, n_item_compra, val_total_item, estado_item");
             }
             _context.ItensCompra.Update(item);
             await _context.SaveChangesAsync();

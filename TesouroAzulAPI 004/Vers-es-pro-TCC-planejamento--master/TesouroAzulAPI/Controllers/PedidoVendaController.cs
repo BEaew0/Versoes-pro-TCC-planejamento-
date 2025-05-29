@@ -58,6 +58,9 @@ namespace TesouroAzulAPI.Controllers
 
                 _context.ItensVenda.Add(itemVenda);
                 itensSalvo.Add(itemVenda);
+
+                // Atualizando a tabela de ItensCompra no campo "ESTADO_ITEM_COMPRA"
+
             }
             await _context.SaveChangesAsync();
 
