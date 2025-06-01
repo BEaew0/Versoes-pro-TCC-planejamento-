@@ -56,6 +56,41 @@ namespace TesouroAzulAPI.Controllers
             return CreatedAtAction(nameof(BuscarUsuarioPorId), new { id = usuario.ID_USUARIO }, usuario);
         }
 
+        // Realizar login 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        {
+            // tratamentos de erros
+
+            if (string.IsNullOrEmpty(dto.EMAIL_USUARIO) || string.IsNullOrEmpty(dto.SENHA_USUARIO)) { return BadRequest("Email e Senha são obrigatórios."); }
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.EMAIL_USUARIO == dto.EMAIL_USUARIO && u.SENHA_USUARIO == dto.SENHA_USUARIO);
+
+            if (usuario == null) { return Unauthorized("Email ou senhas invalidos"); }
+
+            // Verifica se o usuario está ativo
+
+            if (usuario.STATUS_USUARIO != "a") { return BadRequest("Usuario inativo. Entre em contato com o suporte."); }
+
+            // Retorna Usuario
+
+            return Ok(new
+            {
+                mensagem = "Login realizado com sucesso.",
+                usuario = new
+                {
+                    usuario.ID_USUARIO,
+                    usuario.NOME_USUARIO,
+                    usuario.EMAIL_USUARIO,
+                    usuario.DATA_NASC_USUARIO,
+                    usuario.CPF_USUARIO,
+                    usuario.CNPJ_USUARIO,
+                    usuario.ID_ASSINATURA_FK,
+                    usuario.STATUS_USUARIO
+                }
+            });
+        }
+
         // GETs
         // Buscar Usuarios
         [HttpGet]
