@@ -32,7 +32,10 @@ import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -181,7 +184,8 @@ public class ProdutosActivity extends AppCompatActivity {
         // Mostrar progress bar (opcional)
         progressBar.setVisibility(View.VISIBLE);
 
-        ApiService apiService = RetrofitClient.getApiService();
+        // Na sua Activity ou Fragment
+        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
         Call<List<SuperClassProd.Produto>> call = apiService.buscarTodosProdutos();
 
         call.enqueue(new Callback<List<SuperClassProd.Produto>>() {
@@ -214,6 +218,7 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
+
     private void venderProduto(){}
 
     //Rever
@@ -238,7 +243,8 @@ public class ProdutosActivity extends AppCompatActivity {
                     progressDialog.setCancelable(false);
                     progressDialog.show();
 
-                    ApiService apiService = RetrofitClient.getApiService();
+                    // Na sua Activity ou Fragment
+                    ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
                     Call<Void> call = apiService.deletarProduto(produtoId);
 
                     call.enqueue(new Callback<Void>() {
@@ -264,6 +270,117 @@ public class ProdutosActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Não", null)
                 .show();
+    }
+
+    private void comprarProduto() {
+        // Verifica se há um produto selecionado
+        if (produtoSelecionado == null) {
+            Toast.makeText(this, "Selecione um produto para vender", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Valida a quantidade
+        String quantidadeStr = QuantProd.getText().toString().trim();
+        if (quantidadeStr.isEmpty()) {
+            Toast.makeText(this, "Informe a quantidade", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double quantidade;
+        try {
+            quantidade = Double.parseDouble(quantidadeStr);
+            if (quantidade <= 0) {
+                Toast.makeText(this, "Quantidade deve ser maior que zero", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Valida a data de validade
+        String dataValidade = ValProd.getText().toString().trim();
+
+        if (dataValidade.isEmpty()) {
+            Toast.makeText(this, "Informe a data de validade", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Formata a data para o padrão yyyy-MM-dd
+        SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd");
+        String dataFormatada;
+        try {
+            Date date = sdfInput.parse(dataValidade);
+            dataFormatada = sdfOutput.format(date);
+        } catch (ParseException e) {
+            Toast.makeText(this, "Data de validade inválida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Calcula o valor total
+        double valorTotal = produtoSelecionado.getVALOR_PRODUTO() * quantidade;
+
+        // Cria o lote (pode ser um número aleatório ou sequencial)
+        String lote = "LOTE-" + System.currentTimeMillis();
+
+        // Cria o item da compra
+        List<SuperClassProd.ItemCompraDto> itens = new ArrayList<>();
+        itens.add(new SuperClassProd.ItemCompraDto(
+                produtoSelecionado.getID_PRODUTO(), // ID_PRODUTO_FK
+                lote,                              // LOTE_COMPRA
+                quantidade,                        // QUANTIDADE_ITEM_COMPRA
+                1,                                 // N_ITEM_COMPRA (pode ser incremental)
+                valorTotal,                        // VALOR_TOTAL_ITEM_COMPRA
+                dataFormatada                     // VAL_ITEM_COMPRA
+        ));
+
+        // Cria o pedido (supondo ID_FORNECEDOR = 1 para exemplo)
+        int idUsuario = obterIdUsuarioLogado();
+        SuperClassProd.PedidoDto pedido = new SuperClassProd.PedidoDto(
+                idUsuario,  // ID_USUARIO_FK
+                1,          // ID_FORNECEDOR (pode ser obtido de outra forma)
+                valorTotal  // VALOR_VALOR
+        );
+
+        // Cria o DTO completo
+        SuperClassProd.PedidoCompraCompletoDto pedidoDto =
+                new SuperClassProd.PedidoCompraCompletoDto(pedido, itens);
+
+        // Mostra progresso
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Processando compra...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // Chama a API
+        // Na sua Activity ou Fragment
+        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
+        Call<Void> call = apiService.criarPedidoCompra(pedidoDto);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                progressDialog.dismiss();
+
+                if (response.isSuccessful()) {
+                    Toast.makeText(ProdutosActivity.this,
+                            "Compra realizada com sucesso!", Toast.LENGTH_SHORT).show();
+                    limparCampos();
+                    produtoSelecionado = null;
+                } else {
+                    tratarErroApi(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(ProdutosActivity.this,
+                        "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("API_ERROR", "Erro na compra", t);
+            }
+        });
     }
 
     //Rever
@@ -336,7 +453,7 @@ public class ProdutosActivity extends AppCompatActivity {
         progressDialog.show();
 
         // 8. Usar o RetrofitClient singleton
-        ApiService apiService = RetrofitClient.getApiService();
+        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
         Call<Void> call = apiService.cadastrarProduto(produtoDto);
 
         // 9. Chamada à API com tratamento completo de erros
@@ -451,7 +568,7 @@ public class ProdutosActivity extends AppCompatActivity {
                 String bx = imagem_string(bitmap);
 
                 // Armazena a string Base64 em uma variável
-                 fotoProd = bx;
+                fotoProd = bx;
 
                 // Reconverte a Base64 para Bitmap (talvez para validar ou reutilizar)
                 Bitmap b = getFoto(bx);
@@ -464,5 +581,4 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         }
     }
-
 }
