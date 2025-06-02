@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TesouroAzulAPI.Data;
 using TesouroAzulAPI.Dtos;
 using TesouroAzulAPI.Models;
+using TesouroAzulAPI.Services;
 
 namespace TesouroAzulAPI.Controllers
 {
@@ -13,10 +16,7 @@ namespace TesouroAzulAPI.Controllers
         private readonly ApplicationDbContext _context;
 
         // Instanciando o context da ApplicationDbContext para _context
-        public UsuarioController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public UsuarioController(ApplicationDbContext context) { _context = context; }
 
         // DTO (Data Transfer Object) para o Http AlterarCamposUsuario 
         public class AtualizarCampoUsuarioDto 
@@ -58,7 +58,7 @@ namespace TesouroAzulAPI.Controllers
 
         // Realizar login 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto, [FromServices] TokenService tokenService)
         {
             // tratamentos de erros
 
@@ -72,59 +72,69 @@ namespace TesouroAzulAPI.Controllers
 
             if (usuario.STATUS_USUARIO != "a") { return BadRequest("Usuario inativo. Entre em contato com o suporte."); }
 
+            // Gera token JWT
+            var token = tokenService.GenerateTokenUser(usuario);
+
             // Retorna Usuario
 
             return Ok(new
             {
                 mensagem = "Login realizado com sucesso.",
-                usuario = new
-                {
-                    usuario.ID_USUARIO,
-                    usuario.NOME_USUARIO,
-                    usuario.EMAIL_USUARIO,
-                    usuario.DATA_NASC_USUARIO,
-                    usuario.CPF_USUARIO,
-                    usuario.CNPJ_USUARIO,
-                    usuario.ID_ASSINATURA_FK,
-                    usuario.STATUS_USUARIO
-                }
+                token
             });
         }
 
         // GETs
+        // Endpoint para Admin
         // Buscar Usuarios
+        [Authorize(Roles = "user,admin")] // remover user no futuro
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> BuscarUsuarios() 
         {
             return await _context.Usuarios.ToListAsync();
         }
 
+        // Endpint para Usuario
         // Buscar Usuario por ID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Usuario>> BuscarUsuarioPorId(int id) 
+        [Authorize(Roles = "user,admin")]
+        [HttpGet("/buscar-dados-usuario")]
+        public async Task<ActionResult<Usuario>> BuscarUsuarioPorId() 
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _context.Usuarios.FindAsync(Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
             if (usuario == null) return NotFound("Usuario não encontrado.");
             return usuario;
         }
 
         // Buscar Imagem por ID
+        [Authorize(Roles = "user,admin")]
         [HttpGet("Buscar-Imagem")]
-        public async Task<ActionResult<Usuario>> BuscarUsuarioFoto(int id)
+        public async Task<ActionResult<Usuario>> BuscarUsuarioFoto()
         {
-            return default;
+            var usuario = await _context.Usuarios.FindAsync(Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+
+            // Tratamento de erro quando não encontrar o usuario
+
+            if (usuario == null) return NotFound("Usuario não encontrado.");
+
+            if (usuario.FOTO_USUARIO == null || usuario.FOTO_USUARIO.Length == 0) { return NotFound("Usuario não possui imagem."); }
+
+            // Converte a imagem para Base64
+            var imagemBase64 = Convert.ToBase64String(usuario.FOTO_USUARIO);
+            return Ok(new { mensagem = "Imagem encontrada com sucesso.", imagemBase64 });
         }
 
         // PATCHs
         // Atualizar Usuario
-        [HttpPatch("{id}/alterar-campo")]
-        public async Task<IActionResult> AlterarCamposUsuario(int id, [FromBody] AtualizarCampoUsuarioDto dto)
+        [Authorize(Roles = "user,admin")]
+        [HttpPatch("/alterar-campo")]
+        public async Task<IActionResult> AlterarCamposUsuario(AtualizarCampoUsuarioDto dto)
         {
             // Controller Dinâmico, ou seja, utiliza a classe AtualizarCampoUsuarioDto para qualquer campo e informação que deseja alterar
 
             // Tratamentos de erro de {id}
             // Criar uma função privada de mensagem de erro mais tarde aqui para ecomonizar codigo
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _context.Usuarios.FindAsync(Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
+
             if (usuario == null) return NotFound("Usuario não encontrado.");
 
             if (string.IsNullOrEmpty(dto.Campo) || string.IsNullOrEmpty(dto.NovoValor))
@@ -189,12 +199,29 @@ namespace TesouroAzulAPI.Controllers
             return Ok(new { mensagem = "Campo Atualizado com sucesso.", usuario });
         }
 
-        // Atualizar Imagem
-        [HttpPatch("{id}/imagem")]
-        public async Task<IActionResult> AtualizarImagem(int id, [FromBody] ImagemDto dto)
+        // Desativar Usuario
+        [Authorize(Roles = "user,admin")]
+        [HttpPatch("/desativar-usuario")]
+        public async Task<IActionResult> DesativarUsuario()
         {
             // Busca pelo id
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _context.Usuarios.FindAsync(Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+            if (usuario == null) return NotFound("Usuario não encontrado.");
+            // Verifica se o usuario já está desativado
+            if (usuario.STATUS_USUARIO == "d") return BadRequest("Usuario já está desativado.");
+            usuario.STATUS_USUARIO = "d"; // Define o status como desativado
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+            return Ok(new { mensagem = "Usuario desativado com sucesso.", usuario });
+        }
+
+        // Atualizar Imagem
+        [Authorize(Roles = "user,admin")]
+        [HttpPatch("/alterar-imagem")]
+        public async Task<IActionResult> AtualizarImagem([FromBody] ImagemDto dto)
+        {
+            // Busca pelo id
+            var usuario = await _context.Usuarios.FindAsync(Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier)));
             if (usuario == null) return NotFound("Usuario não encontrado.");
 
             try
@@ -222,8 +249,10 @@ namespace TesouroAzulAPI.Controllers
         }
 
         // DELETEs
+        // EndPoint para Admin
         // Deletar Usuario
-        [HttpDelete("{id}")]
+        [Authorize(Roles = "user,admin")] // Temporario para usuario
+        [HttpDelete("{id}/deletar-usuario")]
         public async Task<IActionResult> DeletarUsuario(int id) 
         {
             var usuario = await _context.Usuarios.FindAsync(id);
