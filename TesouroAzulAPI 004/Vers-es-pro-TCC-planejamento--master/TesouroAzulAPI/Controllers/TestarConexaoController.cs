@@ -14,7 +14,7 @@ namespace TesouroAzulAPI.Controllers
 
         // GETS
         // Testar Conexão
-        [HttpGet]
+        [HttpGet("StatusBanco")]
         public async Task<IActionResult> TestarConexao()
         {
             // Verifica se a conexão com o banco de dados está funcionando
@@ -27,6 +27,13 @@ namespace TesouroAzulAPI.Controllers
             {
                 return StatusCode(500, new { mensagem = "Erro ao conectar ao banco de dados.", erro = ex.Message });
             }
+        }
+
+        [HttpGet("StatusAPI")]
+        public IActionResult Status()
+        {
+            // Retorna um status de OK para indicar que a API está funcionando
+            return Ok(new { mensagem = "API está funcionando corretamente." });
         }
     }
 }
