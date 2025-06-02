@@ -3,6 +3,10 @@ Custom Validation Attribute
 
 coisas para ver :
 
+- usuarioController
+
+-- Criar logica melhor para admin
+
 - Pesquisar como criar uma rotina !!!
 
 
