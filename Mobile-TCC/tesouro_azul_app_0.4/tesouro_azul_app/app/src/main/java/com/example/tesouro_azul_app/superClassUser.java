@@ -247,61 +247,52 @@ public class SuperClassUser {
         }
     }
 
+    public static class LoginDto {
+        private String CPF_CNPJ;
+        private String SENHA;
+
+        public LoginDto(String cpfCnpj, String senha) {
+            this.CPF_CNPJ = cpfCnpj;
+            this.SENHA = senha;
+        }
+
+        // Getters e Setters
+        public String getCPF_CNPJ() {
+            return CPF_CNPJ;
+        }
+
+        public void setCPF_CNPJ(String CPF_CNPJ) {
+            this.CPF_CNPJ = CPF_CNPJ;
+        }
+
+        public String getSENHA() {
+            return SENHA;
+        }
+
+        public void setSENHA(String SENHA) {
+            this.SENHA = SENHA;
+        }
+    }
+
+    public static class LoginResponse {
+        private String token;
+        private Usuario usuario;
+
+        public LoginResponse(String token, Usuario usuario) {
+            this.token = token;
+            this.usuario = usuario;
+        }
+
+        // Getters e Setters
+        public String getToken() {
+            return token;
+        }
+
+        public Usuario getUsuario() {
+            return usuario;
+        }
+    }
+
 }
 
-    /*Usuario post
-{
-        "nomE_USUARIO": "string",
-        "emaiL_USUARIO": "user@example.com",
-        "datA_NASC_USUARIO": "2025-05-27T19:31:27.483Z",
-        "cpF_USUARIO": "string",
-        "cnpJ_USUARIO": "string",
-        "iD_ASSINATURA_FK": 0,
-        "fotO_USUARIO": "string",
-        "senhA_USUARIO": "string",
-        "statuS_USUARIO": "string"
-        }
-
-        Usuario Get
-        [
-        {
-        "iD_USUARIO": 0,
-        "nomE_USUARIO": "string",
-        "emaiL_USUARIO": "user@example.com",
-        "datA_NASC_USUARIO": "2025-05-27T19:31:52.530Z",
-        "cpF_USUARIO": "string",
-        "cnpJ_USUARIO": "string",
-        "iD_ASSINATURA_FK": 0,
-        "fotO_USUARIO": "string",
-        "senhA_USUARIO": "stringst",
-        "statuS_USUARIO": "s",
-        "datA_INICIO_ASSINATURA_USUARIO": "2025-05-27T19:31:52.530Z",
-        "datA_VALIDADE_ASSINATURA_USUARIO": "2025-05-27T19:31:52.530Z",
-        "assinatura": null
-        }
-        }
-        ]
-
-        Produto Post
-        {
-        "iD_USUARIO": 0,
-        "coD_PRODUTO": "string",
-        "nomE_PRODUTO": "string",
-        "valoR_PRODUTO": 0,
-        "tipO_PRODUTO": "string",
-        "imG_PRODUTO": "string"
-        }
-
-        Produto Get
-        [
-        {
-        "iD_PRODUTO": 0,
-        "iD_USUARIO_FK": 0,
-        "coD_PRODUTO": "string",
-        "nomE_PRODUTO": "string",
-        "valoR_PRODUTO": 0,
-        "tipO_PRODUTO": "string",
-        "imG_PRODUTO": "string",
-        "fornecedor": null
-        }*/
 

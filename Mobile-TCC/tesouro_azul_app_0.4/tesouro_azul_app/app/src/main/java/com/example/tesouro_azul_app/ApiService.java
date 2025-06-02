@@ -37,6 +37,9 @@ public interface ApiService {
     @DELETE("api/Usuarios/{id}")
     Call<Void> deletarUsuario(@Path("id") int id);
 
+    @POST("api/Usuarios/login")
+    Call<SuperClassUser.Usuario> loginUsuario(@Body SuperClassUser.LoginDto loginDto);
+
     //////////////////////////////////////////////////////////////////////////////////////////////////
     @GET("api/TestarConexao")
     Call<Void> verificarConexao();
@@ -76,6 +79,11 @@ public interface ApiService {
     // 8. Deletar Produto
     @DELETE("api/Produtos/{id}")
     Call<Void> deletarProduto(@Path("id") int id);
+
+    @POST("api/PedidoCompra")
+    Call<Void> criarPedidoCompra(@Body SuperClassProd.PedidoCompraCompletoDto pedidoDto);
+
+
 }
 
 

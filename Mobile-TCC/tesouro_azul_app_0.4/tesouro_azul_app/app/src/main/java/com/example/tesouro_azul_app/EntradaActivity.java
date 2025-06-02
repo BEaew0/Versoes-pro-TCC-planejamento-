@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 
 import android.content.Context;
 
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.text.InputType;
 import android.util.Log;
@@ -398,7 +399,8 @@ public class EntradaActivity extends AppCompatActivity
                     Log.d("UsuarioPost", json); // Para verificar no Logcat
 
                     // Usa o RetrofitClient já configurado
-                    ApiService apiService = RetrofitClient.getApiService();
+                    // Na sua Activity ou Fragment
+                    ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
                     Call<SuperClassUser.Usuario> call = apiService.criarUsuario(usuarioDto);
 
                     call.enqueue(new Callback<SuperClassUser.Usuario>() {
@@ -432,11 +434,10 @@ public class EntradaActivity extends AppCompatActivity
 
 
     }
-
-
     public class ApiOperation {
         private void ConectarAPI() {
-            ApiService apiService = RetrofitClient.getApiService();
+            // Na sua Activity ou Fragment
+            ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
 
             Call<Void> call = apiService.verificarConexao();
 
@@ -505,68 +506,77 @@ public class EntradaActivity extends AppCompatActivity
             new Handler().postDelayed(this::ConectarAPI, 3000);
         }
 
-        //Depois arrume
+        //Depois arrume, quando o miguel melhorar
         //Serve para login
-        public void buscarUsuarios() {
+        private void realizarLogin() {
+            String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
+            String senha = txtSenha.getText().toString().trim();
 
-            ApiService apiService = RetrofitClient.getApiService();
+            // Validação básica dos campos
+            if (CPF_CNPJ.isEmpty() || senha.isEmpty()) {
+                Toast.makeText(EntradaActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            // Mostrar progresso
+            progressBar.setVisibility(View.VISIBLE);
+            txtLoading.setText("Autenticando...");
+            txtLoading.setVisibility(View.VISIBLE);
 
-            Call<List<SuperClassUser.Usuario>> call = apiService.buscarUsuarios();
+            // Criar DTO de login
+            SuperClassUser.LoginDto loginDto = new SuperClassUser.LoginDto(
+                    CPF_CNPJ.replaceAll("\\D", ""), // Remove caracteres não numéricos
+                    senha
+            );
 
-            call.enqueue(new Callback<List<SuperClassUser.Usuario>>()
-            {
+            // Chamada à API
+            ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
+            Call<SuperClassUser.Usuario> call = apiService.loginUsuario(loginDto);
+
+            call.enqueue(new Callback<SuperClassUser.Usuario>() {
                 @Override
-                public void onResponse(Call<List<SuperClassUser.Usuario>> call, Response<List<SuperClassUser.Usuario>> response)
-                {
+                public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response) {
+                    progressBar.setVisibility(View.GONE);
+                    txtLoading.setVisibility(View.GONE);
+
                     if (response.isSuccessful()) {
-                        List<SuperClassUser.Usuario> usuarios = response.body();
-                        StringBuilder resultado = new StringBuilder();
+                        SuperClassUser.Usuario usuario = response.body();
+                        if (usuario != null) {
+                            // Login bem-sucedido
+                            Toast.makeText(EntradaActivity.this, "Bem-vindo, " + usuario.getNOME_USUARIO(), Toast.LENGTH_SHORT).show();
 
-                        if (usuarios != null && !usuarios.isEmpty())
-                        {
-                            for (SuperClassUser.Usuario u : usuarios)
-                            {
-                                resultado.append("ID: ").append(u.getID_USUARIO())
-                                        .append("\nNome: ").append(u.getNOME_USUARIO())
-                                        .append("\nEmail: ").append(u.getEMAIL_USUARIO())
-                                        .append("\nCPF: ").append(u.getCPF_USUARIO())
-                                        .append("\nCNPJ: ").append(u.getCNPJ_USUARIO())
-                                        .append("\nStatus: ").append(u.getSTATUS_USUARIO())
-                                        .append("\n\n");
-                            }
-                        } else {
-                            resultado.append("Nenhum usuário encontrado");
+                            // Salvar dados do usuário
+                            SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putInt("user_id", usuario.getID_USUARIO());
+                            editor.putString("user_name", usuario.getNOME_USUARIO());
+                            editor.putString("user_email", usuario.getEMAIL_USUARIO());
+                            editor.apply();
+
+                            // Redirecionar para a MainActivity
+                            Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
                         }
-
-                        // Mostrar resultado em um Toast (limitado a 4000 caracteres)
-                        String resultadoToast = resultado.toString();
-                        int toastLength = resultadoToast.length() > 100 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
-                        Toast.makeText(EntradaActivity.this, resultadoToast, toastLength).show();
-
-                        // Alternativa: mostrar em um Log ou TextView para muitos dados
-                        Log.d("Usuarios", resultado.toString());
-
                     } else {
+                        // Tratar erros de autenticação
                         try {
                             String errorBody = response.errorBody() != null ?
-                                    response.errorBody().string() : "Erro desconhecido";
-                            Toast.makeText(EntradaActivity.this,
-                                    "Erro: " + response.code() + " - " + errorBody,
-                                    Toast.LENGTH_LONG).show();
-                            Log.e("API Error", "Code: " + response.code() + ", Error: " + errorBody);
+                                    response.errorBody().string() : "Credenciais inválidas";
+                            Toast.makeText(EntradaActivity.this, "Erro: " + errorBody, Toast.LENGTH_LONG).show();
                         } catch (IOException e) {
                             e.printStackTrace();
+                            Toast.makeText(EntradaActivity.this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
-                public void onFailure(Call<List<SuperClassUser.Usuario>> call, Throwable t) {
-                    Toast.makeText(EntradaActivity.this,
-                            "Falha na conexão: " + t.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                    Log.e("API Failure", "Erro: ", t);
+                public void onFailure(Call<SuperClassUser.Usuario> call, Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+                    txtLoading.setVisibility(View.GONE);
+                    Toast.makeText(EntradaActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("LoginError", "Erro: ", t);
                 }
             });
         }

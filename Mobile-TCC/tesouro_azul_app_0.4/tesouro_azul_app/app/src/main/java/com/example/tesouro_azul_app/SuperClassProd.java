@@ -1,5 +1,7 @@
 package com.example.tesouro_azul_app;
 
+import java.util.List;
+
 public class SuperClassProd {
 
     static class CadastrarProdutoDto {
@@ -116,6 +118,64 @@ public class SuperClassProd {
         public double getVALOR_PRODUTO() { return VALOR_PRODUTO; }
         public String getTIPO_PRODUTO() { return TIPO_PRODUTO; }
         public byte[] getIMG_PRODUTO() { return IMG_PRODUTO; }
+    }
+
+    public static class PedidoCompraCompletoDto {
+        private PedidoDto Pedido;
+        private List<ItemCompraDto> Item;
+
+        public PedidoCompraCompletoDto(PedidoDto pedido, List<ItemCompraDto> item) {
+            this.Pedido = pedido;
+            this.Item = item;
+        }
+
+        // Getters e Setters
+        public PedidoDto getPedido() { return Pedido; }
+        public List<ItemCompraDto> getItem() { return Item; }
+    }
+
+    public static class PedidoDto {
+        private int ID_USUARIO_FK;
+        private int ID_FORNECEDOR;
+        private double VALOR_VALOR;
+
+        public PedidoDto(int idUsuario, int idFornecedor, double valor) {
+            this.ID_USUARIO_FK = idUsuario;
+            this.ID_FORNECEDOR = idFornecedor;
+            this.VALOR_VALOR = valor;
+        }
+
+        // Getters e Setters
+        public int getID_USUARIO_FK() { return ID_USUARIO_FK; }
+        public int getID_FORNECEDOR() { return ID_FORNECEDOR; }
+        public double getVALOR_VALOR() { return VALOR_VALOR; }
+    }
+
+    public static class ItemCompraDto {
+        private int ID_PRODUTO_FK;
+        private String LOTE_COMPRA;
+        private double QUANTIDADE_ITEM_COMPRA;
+        private int N_ITEM_COMPRA;
+        private double VALOR_TOTAL_ITEM_COMPRA;
+        private String VAL_ITEM_COMPRA;
+
+        public ItemCompraDto(int idProduto, String lote, double quantidade,
+                             int nItem, double valorTotal, String valItem) {
+            this.ID_PRODUTO_FK = idProduto;
+            this.LOTE_COMPRA = lote;
+            this.QUANTIDADE_ITEM_COMPRA = quantidade;
+            this.N_ITEM_COMPRA = nItem;
+            this.VALOR_TOTAL_ITEM_COMPRA = valorTotal;
+            this.VAL_ITEM_COMPRA = valItem;
+        }
+
+        // Getters e Setters
+        public int getID_PRODUTO_FK() { return ID_PRODUTO_FK; }
+        public String getLOTE_COMPRA() { return LOTE_COMPRA; }
+        public double getQUANTIDADE_ITEM_COMPRA() { return QUANTIDADE_ITEM_COMPRA; }
+        public int getN_ITEM_COMPRA() { return N_ITEM_COMPRA; }
+        public double getVALOR_TOTAL_ITEM_COMPRA() { return VALOR_TOTAL_ITEM_COMPRA; }
+        public String getVAL_ITEM_COMPRA() { return VAL_ITEM_COMPRA; }
     }
 }
 
