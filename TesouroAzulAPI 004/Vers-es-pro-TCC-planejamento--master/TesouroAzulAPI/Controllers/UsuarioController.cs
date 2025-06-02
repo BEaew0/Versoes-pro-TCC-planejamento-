@@ -29,7 +29,7 @@ namespace TesouroAzulAPI.Controllers
 
         // POSTs
         // Criar Usuario
-        [HttpPost]
+        [HttpPost("criar-usuario")]
         public async Task<IActionResult> CriarUsuario([FromBody] CriarUsuarioDto usuarioDto) 
         {
             if (await _context.Usuarios.AnyAsync(u => u.EMAIL_USUARIO == usuarioDto.EMAIL_USUARIO|| u.CPF_USUARIO == usuarioDto.CPF_USUARIO))

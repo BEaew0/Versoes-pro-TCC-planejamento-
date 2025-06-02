@@ -9,6 +9,9 @@ namespace TesouroAzulAPI.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID_FORNECEDOR { get; set; }
 
+        [Required, ForeignKey("Usuario")]
+        public int ID_USUARIO_FK { get; set; }
+
         [Required, MaxLength(40)]
         public string NOME_FORNECEDOR { get; set; }
 
@@ -26,5 +29,8 @@ namespace TesouroAzulAPI.Models
 
         [Required, MaxLength(50)]
         public string ENDERECO_FORNECEDOR { get; set; }
+
+        [ForeignKey(nameof(ID_USUARIO_FK))]
+        public Usuario Usuario { get; set; } // FK para Usuario
     }
 }

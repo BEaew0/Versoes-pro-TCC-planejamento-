@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TesouroAzulAPI.Data;
+using TesouroAzulAPI.Dtos;
 using TesouroAzulAPI.Models;
 
 namespace TesouroAzulAPI.Controllers
@@ -11,10 +14,7 @@ namespace TesouroAzulAPI.Controllers
         private readonly ApplicationDbContext _context;
 
         // Instanciando o context da ApplicationDbContext para _context
-        public FornecedorController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public FornecedorController(ApplicationDbContext context) { _context = context; }
 
         // DTO para Http AlterarCamposFornecedor
         public class AtualizarCampoFornecedorDto
@@ -26,14 +26,25 @@ namespace TesouroAzulAPI.Controllers
 
         //POSTs
         //Criar Fornecedor
-        [HttpPost]
-        public async Task<IActionResult> CriarFornecedor([FromBody] Fornecedor fornecedor)
+        [Authorize(Roles = "user")]
+        [HttpPost("criar-fornecedor")]
+        public async Task<IActionResult> CriarFornecedor([FromBody] CriarFornecedorDto dto)
         {
+            // Busca o ID do usuário logado
+            int idUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             // Tratamento de erro
-            if (await _context.Fornecedores.AnyAsync(f => f.CNPJ_FORNECEDOR == fornecedor.CNPJ_FORNECEDOR))
+            if (await _context.Fornecedores.AnyAsync(f => f.CNPJ_FORNECEDOR == dto.CNPJ_FORNECEDOR && idUsuario == f.ID_USUARIO_FK)) { return BadRequest(new { mensagem = "CNPJ já cadastrado." }); }
+
+            var fornecedor = new Fornecedor
             {
-                return BadRequest(new { mensagem = "CNPJ já cadastrado." });
-            }
+                ID_USUARIO_FK = idUsuario,
+                NOME_FORNECEDOR = dto.NOME_FORNECEDOR,
+                CNPJ_FORNECEDOR = dto.CNPJ_FORNECEDOR,
+                EMAIL_FORNECEDOR = dto.EMAIL_FORNECEDOR,
+                TEL_FORNECEDOR = dto.TELEFONE_FORNECEDOR ?? null,
+                CEL_FORNECEDOR = dto.CEL_FORNECEDOR,
+                ENDERECO_FORNECEDOR = dto.ENDERECO_FORNECEDOR
+            };
 
             _context.Fornecedores.Add(fornecedor);
             await _context.SaveChangesAsync();
@@ -42,14 +53,16 @@ namespace TesouroAzulAPI.Controllers
 
         //GETs
         //Buscar Fornecedores
-        [HttpGet]
+        [Authorize(Roles = "user,admin")] // Alterar para admin depois
+        [HttpGet("buscar-fornecedores")]
         public async Task<ActionResult<IEnumerable<Fornecedor>>> BuscarFornecedores()
         {
             return await _context.Fornecedores.ToListAsync();
         }
 
         //Burcar Forncecedor por ID
-        [HttpGet("{id}")]
+        [Authorize(Roles = "user")]
+        [HttpGet("buscar-fornecedor-por-{id}")]
         public async Task<ActionResult<Fornecedor>> BuscarFornecedorPorId(int id)
         {
             var fornecedor = await _context.Fornecedores.FindAsync(id);
@@ -59,7 +72,8 @@ namespace TesouroAzulAPI.Controllers
 
         //PACHTs
         //Alterar Fornecedor
-        [HttpPatch("{id}")]
+        [Authorize(Roles = "user,admin")]
+        [HttpPatch("alterar-fornecedor-por-campo-{id}")]
         public async Task<IActionResult> AlterarFornecedor(int id, [FromBody] AtualizarCampoFornecedorDto dto)
         {
             var fornecedor = await _context.Fornecedores.FindAsync(id);
@@ -105,6 +119,7 @@ namespace TesouroAzulAPI.Controllers
 
         //DELETEs
         //Deletar Fornecedor
+        [Authorize(Roles = "user,admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletarFornecedor(int id)
         {
