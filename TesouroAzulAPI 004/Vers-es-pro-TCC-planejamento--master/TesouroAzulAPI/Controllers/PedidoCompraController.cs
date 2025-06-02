@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using TesouroAzulAPI.Data;
 using TesouroAzulAPI.Dtos;
 using TesouroAzulAPI.Models;
@@ -29,7 +31,8 @@ namespace TesouroAzulAPI.Controllers
         //POSTs
         //Criar Pedido da Compra
         //Neste POST já registra nas tabealas TB_PEDIDO_COMPRA, TB_ITEM_COMPRA, TB_ESTOQUE_PRODUTO (Já será cadastrado por Trigger)
-        [HttpPost]
+        [Authorize(Roles = "user,admin")]
+        [HttpPost("criar-pedido-compra")]
         public async Task<IActionResult> CriarPedidoCompra([FromBody] PedidoCompraCompleto dto)
         {
 
@@ -37,7 +40,7 @@ namespace TesouroAzulAPI.Controllers
 
             var pedido = new PedidosCompra
             {
-                ID_USUARIO_FK = dto.Pedido.ID_USUARIO_FK,
+                ID_USUARIO_FK = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
                 ID_FORNECEDOR_FK = dto.Pedido.ID_FORNECEDOR,
                 VALOR_PEDIDO = dto.Pedido.VALOR_VALOR
             };
