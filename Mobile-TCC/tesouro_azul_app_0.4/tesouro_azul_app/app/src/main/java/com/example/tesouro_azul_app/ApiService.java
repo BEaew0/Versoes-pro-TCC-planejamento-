@@ -2,6 +2,7 @@ package com.example.tesouro_azul_app;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -41,8 +42,12 @@ public interface ApiService {
     Call<SuperClassUser.LoginResponseDto> loginUsuario(@Body SuperClassUser.LoginRequestDto loginDto);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    @GET("api/TestarConexao")
-    Call<Void> verificarConexao();
+
+    @GET("api/TestarConexao/StatusAPI")
+    Call<Void> testarConexaoAPI();
+
+    @GET("api/TestarConexao/StatusBanco")
+    Call<ResponseBody> testarConexaoBanco();
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     @POST("api/Produtos")
