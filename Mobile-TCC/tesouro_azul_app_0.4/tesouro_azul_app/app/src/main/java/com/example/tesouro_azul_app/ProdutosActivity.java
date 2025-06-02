@@ -58,8 +58,8 @@ public class ProdutosActivity extends AppCompatActivity {
     private ProdutoAdapter adapter;
     private List<SuperClassProd.Produto> listaProdutos = new ArrayList<>();
 
-    EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd;
-    Button btnVenderProd, btnAdicionarProd, btnAlterarProd, btnEstoque;
+    EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd,FornProd;
+    Button btnVenderProd, btnAdicionarProd, btnAlterarProd, btnExluir,btnComprar;
     ShapeableImageView prodImage;
     ProgressBar progressBar;
 
@@ -73,6 +73,9 @@ public class ProdutosActivity extends AppCompatActivity {
         btnVenderProd = findViewById(R.id.btnVenderProd);
         btnAdicionarProd = findViewById(R.id.btnAdicionarProd);
         btnAlterarProd = findViewById(R.id.btnAlterarProd);
+        btnComprar = findViewById(R.id.btnComprarProd);
+        btnExluir = findViewById(R.id.btnExcluirProd);
+
         prodImage = findViewById(R.id.prod_image);
         recyclerView = findViewById(R.id.recyclerViewProdutos);
 
@@ -83,7 +86,7 @@ public class ProdutosActivity extends AppCompatActivity {
         QuantProd = (EditText) findViewById(R.id.txtQuant);
         ValProd = (EditText) findViewById(R.id.txtValidade);
         CodProd = (EditText) findViewById(R.id.txtCodProd);
-
+        FornProd = (EditText) findViewById(R.id.txtFornecedor);
 
         // Configura Retrofit
         Retrofit retrofit = new Retrofit.Builder()
@@ -99,6 +102,7 @@ public class ProdutosActivity extends AppCompatActivity {
         // Adiciona divisor entre itens (opcional)
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
+        //Rever isso aqui
         // Inicializa o Adapter com os dados e um listener de clique
         /*adapter = new ProdutoAdapter(listaProdutos, this, produto ->
         {
@@ -127,11 +131,9 @@ public class ProdutosActivity extends AppCompatActivity {
               if (ContextCompat.checkSelfPermission(ProdutosActivity.this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED)
               {
                   openGallery(); // Já tem permissão → Abre direto
-
               }
               else
-              {
-                  // Solicita permissão
+              {// Solicita permissão
                   ActivityCompat.requestPermissions(
                           ProdutosActivity.this,
                           new String[]{Manifest.permission.READ_MEDIA_IMAGES},
@@ -140,6 +142,20 @@ public class ProdutosActivity extends AppCompatActivity {
               }
           }
       });
+
+        btnExluir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        btnComprar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
         // Ações para os botões
        btnVenderProd.setOnClickListener(new View.OnClickListener() {
@@ -163,14 +179,6 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
 
-        btnEstoque.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                // Navegar para a tela de estoque
-
-            }
-        });
 
         ValProd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -298,22 +306,20 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Valida a data de validade
         String dataValidade = ValProd.getText().toString().trim();
-
-        if (dataValidade.isEmpty()) {
-            Toast.makeText(this, "Informe a data de validade", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Formata a data para o padrão yyyy-MM-dd
+        Date date;
+        String dataFormatada = null;
         SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy");
         SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd");
-        String dataFormatada;
-        try {
-            Date date = sdfInput.parse(dataValidade);
-            dataFormatada = sdfOutput.format(date);
-        } catch (ParseException e) {
-            Toast.makeText(this, "Data de validade inválida", Toast.LENGTH_SHORT).show();
-            return;
+
+        if (!dataValidade.isEmpty())
+        {
+            try {
+                 date = sdfInput.parse(dataValidade);
+                dataFormatada = sdfOutput.format(date);
+            } catch (ParseException e) {
+                Toast.makeText(this, "Data de validade inválida", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         // Calcula o valor total

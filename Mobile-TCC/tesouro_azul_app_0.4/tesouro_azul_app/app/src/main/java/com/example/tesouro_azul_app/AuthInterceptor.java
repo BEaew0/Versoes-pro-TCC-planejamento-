@@ -20,7 +20,8 @@ public class AuthInterceptor implements Interceptor {
     private static final String TAG = "AuthInterceptor";
     private final Context context;
 
-    public AuthInterceptor(Context context) {
+    public AuthInterceptor(Context context)
+    {
         this.context = context;
         sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
     }
@@ -57,17 +58,19 @@ public class AuthInterceptor implements Interceptor {
             editor.remove("jwt_token");
             editor.apply();
 
-            //Redirecionar para tela de login (se estiver em uma Activity)
-            if (context instanceof android.app.Activity) {
-                ((android.app.Activity) context).runOnUiThread(() -> {
+            //Redirecionar para tela de Entrada (se estiver em uma Activity)
+            if (context instanceof android.app.Activity)//Verificação do tipo de Contexto/Atividade
+            {
+                ((android.app.Activity) context).runOnUiThread(() -> {//Fazemos um cast para Activity porque o método runOnUiThread é específico de Activity
                     Toast.makeText(context, "", Toast.LENGTH_SHORT).show();
                     Toast.makeText(context, "Sessão expirada. Faça login novamente.", Toast.LENGTH_LONG).show();
                     Intent entradaIntent = new Intent(context, EntradaActivity.class);
-                    entradaIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                            Intent.FLAG_ACTIVITY_NEW_TASK |
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                    entradaIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |//Limpa a pilha de activities acima da activity alvo (se já existir)
+                            Intent.FLAG_ACTIVITY_NEW_TASK |//Cria uma nova tarefa (útil quando chamado de fora de uma Activity)
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK);//Limpa todas as activities anteriores na pilha
                     context.startActivity(entradaIntent);
-                    ((android.app.Activity) context).finish();
+                    ((android.app.Activity) context).finish();//Finalização da Activity Atual
                 });
             }
             //Lançar exceção para interromper a requisição atual
@@ -75,6 +78,5 @@ public class AuthInterceptor implements Interceptor {
         }
         return response;
     }
-
 }
 
