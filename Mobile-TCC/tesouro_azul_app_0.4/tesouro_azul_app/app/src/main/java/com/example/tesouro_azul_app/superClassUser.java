@@ -2,7 +2,6 @@ package com.example.tesouro_azul_app;
 
 public class SuperClassUser {
 
-    // CriarUsuarioDto.java
     public static class CriarUsuarioDto {
         private String NOME_USUARIO;
         private String EMAIL_USUARIO;
@@ -103,7 +102,6 @@ public class SuperClassUser {
         }
     }
 
-    // AtualizarCampoUsuarioDto.java
     public class AtualizarCampoUsuarioDto {
         private String Campo;
         private String NovoValor;
@@ -132,7 +130,6 @@ public class SuperClassUser {
         }
     }
 
-    // ImagemDto.java
     public class ImagemDto {
         private String ImagemBase64;
 
@@ -151,7 +148,7 @@ public class SuperClassUser {
         }
     }
 
-    // Usuario.java (modelo de retorno)
+    // modelo de retorno
     public class Usuario {
         private int ID_USUARIO;
         private String NOME_USUARIO;
@@ -247,49 +244,46 @@ public class SuperClassUser {
         }
     }
 
-    public static class LoginDto {
-        private String CPF_CNPJ;
-        private String SENHA;
+    //Para requisições de login
+    public static class LoginRequestDto {
+        private String EMAIL_USUARIO;
+        private String SENHA_USUARIO;
 
-        public LoginDto(String cpfCnpj, String senha) {
-            this.CPF_CNPJ = cpfCnpj;
-            this.SENHA = senha;
+        public LoginRequestDto(String email, String senha) {
+            this.EMAIL_USUARIO = email;
+            this.SENHA_USUARIO = senha;
         }
 
         // Getters e Setters
-        public String getCPF_CNPJ() {
-            return CPF_CNPJ;
+        public String getEMAIL_USUARIO() {
+            return EMAIL_USUARIO;
         }
 
-        public void setCPF_CNPJ(String CPF_CNPJ) {
-            this.CPF_CNPJ = CPF_CNPJ;
+        public void setEMAIL_USUARIO(String EMAIL_USUARIO) {
+            this.EMAIL_USUARIO = EMAIL_USUARIO;
         }
 
-        public String getSENHA() {
-            return SENHA;
+        public String getSENHA_USUARIO() {
+            return SENHA_USUARIO;
         }
 
-        public void setSENHA(String SENHA) {
-            this.SENHA = SENHA;
+        public void setSENHA_USUARIO(String SENHA_USUARIO) {
+            this.SENHA_USUARIO = SENHA_USUARIO;
         }
     }
 
-    public static class LoginResponse {
+    //Para respostas de login
+    public static class LoginResponseDto {
+        private String mensagem;
         private String token;
-        private Usuario usuario;
-
-        public LoginResponse(String token, Usuario usuario) {
-            this.token = token;
-            this.usuario = usuario;
-        }
 
         // Getters e Setters
-        public String getToken() {
-            return token;
+        public String getMensagem() {
+            return mensagem;
         }
 
-        public Usuario getUsuario() {
-            return usuario;
+        public String getToken() {
+            return token;
         }
     }
 

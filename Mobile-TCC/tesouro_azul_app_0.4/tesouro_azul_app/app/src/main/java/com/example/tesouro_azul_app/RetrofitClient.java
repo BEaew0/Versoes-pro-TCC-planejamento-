@@ -12,11 +12,12 @@ public class RetrofitClient {
     private static final String BASE_URL = "https://tesouroazul1.hospedagemdesites.ws/api"; // Substitua pela sua URL
     private static Retrofit retrofit = null;
 
-    // Método para obter o serviço API com suporte a JWT
-    public static ApiService getApiService(Context context) {
+    // Método para obter o serviço API com suporte a JWT(Json Web Token)
+    public static ApiService getApiService(Context context)
+    {
         if (retrofit == null) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();// Ferramenta para registrar detalhes das requisições e respostas HTTP no log.
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);// Faz log do corpo da requisição e resposta
 
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(loggingInterceptor)
@@ -29,13 +30,15 @@ public class RetrofitClient {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())// Informa ao Retrofit para converter JSON usando a biblioteca Gson.
                     .build();
         }
-        return retrofit.create(ApiService.class);
+        return retrofit.create(ApiService.class);//Cria uma instância da interface ApiService, que contém os endpoints da API.
     }
 
-    // Método para resetar o cliente (útil após logout)
+
+    //Zera a instância do Retrofit.
+    //Útil, por exemplo, após logout, quando um novo token precisará ser usado
     public static void resetClient() {
         retrofit = null;
     }

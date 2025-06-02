@@ -42,7 +42,6 @@ public class EntradaActivity extends AppCompatActivity
 {
     //quando tiver eu botoKKKKK
     private String Host="https://tesouroazul1.hospedagemdesites.ws/api";
-    private String url,ret;
 
     private ProgressBar progressBar;
     private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
@@ -93,9 +92,22 @@ public class EntradaActivity extends AppCompatActivity
             
             apiOperation.ConectarAPI();
 
+            // Verificar se usuário está logado
+            if (!AuthUtils.isLoggedIn(this)) {
+                startActivity(new Intent(this, EntradaActivity.class));
+                finish();
+                return;
+            }
+
+
             btnEnter.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+                    String email = txtCPF_CNPJ.getText().toString().trim();
+                    String senha = txtSenha.getText().toString().trim();
+
+                    apiOperation.realizarLogin(email,senha);
 
                     //Após periodo de testes ajeitar essa parte
                     Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
@@ -393,24 +405,27 @@ public class EntradaActivity extends AppCompatActivity
                             STATUS_USUARIO
                     );
 
-                    // Conversão para JSON (opcional, apenas para debug)
+                    // Conversão para JSON
                     Gson gson = new Gson();
                     String json = gson.toJson(usuarioDto);
-                    Log.d("UsuarioPost", json); // Para verificar no Logcat
+                    Log.d("UsuarioPost", json); // Para verificar no Logcat(é uma ferramenta de linha de comando que despeja um registro de mensagens do sistema,
+                    // incluindo mensagens que você escreveu no app com a classe Log)
 
                     // Usa o RetrofitClient já configurado
-                    // Na sua Activity ou Fragment
                     ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
                     Call<SuperClassUser.Usuario> call = apiService.criarUsuario(usuarioDto);
 
                     call.enqueue(new Callback<SuperClassUser.Usuario>() {
                         @Override
-                        public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response) {
-                            if (response.isSuccessful()) {
+                        public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response)
+                        {
+                            if (response.isSuccessful())
+                            {
                                 SuperClassUser.Usuario usuarioCriado = response.body();
                                 Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso! ID: " + usuarioCriado.getID_USUARIO(), Toast.LENGTH_SHORT).show();
                                 // Aqui você pode redirecionar para outra activity ou limpar os campos
-                            } else {
+                            } else
+                            {
                                 try {
                                     String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
                                     Toast.makeText(EntradaActivity.this, "Erro no cadastro: " + errorBody, Toast.LENGTH_LONG).show();
@@ -508,74 +523,76 @@ public class EntradaActivity extends AppCompatActivity
 
         //Depois arrume, quando o miguel melhorar
         //Serve para login
-        private void realizarLogin() {
-            String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
-            String senha = txtSenha.getText().toString().trim();
-
-            // Validação básica dos campos
-            if (CPF_CNPJ.isEmpty() || senha.isEmpty()) {
-                Toast.makeText(EntradaActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+        public void realizarLogin(String email, String senha) {
+            // Validação básica
+            if (email.isEmpty() || senha.isEmpty()) {
+                Toast.makeText(EntradaActivity.this, "Preencha email e senha", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             // Mostrar progresso
             progressBar.setVisibility(View.VISIBLE);
-            txtLoading.setText("Autenticando...");
-            txtLoading.setVisibility(View.VISIBLE);
 
             // Criar DTO de login
-            SuperClassUser.LoginDto loginDto = new SuperClassUser.LoginDto(
-                    CPF_CNPJ.replaceAll("\\D", ""), // Remove caracteres não numéricos
-                    senha
-            );
+            SuperClassUser.LoginRequestDto loginDto = new SuperClassUser.LoginRequestDto(email, senha);
 
-            // Chamada à API
+            // Chamar API
             ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-            Call<SuperClassUser.Usuario> call = apiService.loginUsuario(loginDto);
+            Call<SuperClassUser.LoginResponseDto> call = apiService.loginUsuario(loginDto);
 
-            call.enqueue(new Callback<SuperClassUser.Usuario>() {
+            call.enqueue(new Callback<SuperClassUser.LoginResponseDto>()
+            {
                 @Override
-                public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response) {
+                public void onResponse(Call<SuperClassUser.LoginResponseDto> call,
+                                       Response<SuperClassUser.LoginResponseDto> response) {
+
                     progressBar.setVisibility(View.GONE);
-                    txtLoading.setVisibility(View.GONE);
 
-                    if (response.isSuccessful()) {
-                        SuperClassUser.Usuario usuario = response.body();
-                        if (usuario != null) {
-                            // Login bem-sucedido
-                            Toast.makeText(EntradaActivity.this, "Bem-vindo, " + usuario.getNOME_USUARIO(), Toast.LENGTH_SHORT).show();
+                    if (response.isSuccessful() && response.body() != null)
+                    {
+                        // Login bem-sucedido
+                        SuperClassUser.LoginResponseDto loginResponse = response.body();
 
-                            // Salvar dados do usuário
-                            SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putInt("user_id", usuario.getID_USUARIO());
-                            editor.putString("user_name", usuario.getNOME_USUARIO());
-                            editor.putString("user_email", usuario.getEMAIL_USUARIO());
-                            editor.apply();
+                        // Armazenar o token JWT
+                        SharedPreferences sharedPref = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("jwt_token", loginResponse.getToken());
+                        editor.apply();
 
-                            // Redirecionar para a MainActivity
-                            Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
+                        //  Navegar para a tela principal
+                        Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+
                     } else {
-                        // Tratar erros de autenticação
+                        // Tratar erros da API
                         try {
                             String errorBody = response.errorBody() != null ?
-                                    response.errorBody().string() : "Credenciais inválidas";
-                            Toast.makeText(EntradaActivity.this, "Erro: " + errorBody, Toast.LENGTH_LONG).show();
+                                    response.errorBody().string() : "Erro desconhecido";
+
+                            if (response.code() == 401) {
+                                Toast.makeText(EntradaActivity.this,
+                                        "Email ou senha inválidos", Toast.LENGTH_LONG).show();
+                            } else if (response.code() == 400) {
+                                Toast.makeText(EntradaActivity.this,
+                                        "Usuário inativo", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(EntradaActivity.this,
+                                        "Erro: " + errorBody, Toast.LENGTH_LONG).show();
+                            }
+
                         } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(EntradaActivity.this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EntradaActivity.this,
+                                    "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
-                public void onFailure(Call<SuperClassUser.Usuario> call, Throwable t) {
+                public void onFailure(Call<SuperClassUser.LoginResponseDto> call, Throwable t) {
                     progressBar.setVisibility(View.GONE);
-                    txtLoading.setVisibility(View.GONE);
-                    Toast.makeText(EntradaActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EntradaActivity.this,
+                            "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e("LoginError", "Erro: ", t);
                 }
             });

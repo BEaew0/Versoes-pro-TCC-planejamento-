@@ -219,11 +219,12 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
+    //Rever
     private void venderProduto(){}
 
     //Rever
     private void removerProduto() {
-        // 1. Obter o ID do produto selecionado (você precisará implementar essa lógica)
+        //  Obter o ID do produto selecionado (você precisará implementar essa lógica)
         // Por exemplo, se você tiver um produto selecionado no adapter:
         int produtoId = obterProdutoSelecionado();
 
@@ -232,7 +233,7 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
-        // 2. Mostrar confirmação antes de remover
+        //  Mostrar confirmação antes de remover
         new AlertDialog.Builder(this)
                 .setTitle("Confirmar Exclusão")
                 .setMessage("Tem certeza que deseja remover este produto?")
@@ -272,12 +273,9 @@ public class ProdutosActivity extends AppCompatActivity {
                 .show();
     }
 
+    //Rever
     private void comprarProduto() {
         // Verifica se há um produto selecionado
-        if (produtoSelecionado == null) {
-            Toast.makeText(this, "Selecione um produto para vender", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         // Valida a quantidade
         String quantidadeStr = QuantProd.getText().toString().trim();
@@ -395,7 +393,7 @@ public class ProdutosActivity extends AppCompatActivity {
     private void alterarProduto(){}
 
     private void criarProduto() {
-        // 1. Validação dos campos de entrada
+        // Validação dos campos de entrada
         String codProduto = CodProd.getText().toString().trim();
         String nomeProduto = NomeProd.getText().toString().trim();
         String valorProdutoStr = ValorProd.getText().toString().trim();
@@ -407,7 +405,7 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
-        // 2. Conversão do valor para Double com tratamento de erro
+        //Conversão do valor para Double com tratamento de erro
         double valorProduto;
         try {
             valorProduto = Double.parseDouble(valorProdutoStr);
@@ -421,10 +419,10 @@ public class ProdutosActivity extends AppCompatActivity {
         }
         int idUsuario = obterIdUsuarioLogado();
 
-        // 3. Verificar se uma imagem foi selecionada
+        // Verificar se uma imagem foi selecionada
         if (fotoProd == null || fotoProd.isEmpty())
         {
-            // 5. Criar objeto DTO com a imagem em Base64
+            // Criar objeto DTO sem imagem
             SuperClassProd.CadastrarProdutoDto produtoDto = new SuperClassProd.CadastrarProdutoDto(
                     idUsuario,       // ID_USUARIO
                     codProduto,      // COD_PRODUTO
@@ -435,7 +433,7 @@ public class ProdutosActivity extends AppCompatActivity {
             );
         }
 
-        // 5. Criar objeto DTO com a imagem em Base64
+        // Criar objeto DTO com a imagem em Base64
         SuperClassProd.CadastrarProdutoDto produtoDto = new SuperClassProd.CadastrarProdutoDto(
                 idUsuario,       // ID_USUARIO
                 codProduto,      // COD_PRODUTO
@@ -446,13 +444,13 @@ public class ProdutosActivity extends AppCompatActivity {
         );
 
 
-        // 7. Mostrar progresso durante o upload
+        // Mostrar progresso durante o upload
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Enviando produto...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        // 8. Usar o RetrofitClient singleton
+        // Usar o RetrofitClient singleton
         ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
         Call<Void> call = apiService.cadastrarProduto(produtoDto);
 
