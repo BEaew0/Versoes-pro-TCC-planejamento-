@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using TesouroAzulAPI.Data;
 using TesouroAzulAPI.Models;
 using TesouroAzulAPI.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace TesouroAzulAPI.Controllers
 {
@@ -26,12 +28,13 @@ namespace TesouroAzulAPI.Controllers
         // POSTs
         // Criar Pedido Venda
         // Neste Post já adiciona os ItensVenda associados ao PedidoVenda
+        [Authorize(Roles ="user,admin")]
         [HttpPost("CriarPedidoVenda")]
         public async Task<IActionResult> CriarPedidoVenda([FromBody] Dtos.PedidoVendaCompleto dto)
         {
             var pedidoVenda = new PedidosVenda
             {
-                ID_USUARIO_FK = dto.Pedido.ID_USUARIO_FK,
+                ID_USUARIO_FK = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
                 VALOR_PEDIDO_VENDA = dto.Pedido.VALOR_PEDIDO_VENDA ?? 0.00m // Valor padrão se não for informado
             };
 
@@ -74,7 +77,14 @@ namespace TesouroAzulAPI.Controllers
 
         // Criar Item Venda
         // Adiciona Item associado ao Pedido venda 
-
+        /*
+        [Authorize(Roles ="user,admin")]
+        [HttpPost("")]
+        public async AdicionarItem()
+        {
+            return Ok();
+        }
+        */
         // Buscar Pedido Venda por campo
 
         // Buscar Itens Venda por campo

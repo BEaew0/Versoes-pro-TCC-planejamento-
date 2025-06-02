@@ -4,7 +4,6 @@ namespace TesouroAzulAPI.Dtos
 {
     public class CriarPedidoVendaDto
     {
-        public int ID_USUARIO_FK { get; set; }
         public decimal? VALOR_PEDIDO_VENDA { get; set; } = null; // Calculado dentro do DB
 
     }
