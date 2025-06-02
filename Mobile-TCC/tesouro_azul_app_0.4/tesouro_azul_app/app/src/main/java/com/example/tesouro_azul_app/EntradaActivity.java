@@ -451,67 +451,109 @@ public class EntradaActivity extends AppCompatActivity
     }
     public class ApiOperation {
         private void ConectarAPI() {
-            // Na sua Activity ou Fragment
+            // 1. Obter instância do ApiService
             ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
 
-            Call<Void> call = apiService.verificarConexao();
+            // 2. Mostrar estado de carregamento
+            progressBar.setVisibility(View.VISIBLE);
+            txtLoading.setText("Conectando ao servidor...");
+            txtLoading.setVisibility(View.VISIBLE);
 
+            // 3. Esconder componentes da UI durante o carregamento
+            txtCPF_CNPJ.setVisibility(View.GONE);
+            txtSenha.setVisibility(View.GONE);
+            btnEnter.setVisibility(View.GONE);
+            txtRegistrar.setVisibility(View.GONE);
+
+            // 4. Fazer chamada à API
+            Call<Void> call = apiService.testarConexaoAPI();
             call.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
-                        txtLoading.setText("Conexão estabelecida com sucesso!");
-
-                        // Aguarda 2 segundos antes de mostrar a interface
-                        new Handler().postDelayed(() -> {
-                            txtLoading.setVisibility(View.GONE);
-                            progressBar.setVisibility(View.GONE);
-
-                            // Mostrar componentes de UI
-                            txtCPF_CNPJ.setVisibility(View.VISIBLE);
-                            txtSenha.setVisibility(View.VISIBLE);
-                            btnEnter.setVisibility(View.VISIBLE);
-                            txtRegistrar.setVisibility(View.VISIBLE);
-                        }, 2000);
-
+                        // Conexão bem-sucedida
+                        tratarConexaoBemSucedida();
                     } else {
-                        try {
-                            // Tenta ler o corpo do erro se existir
-                            String errorBody = response.errorBody() != null ?
-                                    response.errorBody().string() : "Erro desconhecido";
-
-                            txtLoading.setText("Erro na API");
-                            Toast.makeText(EntradaActivity.this,
-                                    "Erro na API: " + response.code() + " - " + errorBody,
-                                    Toast.LENGTH_LONG).show();
-
-                            Log.e("API Error", "Code: " + response.code() + ", Error: " + errorBody);
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(EntradaActivity.this,
-                                    "Erro ao processar resposta",
-                                    Toast.LENGTH_LONG).show();
-                        }
-
-                        // Tentar reconexão após 5 segundos
-                        new Handler().postDelayed(() -> ConectarAPI(), 5000);
+                        // Erro na resposta da API
+                        tratarErroAPI(response);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
-                    txtLoading.setText("Falha na conexão");
-                    Toast.makeText(EntradaActivity.this,
-                            "Erro de rede: " + t.getMessage(),
-                            Toast.LENGTH_LONG).show();
-
-                    Log.e("Network Failure", "Error: ", t);
-
-                    // Tentar reconexão após 5 segundos
-                    new Handler().postDelayed(() -> ConectarAPI(), 5000);
+                    // Falha na conexão
+                    tratarFalhaConexao(t);
                 }
             });
+        }
+
+        // Método auxiliar para tratamento de sucesso
+        private void tratarConexaoBemSucedida() {
+            runOnUiThread(() -> {
+                txtLoading.setText("Conexão estabelecida com sucesso!");
+
+                // Aguardar 2 segundos antes de mostrar a interface
+                new Handler().postDelayed(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    txtLoading.setVisibility(View.GONE);
+
+                    // Mostrar componentes da UI
+                    txtCPF_CNPJ.setVisibility(View.VISIBLE);
+                    txtSenha.setVisibility(View.VISIBLE);
+                    btnEnter.setVisibility(View.VISIBLE);
+                    txtRegistrar.setVisibility(View.VISIBLE);
+                }, 2000);
+            });
+        }
+
+        // Método auxiliar para tratamento de erro da API
+        private void tratarErroAPI(Response<Void> response) {
+            runOnUiThread(() -> {
+                try {
+                    String errorBody = response.errorBody() != null ?
+                            response.errorBody().string() : "Erro desconhecido";
+
+                    String errorMsg = "Erro na API: " + response.code();
+                    if (!errorBody.isEmpty()) {
+                        errorMsg += " - " + errorBody;
+                    }
+
+                    txtLoading.setText("Erro na conexão");
+                    Toast.makeText(EntradaActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                    Log.e("API_ERROR", errorMsg);
+
+                } catch (IOException e) {
+                    Log.e("API_ERROR", "Erro ao ler corpo do erro", e);
+                    Toast.makeText(EntradaActivity.this,
+                            "Erro ao processar resposta do servidor", Toast.LENGTH_LONG).show();
+                }
+
+                // Tentar reconexão após 5 segundos
+                agendarNovaTentativa();
+            });
+        }
+
+        // Método auxiliar para tratamento de falha de conexão
+        private void tratarFalhaConexao(Throwable t) {
+            runOnUiThread(() -> {
+                txtLoading.setText("Falha na conexão");
+                String errorMsg = "Erro de rede: " + t.getMessage();
+
+                Toast.makeText(EntradaActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                Log.e("NETWORK_ERROR", errorMsg, t);
+
+                // Tentar reconexão após 5 segundos
+                agendarNovaTentativa();
+            });
+        }
+
+        // Método auxiliar para agendar nova tentativa
+        private void agendarNovaTentativa() {
+            new Handler().postDelayed(() -> {
+                if (!isFinishing() && !isDestroyed()) {
+                    ConectarAPI();
+                }
+            }, 5000);
         }
 
         private void mostrarErro (String mensagem){
