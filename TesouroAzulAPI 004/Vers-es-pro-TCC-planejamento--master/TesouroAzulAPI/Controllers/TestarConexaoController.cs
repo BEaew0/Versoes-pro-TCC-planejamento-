@@ -20,8 +20,8 @@ namespace TesouroAzulAPI.Controllers
             // Verifica se a conexão com o banco de dados está funcionando
             try
             {
-                await _context.Database.CanConnectAsync();
-                return Ok(new { mensagem = "Conexão com o banco de dados estabelecida com sucesso." });
+                if (await _context.Database.CanConnectAsync() == true) return Ok(new { mensagem = "Conexão com o banco de dados estabelecida com sucesso." });
+                else return BadRequest("Banco de dados não encontrado");
             }
             catch (Exception ex)
             {

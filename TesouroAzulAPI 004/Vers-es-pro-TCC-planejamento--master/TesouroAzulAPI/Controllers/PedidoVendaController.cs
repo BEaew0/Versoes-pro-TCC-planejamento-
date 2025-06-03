@@ -20,7 +20,7 @@ namespace TesouroAzulAPI.Controllers
         // Criar Pedido Venda
         // Neste Post já adiciona os ItensVenda associados ao PedidoVenda
         [Authorize(Roles ="user,admin")]
-        [HttpPost("CriarPedidoVenda")]
+        [HttpPost("criar-pedido-venda")]
         public async Task<IActionResult> CriarPedidoVenda([FromBody] Dtos.PedidoVendaCompleto dto)
         {
             var pedidoVenda = new PedidosVenda
@@ -119,11 +119,37 @@ namespace TesouroAzulAPI.Controllers
                     pedidoVenda = await _context.PedidosVenda.Where(p => p.ID_PEDIDO_VENDA == Convert.ToInt32(filtro.Valor))
                         .Include(p => p.Usuario)
                         .ToListAsync();
+                    if (!pedidoVenda.Any()) return BadRequest("Nenhum pedido de venda encontrado com o ID especificado.");
+
                     break;
                 case "data_pedido_venda":
                     if (DateTime.TryParse(filtro.Valor, out DateTime dataPedido))
                     {
                         pedidoVenda = await _context.PedidosVenda.Where(p => p.DATA_PEDIDO_VENDA.Date == dataPedido.Date)
+                            .Include(p => p.Usuario)
+                            .ToListAsync();
+                    }
+                    else
+                    {
+                        return BadRequest("Formato de data inválido.");
+                    }
+                    break;
+                case "data_pedido_venda_posterior":
+                    if (DateTime.TryParse(filtro.Valor, out DateTime dataPedidoPosterior))
+                    {
+                        pedidoVenda = await _context.PedidosVenda.Where(p => p.DATA_PEDIDO_VENDA > dataPedidoPosterior)
+                            .Include(p => p.Usuario)
+                            .ToListAsync();
+                    }
+                    else
+                    {
+                        return BadRequest("Formato de data inválido.");
+                    }
+                    break;
+                case "data_pedido_venda_anterior":
+                    if (DateTime.TryParse(filtro.Valor, out DateTime dataPedidoAnterior))
+                    {
+                        pedidoVenda = await _context.PedidosVenda.Where(p => p.DATA_PEDIDO_VENDA < dataPedidoAnterior)
                             .Include(p => p.Usuario)
                             .ToListAsync();
                     }
@@ -169,7 +195,7 @@ namespace TesouroAzulAPI.Controllers
                     }
                     break;
                 default:
-                    return BadRequest("Campo inválido. Utilize 'id_pedido_venda', 'data_pedido_venda', 'valor_pedido_venda', 'valor_pedido_venda_maior' ou 'valor_pedido_venda_menor'.");
+                    return BadRequest("Campo inválido. Utilize 'id_pedido_venda', 'data_pedido_venda', 'data_pedido_venda_posterior', 'data_pedido_venda_anterior', 'valor_pedido_venda', 'valor_pedido_venda_maior' ou 'valor_pedido_venda_menor'.");
 
             }
             return Ok(pedidoVenda);
