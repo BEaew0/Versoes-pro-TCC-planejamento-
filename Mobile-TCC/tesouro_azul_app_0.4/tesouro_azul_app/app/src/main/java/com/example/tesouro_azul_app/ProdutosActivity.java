@@ -27,7 +27,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -37,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 import retrofit2.Call;
@@ -227,10 +229,150 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
-    //Rever
-    private void venderProduto(){}
+    //Ainda esta sendo feita
 
-    //Rever
+    /*private void criarPedidoVenda() {
+        // 1. Verifica se há um produto selecionado
+        if (produtoSelecionado == null) {
+            Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 2. Valida a quantidade
+        String quantidadeStr = QuantProd.getText().toString().trim();
+        if (quantidadeStr.isEmpty()) {
+            Toast.makeText(this, "Informe a quantidade", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double quantidade;
+        try {
+            quantidade = Double.parseDouble(quantidadeStr);
+            if (quantidade <= 0) {
+                Toast.makeText(this, "Quantidade deve ser maior que zero", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 3. Valida a data de validade (opcional para venda)
+        String dataValidade = ValProd.getText().toString().trim();
+        String dataFormatada = null;
+
+        if (!dataValidade.isEmpty()) {
+            SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            try {
+                Date date = sdfInput.parse(dataValidade);
+                dataFormatada = sdfOutput.format(date);
+            } catch (ParseException e) {
+                Toast.makeText(this, "Formato de data inválido (use DD/MM/AAAA)", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        // 4. Cálculos e preparação dos dados
+        double valorTotal = produtoSelecionado.getVALOR_PRODUTO() * quantidade;
+        String lote = "LOTE-" + System.currentTimeMillis();
+
+        // 5. Criação dos DTOs para venda
+        List<SuperClassProd.ItemVendaDto> itens = new ArrayList<>();
+        itens.add(new SuperClassProd.ItemVendaDto(
+                produtoSelecionado.getID_PRODUTO(),
+                lote,
+                quantidade,
+                1, // N_ITEM_VENDA
+                0.00, // DESCONTO (pode ser ajustado)
+                valorTotal
+        ));
+
+        int idUsuario = obterIdUsuarioLogado();
+        if (idUsuario == -1) {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // DTO principal para venda
+        SuperClassProd.PedidoVendaDto pedidoVenda = new SuperClassProd.PedidoVendaDto(
+                idUsuario,
+                valorTotal
+        );
+
+        // DTO completo para a API
+        SuperClassProd.PedidoVendaCompletoDto pedidoVendaDto =
+                new SuperClassProd.PedidoVendaCompletoDto(pedidoVenda, itens);
+
+        // 6. Mostra progresso (substitua por ProgressBar se possível)
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Processando venda...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // 7. Chama a API de venda
+        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
+        Call<SuperClassProd.PedidoVendaResponse> call = apiService.criarPedidoVenda(pedidoVendaDto);
+
+        call.enqueue(new Callback<SuperClassProd.PedidoVendaResponse>() {
+            @Override
+            public void onResponse(Call<SuperClassProd.PedidoVendaResponse> call,
+                                   Response<SuperClassProd.PedidoVendaResponse> response) {
+
+                progressDialog.dismiss();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    // Sucesso
+                    Toast.makeText(ProdutosActivity.this,
+                            "Venda realizada com sucesso! ID: " +
+                                    response.body().PedidoVendaID, Toast.LENGTH_LONG).show();
+
+                    limparCampos();
+                    produtoSelecionado = null;
+
+                    // Atualiza a lista de produtos
+                    carregarProdutos();
+                } else {
+                    tratarErroVenda(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuperClassProd.PedidoVendaResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(ProdutosActivity.this,
+                        "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
+                Log.e("VENDA_ERROR", "Falha ao realizar venda", t);
+            }
+        });
+    }*/
+
+    // Método para tratar erros específicos de venda
+    private void tratarErroVenda(Response<?> response) {
+        try {
+            String errorBody = response.errorBody() != null ?
+                    response.errorBody().string() : "Erro desconhecido";
+
+            if (response.code() == 400) {
+                JSONObject errorJson = new JSONObject(errorBody);
+                if (errorJson.has("estoque")) {
+                    Toast.makeText(this, "Estoque insuficiente", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "Dados inválidos: " + errorBody, Toast.LENGTH_LONG).show();
+                }
+            } else if (response.code() == 401) {
+                Toast.makeText(this, "Sessão expirada", Toast.LENGTH_LONG).show();
+                // Redirecionar para login
+            } else {
+                Toast.makeText(this, "Erro: " + response.code(), Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //Ainda esta sendo feita
     private void removerProduto() {
         //  Obter o ID do produto selecionado (você precisará implementar essa lógica)
         // Por exemplo, se você tiver um produto selecionado no adapter:
@@ -281,11 +423,15 @@ public class ProdutosActivity extends AppCompatActivity {
                 .show();
     }
 
-    //Rever
+    //Ainda esta sendo feita
     private void comprarProduto() {
-        // Verifica se há um produto selecionado
+        // 1. Verifica se há um produto selecionado
+        if (produtoSelecionado == null) {
+            Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Valida a quantidade
+        // 2. Valida a quantidade
         String quantidadeStr = QuantProd.getText().toString().trim();
         if (quantidadeStr.isEmpty()) {
             Toast.makeText(this, "Informe a quantidade", Toast.LENGTH_SHORT).show();
@@ -304,85 +450,121 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
-        // Valida a data de validade
+        // 3. Valida a data de validade
         String dataValidade = ValProd.getText().toString().trim();
-        Date date;
         String dataFormatada = null;
-        SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy");
-        SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd");
 
-        if (!dataValidade.isEmpty())
-        {
+        if (!dataValidade.isEmpty()) {
+            SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
             try {
-                 date = sdfInput.parse(dataValidade);
+                Date date = sdfInput.parse(dataValidade);
+                // Verifica se a data é futura
+                if (date.before(new Date())) {
+                    Toast.makeText(this, "Data de validade deve ser futura", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 dataFormatada = sdfOutput.format(date);
             } catch (ParseException e) {
-                Toast.makeText(this, "Data de validade inválida", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Formato de data inválido (use DD/MM/AAAA)", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
 
-        // Calcula o valor total
+        // 4. Cálculos e preparação dos dados
         double valorTotal = produtoSelecionado.getVALOR_PRODUTO() * quantidade;
-
-        // Cria o lote (pode ser um número aleatório ou sequencial)
         String lote = "LOTE-" + System.currentTimeMillis();
 
-        // Cria o item da compra
+        // 5. Criação dos DTOs
         List<SuperClassProd.ItemCompraDto> itens = new ArrayList<>();
         itens.add(new SuperClassProd.ItemCompraDto(
-                produtoSelecionado.getID_PRODUTO(), // ID_PRODUTO_FK
-                lote,                              // LOTE_COMPRA
-                quantidade,                        // QUANTIDADE_ITEM_COMPRA
-                1,                                 // N_ITEM_COMPRA (pode ser incremental)
-                valorTotal,                        // VALOR_TOTAL_ITEM_COMPRA
-                dataFormatada                     // VAL_ITEM_COMPRA
+                produtoSelecionado.getID_PRODUTO(),
+                lote,
+                quantidade,
+                1, // N_ITEM_COMPRA (poderia ser incremental)
+                valorTotal,
+                dataFormatada
         ));
 
-        // Cria o pedido (supondo ID_FORNECEDOR = 1 para exemplo)
         int idUsuario = obterIdUsuarioLogado();
-        SuperClassProd.PedidoDto pedido = new SuperClassProd.PedidoDto(
-                idUsuario,  // ID_USUARIO_FK
-                1,          // ID_FORNECEDOR (pode ser obtido de outra forma)
-                valorTotal  // VALOR_VALOR
-        );
+        if (idUsuario == -1) {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Cria o DTO completo
+        SuperClassProd.PedidoDto pedido = new SuperClassProd.PedidoDto(
+                idUsuario,
+                1, // ID_FORNECEDOR (vao se foderem back end )
+                valorTotal
+        );
+        //Vai se foder back end
+        //________________$$$$
+        //______________$$____$$
+        //______________$$____$$
+        //______________$$____$$
+        //______________$$____$$
+        //______________$$____$$
+        //__________$$$$$$____$$$$$$
+        //________$$____$$____$$____$$$$
+        //________$$____$$____$$____$$__$$
+        //$$$$$$__$$____$$____$$____$$____$$
+        //$$____$$$$________________$$____$$
+        //$$______$$______________________$$
+        //__$$____$$______________________$$
+        //___$$$__$$______________________$$
+        //____$$__________________________$$
+        //_____$$$________________________$$
+        //______$$______________________$$$
+        //_______$$$____________________$$
+        //________$$____________________$$
+        //_________$$$________________$$$
+        //__________$$________________$$
+        //__________$$$$$$$$$$$$$$$$$$$$
+
         SuperClassProd.PedidoCompraCompletoDto pedidoDto =
                 new SuperClassProd.PedidoCompraCompletoDto(pedido, itens);
 
-        // Mostra progresso
+        // 6. Mostra progresso
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Processando compra...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        // Chama a API
-        // Na sua Activity ou Fragment
+        // 7. Chama a API
         ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-        Call<Void> call = apiService.criarPedidoCompra(pedidoDto);
+        Call<SuperClassProd.PedidoCompraResponse> call = apiService.criarPedidoCompra(pedidoDto);
 
-        call.enqueue(new Callback<Void>() {
+        call.enqueue(new Callback<SuperClassProd.PedidoCompraResponse>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<SuperClassProd.PedidoCompraResponse> call,
+                                   Response<SuperClassProd.PedidoCompraResponse> response) {
+
                 progressDialog.dismiss();
 
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Sucesso
                     Toast.makeText(ProdutosActivity.this,
-                            "Compra realizada com sucesso!", Toast.LENGTH_SHORT).show();
+                            "Compra realizada com sucesso! ID: " +
+                                    response.body().PedidoID, Toast.LENGTH_LONG).show();
+
                     limparCampos();
                     produtoSelecionado = null;
+
+                    // Atualiza a lista de produtos se necessário
+                    carregarProdutos();
                 } else {
-                    tratarErroApi(response);
+                    // Trata erros da API
+                    Toast.makeText(ProdutosActivity.this,"Deu erro na API",Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<SuperClassProd.PedidoCompraResponse> call, Throwable t) {
                 progressDialog.dismiss();
                 Toast.makeText(ProdutosActivity.this,
-                        "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("API_ERROR", "Erro na compra", t);
+                        "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
+                Log.e("COMPRA_ERROR", "Falha ao realizar compra", t);
             }
         });
     }
@@ -396,6 +578,7 @@ public class ProdutosActivity extends AppCompatActivity {
         return produtoSelecionado.getID_PRODUTO(); // Supondo que Produto tenha um método getID_PRODUTO()
     }
 
+    //Ainda esta sendo feita
     private void alterarProduto(){}
 
     private void criarProduto() {

@@ -1,5 +1,6 @@
 package com.example.tesouro_azul_app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,56 +28,56 @@ public class AuthInterceptor implements Interceptor {
     }
 
     @NonNull
+    // Versão melhorada com tratamento de mais códigos de erro
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request originalRequest = chain.request();
-
-        // Obter o token JWT salvo
         String token = sharedPreferences.getString("jwt_token", null);
 
         if (token == null) {
-            // Se não há token, prossegue sem autenticação
             return chain.proceed(originalRequest);
         }
 
-        //Adciona o Token para a requisição
         Request authenticatedRequest = originalRequest.newBuilder()
                 .header("Authorization", "Bearer " + token)
                 .build();
 
-        //Executa a requisição
         Response response = chain.proceed(authenticatedRequest);
 
-        // Verificar se o token expirou (código 401 - Unauthorized)
-        if (response.code() == 401) {
-            response.close(); // Fechar a resposta atual
+        switch (response.code()) {
+            case 401: // Unauthorized
+                handleUnauthorized(context);
+                throw new IOException("Token de autenticação expirado");
 
-            Log.d(TAG, "Token expirado ou inválido, realizando logout...");
-
-            // Limpa o token inválido
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.remove("jwt_token");
-            editor.apply();
-
-            //Redirecionar para tela de Entrada (se estiver em uma Activity)
-            if (context instanceof android.app.Activity)//Verificação do tipo de Contexto/Atividade
-            {
-                ((android.app.Activity) context).runOnUiThread(() -> {//Fazemos um cast para Activity porque o método runOnUiThread é específico de Activity
-                    Toast.makeText(context, "", Toast.LENGTH_SHORT).show();
-                    Toast.makeText(context, "Sessão expirada. Faça login novamente.", Toast.LENGTH_LONG).show();
-                    Intent entradaIntent = new Intent(context, EntradaActivity.class);
-
-                    entradaIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |//Limpa a pilha de activities acima da activity alvo (se já existir)
-                            Intent.FLAG_ACTIVITY_NEW_TASK |//Cria uma nova tarefa (útil quando chamado de fora de uma Activity)
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK);//Limpa todas as activities anteriores na pilha
-                    context.startActivity(entradaIntent);
-                    ((android.app.Activity) context).finish();//Finalização da Activity Atual
-                });
-            }
-            //Lançar exceção para interromper a requisição atual
-            throw new IOException("Token de autenticação expirado");
+            case 403: // Forbidden
+                // Tratar acesso negado
+                Toast.makeText(context, "Acesso negado", Toast.LENGTH_LONG).show();
+                break;
+            case 500: // Server Error
+                // Tratar erro do servidor
+                Toast.makeText(context, "Merda do miguel.", Toast.LENGTH_LONG).show();
+                break;
+            // outros casos...
         }
         return response;
+    }
+
+    private void handleUnauthorized(Context context) {
+        // Extrair para método separado para reutilização
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("jwt_token");
+        editor.apply();
+
+        if (context instanceof Activity) {
+
+            ((Activity) context).runOnUiThread(() -> {
+                Toast.makeText(context, "Sessão expirada. Faça login novamente.", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(context, EntradaActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                context.startActivity(intent);
+                ((Activity) context).finish();
+            });
+        }
     }
 }
 

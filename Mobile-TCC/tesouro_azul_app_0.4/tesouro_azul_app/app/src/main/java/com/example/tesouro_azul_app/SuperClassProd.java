@@ -49,16 +49,33 @@ public class SuperClassProd {
             this.IMG_PRODUTO = IMG_PRODUTO;
         }
 
-        public int getID_USUARIO() { return ID_USUARIO; }
-        public String getCOD_PRODUTO() { return COD_PRODUTO; }
-        public String getNOME_PRODUTO() { return NOME_PRODUTO; }
-        public double getVALOR_PRODUTO() { return VALOR_PRODUTO; }
-        public String getTIPO_PRODUTO() { return TIPO_PRODUTO; }
-        public String getIMG_PRODUTO() { return IMG_PRODUTO; }
+        public int getID_USUARIO() {
+            return ID_USUARIO;
+        }
+
+        public String getCOD_PRODUTO() {
+            return COD_PRODUTO;
+        }
+
+        public String getNOME_PRODUTO() {
+            return NOME_PRODUTO;
+        }
+
+        public double getVALOR_PRODUTO() {
+            return VALOR_PRODUTO;
+        }
+
+        public String getTIPO_PRODUTO() {
+            return TIPO_PRODUTO;
+        }
+
+        public String getIMG_PRODUTO() {
+            return IMG_PRODUTO;
+        }
     }
 
     // DTO para atualização de campos
-   static class CamposProdutoDto {
+    static class CamposProdutoDto {
         private String Campo;
         private String NovoValor;
 
@@ -67,12 +84,17 @@ public class SuperClassProd {
             this.NovoValor = novoValor;
         }
 
-        public String getCampo() { return Campo; }
-        public String getNovoValor() { return NovoValor; }
+        public String getCampo() {
+            return Campo;
+        }
+
+        public String getNovoValor() {
+            return NovoValor;
+        }
     }
 
     // Modelo de Produto
-   static class Produto {
+    static class Produto {
         private int ID_PRODUTO;
         private int ID_USUARIO_FK;
         private String COD_PRODUTO;
@@ -111,72 +133,151 @@ public class SuperClassProd {
             this.IMG_PRODUTO = IMG_PRODUTO;
         }
 
-        public int getID_PRODUTO() { return ID_PRODUTO; }
-        public int getID_USUARIO_FK() { return ID_USUARIO_FK; }
-        public String getCOD_PRODUTO() { return COD_PRODUTO; }
-        public String getNOME_PRODUTO() { return NOME_PRODUTO; }
-        public double getVALOR_PRODUTO() { return VALOR_PRODUTO; }
-        public String getTIPO_PRODUTO() { return TIPO_PRODUTO; }
-        public byte[] getIMG_PRODUTO() { return IMG_PRODUTO; }
-    }
-
-    public static class PedidoCompraCompletoDto {
-        private PedidoDto Pedido;
-        private List<ItemCompraDto> Item;
-
-        public PedidoCompraCompletoDto(PedidoDto pedido, List<ItemCompraDto> item) {
-            this.Pedido = pedido;
-            this.Item = item;
+        public int getID_PRODUTO() {
+            return ID_PRODUTO;
         }
 
-        // Getters e Setters
-        public PedidoDto getPedido() { return Pedido; }
-        public List<ItemCompraDto> getItem() { return Item; }
-    }
-
-    public static class PedidoDto {
-        private int ID_USUARIO_FK;
-        private int ID_FORNECEDOR;
-        private double VALOR_VALOR;
-
-        public PedidoDto(int idUsuario, int idFornecedor, double valor) {
-            this.ID_USUARIO_FK = idUsuario;
-            this.ID_FORNECEDOR = idFornecedor;
-            this.VALOR_VALOR = valor;
+        public int getID_USUARIO_FK() {
+            return ID_USUARIO_FK;
         }
 
-        // Getters e Setters
-        public int getID_USUARIO_FK() { return ID_USUARIO_FK; }
-        public int getID_FORNECEDOR() { return ID_FORNECEDOR; }
-        public double getVALOR_VALOR() { return VALOR_VALOR; }
-    }
-
-    public static class ItemCompraDto {
-        private int ID_PRODUTO_FK;
-        private String LOTE_COMPRA;
-        private double QUANTIDADE_ITEM_COMPRA;
-        private int N_ITEM_COMPRA;
-        private double VALOR_TOTAL_ITEM_COMPRA;
-        private String VAL_ITEM_COMPRA;
-
-        public ItemCompraDto(int idProduto, String lote, double quantidade,
-                             int nItem, double valorTotal, String valItem) {
-            this.ID_PRODUTO_FK = idProduto;
-            this.LOTE_COMPRA = lote;
-            this.QUANTIDADE_ITEM_COMPRA = quantidade;
-            this.N_ITEM_COMPRA = nItem;
-            this.VALOR_TOTAL_ITEM_COMPRA = valorTotal;
-            this.VAL_ITEM_COMPRA = valItem;
+        public String getCOD_PRODUTO() {
+            return COD_PRODUTO;
         }
 
-        // Getters e Setters
-        public int getID_PRODUTO_FK() { return ID_PRODUTO_FK; }
-        public String getLOTE_COMPRA() { return LOTE_COMPRA; }
-        public double getQUANTIDADE_ITEM_COMPRA() { return QUANTIDADE_ITEM_COMPRA; }
-        public int getN_ITEM_COMPRA() { return N_ITEM_COMPRA; }
-        public double getVALOR_TOTAL_ITEM_COMPRA() { return VALOR_TOTAL_ITEM_COMPRA; }
-        public String getVAL_ITEM_COMPRA() { return VAL_ITEM_COMPRA; }
+        public String getNOME_PRODUTO() {
+            return NOME_PRODUTO;
+        }
+
+        public double getVALOR_PRODUTO() {
+            return VALOR_PRODUTO;
+        }
+
+        public String getTIPO_PRODUTO() {
+            return TIPO_PRODUTO;
+        }
+
+        public byte[] getIMG_PRODUTO() {
+            return IMG_PRODUTO;
+        }
     }
+
+    static class PedidoCompraCompletoDto {
+        public PedidoDto Pedido;
+        public List<ItemCompraDto> Item;
+
+        public PedidoCompraCompletoDto(PedidoDto pedido, List<ItemCompraDto> itens) {
+
+        }
+    }
+
+    static class PedidoDto {
+        public int ID_FORNECEDOR;
+        public float VALOR_VALOR;
+        public Double VALOR_PEDIDO_VENDA;
+
+        public PedidoDto(int idUsuario, int i, double valorTotal) {
+
+        }
+    }
+
+    static class ItemCompraDto {
+        public int ID_PRODUTO_FK;
+        public int ID_PEDIDO_FK;
+        public String VAL_ITEM_COMPRA;
+        public String LOTE_COMPRA;
+        public float QUANTIDADE_ITEM_COMPRA;
+        public int N_ITEM_COMPRA;
+        public float VALOR_TOTAL_ITEM_COMPRA;
+
+
+        public ItemCompraDto(int idProduto, String lote, double quantidade, int i, double valorTotal, String dataFormatada) {
+
+        }
+    }
+
+    class CamposDto {
+        public String Campo;
+        public String NovoValor;
+    }
+
+    class PedidoCompraResponse {
+        public int PedidoID;
+        public List<ItemResponse> Itens;
+    }
+
+    class ItemResponse {
+        public int ID_ITEM_COMPRA;
+        public int ID_PRODUTO_FK;
+        public float QUANTIDADE_ITEM_COMPRA;
+    }
+
+    class PedidoCompra {
+        public int ID_PEDIDO;
+        public int ID_USUARIO_FK;
+        public int ID_FORNECEDOR_FK;
+        public float VALOR_PEDIDO;
+        public String DATA_PEDIDO;
+    }
+
+    class ItemCompra {
+        public int ID_ITEM_COMPRA;
+        public int ID_PRODUTO_FK;
+        public int ID_PEDIDO_FK;
+        public String VAL_ITEM_COMPRA;
+        public String LOTE_COMPRA;
+        public float QUANTIDADE_ITEM_COMPRA;
+        public int N_ITEM_COMPRA;
+        public float VALOR_TOTAL_ITEM_COMPRA;
+        public String ESTADO_ITEM_COMPRA;
+    }
+
+    class PedidoVendaCompletoDto {
+        public PedidoDto Pedido;
+        public List<ItemVendaDto> Item;
+    }
+
+    class ItemVendaDto {
+        public int ID_PRODUTO_FK;
+        public String LOTE_VENDA;
+        public Double QTS_ITEM_VENDA;
+        public int N_ITEM_VENDA;
+        public Double DESCONTO_ITEM_VENDA;
+        public Double VALOR_TOTAL_ITEM_VENDA;
+    }
+
+    class CamposDinamicoDto {
+        public String Campo;
+        public String Valor;
+    }
+
+    class PedidoVendaResponse {
+        public PedidoVenda PedidoVenda;
+        public List<ItemVenda> ItensVenda;
+    }
+
+    class PedidoVenda {
+        public int ID_PEDIDO_VENDA;
+        public int ID_USUARIO_FK;
+        public Double VALOR_PEDIDO_VENDA;
+        public String DATA_PEDIDO_VENDA;
+        // Include other fields as needed
+    }
+
+    class ItemVenda {
+        public int ID_ITEM_VENDA;
+        public int ID_PRODUTO_FK;
+        public int ID_PEDIDO_VENDA_FK;
+        public String LOTE_VENDA;
+        public Double QTS_ITEM_VENDA;
+        public int N_ITEM_VENDA;
+        public Double DESCONTO_ITEM_VENDA;
+        public Double VALOR_TOTAL_ITEM_VENDA;
+        // Include other fields as needed
+    }
+
+
+
 }
 
      /*Produto Get

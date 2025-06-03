@@ -30,13 +30,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-
 
 public class EntradaActivity extends AppCompatActivity
 {
@@ -173,13 +172,8 @@ public class EntradaActivity extends AppCompatActivity
                         Toast.makeText(EntradaActivity.this, "Validação bem sucedida", Toast.LENGTH_SHORT).show();
 
                         CriarUsuario();
-
-                        //processo de validação concluido
-                        Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                        startActivity(intent);
                     }
                 }
-
 
                 //Utiliza o validarClass para permitir o processo de validação
                 public boolean validarCadastro(View view, Context context) {
@@ -269,7 +263,6 @@ public class EntradaActivity extends AppCompatActivity
                     return true; // Se passou por todas as validações
                 }
 
-
                 class ValidarClass {
 
                     //retira todos os caractéres especiais como pontos e traços e define se é CPF
@@ -333,7 +326,6 @@ public class EntradaActivity extends AppCompatActivity
                         return CFP_CNPJreg.endsWith(digito1 + "" + digito2);
                     }
 
-
                     public boolean MaiorIdade(Date nascimento) {
                         Calendar hoje = Calendar.getInstance();
                         Calendar dataNascimento = Calendar.getInstance();
@@ -346,7 +338,6 @@ public class EntradaActivity extends AppCompatActivity
 
                         return idade >= 18;
                     }
-
                 }
 
                 public void CriarUsuario() {
@@ -421,11 +412,10 @@ public class EntradaActivity extends AppCompatActivity
                         {
                             if (response.isSuccessful())
                             {
-                                SuperClassUser.Usuario usuarioCriado = response.body();
-                                Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso! ID: " + usuarioCriado.getID_USUARIO(), Toast.LENGTH_SHORT).show();
-                                // Aqui você pode redirecionar para outra activity ou limpar os campos
-                            } else
-                            {
+                                Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            } else {
                                 try {
                                     String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
                                     Toast.makeText(EntradaActivity.this, "Erro no cadastro: " + errorBody, Toast.LENGTH_LONG).show();
@@ -446,9 +436,8 @@ public class EntradaActivity extends AppCompatActivity
 
             });
         });
-
-
     }
+
     public class ApiOperation {
         private void ConectarAPI() {
             // 1. Obter instância do ApiService
@@ -456,7 +445,7 @@ public class EntradaActivity extends AppCompatActivity
 
             // 2. Mostrar estado de carregamento
             progressBar.setVisibility(View.VISIBLE);
-            txtLoading.setText("Conectando ao servidor...");
+            txtLoading.setText("Verificando conexões...");
             txtLoading.setVisibility(View.VISIBLE);
 
             // 3. Esconder componentes da UI durante o carregamento
@@ -465,23 +454,62 @@ public class EntradaActivity extends AppCompatActivity
             btnEnter.setVisibility(View.GONE);
             txtRegistrar.setVisibility(View.GONE);
 
-            // 4. Fazer chamada à API
-            Call<Void> call = apiService.testarConexaoAPI();
-            call.enqueue(new Callback<Void>() {
+            // 4. Primeiro verifica o status da API
+            verificarStatusAPI(apiService);
+        }
+
+        private void verificarStatusAPI(ApiService apiService) {
+            Call<ResponseBody> apiCall = apiService.testarConexaoAPI();
+            apiCall.enqueue(new Callback<ResponseBody>()
+            {
                 @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        // Conexão bem-sucedida
-                        tratarConexaoBemSucedida();
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful())
+                    {
+                        try {
+                            String responseBody = response.body().string();
+                            Log.d("API_STATUS", "Resposta da API: " + responseBody);
+
+                            // Se API está OK, verifica o banco de dados
+                            verificarStatusBanco(apiService);
+                        } catch (IOException e)
+                        {
+                            tratarErro("Erro ao ler resposta da API", e);
+                        }
                     } else {
-                        // Erro na resposta da API
                         tratarErroAPI(response);
                     }
                 }
 
                 @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    // Falha na conexão
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    tratarFalhaConexao(t);
+                }
+            });
+        }
+
+        private void verificarStatusBanco(ApiService apiService) {
+            Call<ResponseBody> bancoCall = apiService.testarConexaoBanco();
+            bancoCall.enqueue(new Callback<ResponseBody>()
+            {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response){
+                    if (response.isSuccessful())
+                    {
+                        try {
+                            String responseBody = response.body().string();
+                            Log.d("BANCO_STATUS", "Resposta do banco: " + responseBody);
+                            tratarConexaoBemSucedida();
+                        } catch (IOException e) {
+                            tratarErro("Erro ao ler resposta do banco", e);
+                        }
+                    } else {
+                        tratarErroBanco(response);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
                     tratarFalhaConexao(t);
                 }
             });
@@ -489,10 +517,12 @@ public class EntradaActivity extends AppCompatActivity
 
         // Método auxiliar para tratamento de sucesso
         private void tratarConexaoBemSucedida() {
-            runOnUiThread(() -> {
-                txtLoading.setText("Conexão estabelecida com sucesso!");
+            //Garante que as atualizações de UI rodem na thread principal
+            runOnUiThread(() ->
+            {
+                txtLoading.setText("Tudo conectado com sucesso!");
 
-                // Aguardar 2 segundos antes de mostrar a interface
+                // Aguardar 1 segundo antes de mostrar a interface
                 new Handler().postDelayed(() -> {
                     progressBar.setVisibility(View.GONE);
                     txtLoading.setVisibility(View.GONE);
@@ -502,58 +532,78 @@ public class EntradaActivity extends AppCompatActivity
                     txtSenha.setVisibility(View.VISIBLE);
                     btnEnter.setVisibility(View.VISIBLE);
                     txtRegistrar.setVisibility(View.VISIBLE);
-                }, 2000);
+                }, 1000);
             });
         }
 
-        // Método auxiliar para tratamento de erro da API
-        private void tratarErroAPI(Response<Void> response) {
+        // Métodos auxiliares para tratamento de erros específicos
+        private void tratarErroAPI(Response<ResponseBody> response)
+        {
             runOnUiThread(() -> {
                 try {
                     String errorBody = response.errorBody() != null ?
-                            response.errorBody().string() : "Erro desconhecido";
+                            response.errorBody().string() : "Erro desconhecido na API";
 
-                    String errorMsg = "Erro na API: " + response.code();
-                    if (!errorBody.isEmpty()) {
-                        errorMsg += " - " + errorBody;
-                    }
-
-                    txtLoading.setText("Erro na conexão");
+                    String errorMsg = "Problema na API: " + errorBody;
+                    txtLoading.setText("API com problemas");
                     Toast.makeText(EntradaActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                     Log.e("API_ERROR", errorMsg);
 
                 } catch (IOException e) {
-                    Log.e("API_ERROR", "Erro ao ler corpo do erro", e);
-                    Toast.makeText(EntradaActivity.this,
-                            "Erro ao processar resposta do servidor", Toast.LENGTH_LONG).show();
+                    tratarErro("Erro ao processar resposta da API", e);
                 }
-
-                // Tentar reconexão após 5 segundos
                 agendarNovaTentativa();
             });
         }
 
-        // Método auxiliar para tratamento de falha de conexão
+        private void tratarErroBanco(Response<ResponseBody> response) {
+            runOnUiThread(() -> {
+                try {
+                    String errorBody = response.errorBody() != null ?
+                            response.errorBody().string() : "Erro desconhecido no banco";
+
+                    String errorMsg = "Problema no banco de dados: " + errorBody;
+                    txtLoading.setText("Banco offline");
+                    Toast.makeText(EntradaActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                    Log.e("BANCO_ERROR", errorMsg);
+
+                } catch (IOException e) {
+                    tratarErro("Erro ao processar resposta do banco", e);
+                }
+                agendarNovaTentativa();
+            });
+        }
+
         private void tratarFalhaConexao(Throwable t) {
             runOnUiThread(() -> {
-                txtLoading.setText("Falha na conexão");
+                txtLoading.setText("Sem conexão");
                 String errorMsg = "Erro de rede: " + t.getMessage();
 
                 Toast.makeText(EntradaActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                 Log.e("NETWORK_ERROR", errorMsg, t);
 
-                // Tentar reconexão após 5 segundos
+                agendarNovaTentativa();
+            });
+        }
+
+        private void tratarErro(String mensagem, Exception e) {
+            runOnUiThread(() -> {
+                txtLoading.setText("Erro no sistema");
+                Toast.makeText(EntradaActivity.this, mensagem, Toast.LENGTH_LONG).show();
+                Log.e("SYSTEM_ERROR", mensagem, e);
                 agendarNovaTentativa();
             });
         }
 
         // Método auxiliar para agendar nova tentativa
         private void agendarNovaTentativa() {
-            new Handler().postDelayed(() -> {
-                if (!isFinishing() && !isDestroyed()) {
-                    ConectarAPI();
-                }
-            }, 5000);
+            runOnUiThread(() -> {
+                new Handler().postDelayed(() -> {
+                    if (!isFinishing() && !isDestroyed()) {
+                        ConectarAPI();
+                    }
+                }, 5000);
+            });
         }
 
         private void mostrarErro (String mensagem){
@@ -566,8 +616,10 @@ public class EntradaActivity extends AppCompatActivity
         //Depois arrume, quando o miguel melhorar
         //Serve para login
         public void realizarLogin(String email, String senha) {
+
             // Validação básica
-            if (email.isEmpty() || senha.isEmpty()) {
+            if (email.isEmpty() || senha.isEmpty())
+            {
                 Toast.makeText(EntradaActivity.this, "Preencha email e senha", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -585,11 +637,9 @@ public class EntradaActivity extends AppCompatActivity
             call.enqueue(new Callback<SuperClassUser.LoginResponseDto>()
             {
                 @Override
-                public void onResponse(Call<SuperClassUser.LoginResponseDto> call,
-                                       Response<SuperClassUser.LoginResponseDto> response) {
-
+                public void onResponse(Call<SuperClassUser.LoginResponseDto> call, Response<SuperClassUser.LoginResponseDto> response)
+                {
                     progressBar.setVisibility(View.GONE);
-
                     if (response.isSuccessful() && response.body() != null)
                     {
                         // Login bem-sucedido

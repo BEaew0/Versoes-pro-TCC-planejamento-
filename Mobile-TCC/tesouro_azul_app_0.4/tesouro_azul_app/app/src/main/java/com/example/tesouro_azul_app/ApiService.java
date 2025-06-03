@@ -43,8 +43,10 @@ public interface ApiService {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //O "ResponseBody" é a parte principal da resposta de uma solicitação HTTP.
+    //Ele contém os dados que o servidor está retornando ao cliente
     @GET("api/TestarConexao/StatusAPI")
-    Call<Void> testarConexaoAPI();
+    Call<ResponseBody> testarConexaoAPI();
 
     @GET("api/TestarConexao/StatusBanco")
     Call<ResponseBody> testarConexaoBanco();
@@ -85,11 +87,46 @@ public interface ApiService {
     @DELETE("api/Produtos/{id}")
     Call<Void> deletarProduto(@Path("id") int id);
 
-    //Realiza o pedido de compra
-    @POST("api/PedidoCompra")
-    Call<Void> criarPedidoCompra(@Body SuperClassProd.PedidoCompraCompletoDto pedidoDto);
 
+        // Pedidos de Compra Endpoints
+        @POST("api/PedidoCompra/criar-pedido-compra")
+        Call<SuperClassProd.PedidoCompraResponse> criarPedidoCompra(@Body SuperClassProd.PedidoCompraCompletoDto dto);
 
+        @POST("api/PedidoCompra/inserir-itens-em-pedido")
+        Call<List<SuperClassProd.ItemCompra>> inserirItemCompra(@Body List<SuperClassProd.ItemCompraDto> dto);
+
+        @POST("api/PedidoCompra/pedido-compra/Buscar-por-campo")
+        Call<List<SuperClassProd.PedidoCompra>> pedidoBuscarPorCampo(@Body SuperClassProd.CamposDto filtro);
+
+        @POST("api/PedidoCompra/item-compra/Buscar-por-campo")
+        Call<List<SuperClassProd.ItemCompra>> itemBuscarPorCampo(
+                @Query("id_pedido") int idPedido,
+                @Body SuperClassProd.CamposDto filtro);
+
+        @GET("api/PedidoCompra/buscar-todos-pedidos")
+        Call<List<SuperClassProd.PedidoCompra>> buscarComprasPedido();
+
+        @GET("api/PedidoCompra/Itens/{id_pedido}")
+        Call<List<SuperClassProd.ItemCompra>> buscarItensCompraPorPedido(@Path("id_pedido") int idPedido);
+
+        @GET("api/PedidoCompra/buscar-pedidos-usuario")
+        Call<List<SuperClassProd.PedidoCompra>> buscarComprasPedidoPorUsuario();
+
+        @PATCH("api/PedidoCompra/alterar-pedido-por-campo/{id_pedido}")
+        Call<SuperClassProd.PedidoCompra> alterarPedidoCompra(
+                @Path("id_pedido") int idPedido,
+                @Body SuperClassProd.CamposDto dto);
+
+        @PATCH("api/PedidoCompra/alterar-item-do-pedido/{id_item}")
+        Call<SuperClassProd.ItemCompra> alterarItemCompra(
+                @Path("id_item") int idItem,
+                @Body SuperClassProd.CamposDto dto);
+
+        @DELETE("api/PedidoCompra/{id_pedido}")
+        Call<Void> deletarPedidoCompra(@Path("id_pedido") int idPedido);
+
+        @DELETE("api/PedidoCompra/Itens/{id_item}")
+        Call<Void> deletarItemCompra(@Path("id_item") int idItem);
 }
 
 
