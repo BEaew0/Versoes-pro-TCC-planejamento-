@@ -36,3 +36,39 @@ Modelo para o controller de produto
   "tipO_PRODUTO": "Toy",
   "imG_PRODUTO": ""
 }
+
+{
+  "iD_USUARIO": 2,
+  "coD_PRODUTO": "223",
+  "nomE_PRODUTO": "Victor",
+  "valoR_PRODUTO": 550.99,
+  "tipO_PRODUTO": "Toy",
+  "imG_PRODUTO": ""
+}
+
+Modelo para o controller de produto
+
+{
+  "pedido": {
+    "valoR_PEDIDO_VENDA": 0
+  },
+  "item": [
+    {
+      "iD_PRODUTO_FK": 1,
+      "lotE_VENDA": "123",
+      "qtS_ITEM_VENDA": 1,
+      "n_ITEM_VENDA": 1,
+      "descontO_ITEM_VENDA": 0,
+      "valoR_TOTAL_ITEM_VENDA": 500
+    },
+    {
+      "iD_PRODUTO_FK": 1,
+      "lotE_VENDA": "123",
+      "qtS_ITEM_VENDA": 1,
+      "n_ITEM_VENDA": 1,
+      "descontO_ITEM_VENDA": 0,
+      "valoR_TOTAL_ITEM_VENDA": 500
+    }
+  ]
+}
+
