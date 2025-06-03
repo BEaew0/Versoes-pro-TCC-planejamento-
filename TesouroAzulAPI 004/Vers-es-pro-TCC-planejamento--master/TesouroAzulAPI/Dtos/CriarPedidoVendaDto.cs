@@ -10,7 +10,6 @@ namespace TesouroAzulAPI.Dtos
     public class ItensVendaDto
     {
         public int ID_PRODUTO_FK { get; set; }
-        public int ID_PEDIDO_VENDA_FK { get; set; }
         public string? LOTE_VENDA { get; set; }
         public decimal QTS_ITEM_VENDA { get; set; }
         public int N_ITEM_VENDA { get; set; }

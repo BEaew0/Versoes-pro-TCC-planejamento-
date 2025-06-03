@@ -112,7 +112,7 @@ namespace TesouroAzulAPI.Controllers
 
         // Buscar pedido por campo do pedido
         [Authorize(Roles = "user,admin")]
-        [HttpPost("Pedido/Buscar-por-campo")]
+        [HttpPost("pedido-compra/Buscar-por-campo")]
         public async Task<ActionResult<IEnumerable<PedidosCompra>>> PedidoBuscarPorCampo([FromBody] CamposDtos filtro)
         {
 
