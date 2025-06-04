@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using TesouroAzulAPI.Data;
 using TesouroAzulAPI.Models;
 using TesouroAzulAPI.Dtos;
@@ -308,7 +307,7 @@ namespace TesouroAzulAPI.Controllers
         // PATCHs
         // Alterar Pedido Venda por id_pedido_venda
         [Authorize(Roles = "user,admin")]
-        [HttpPatch("alterar-pedido-por-campo/{id}")]
+        [HttpPatch("alterar-pedido-por-campo/{id_pedido_venda}")]
         public async Task<IActionResult> AlterarPedidoVendaCompra(int id_pedido_venda, [FromBody] CamposDinamicoDto dto)
         {
             // tratamentos de erros
