@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TesouroAzulAPI.Models
 {
-    [Table("TB_ESTOQUE")]
+    [Table("TB_ESTOQUE_PRODUTO")]
     public class EstoqueProduto
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]

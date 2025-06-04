@@ -51,49 +51,51 @@ namespace TesouroAzulAPI.Controllers
 
         // Buscar estoque por campo
         [Authorize(Roles = "user,admin")]
-        [HttpGet("buscar-estoque/Buscar-por-campo")]
+        [HttpPost("buscar-por-campo")]
         public async Task<IActionResult> BuscarEstoquePorCampo([FromBody] CamposDinamicoDto filtro)
         {
             // controller vuneravel sem prevenção em tratamentos de erros no filtro
+            // buscando idUsuario
+            int idUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             List<EstoqueProduto> estoqueProduto = new();
             switch (filtro.Campo.ToLower())
             {
                 case "quant_total_estoque":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.QTD_TOTAL_ESTOQUE == Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.QTD_TOTAL_ESTOQUE == Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "quant_total_estoque_menor":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.QTD_TOTAL_ESTOQUE < Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.QTD_TOTAL_ESTOQUE < Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "quant_total_estoque_maior":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.QTD_TOTAL_ESTOQUE > Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.QTD_TOTAL_ESTOQUE > Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "valor_gasto_total_estoque":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_GASTO_TOTAL_ESTOQUE == Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_GASTO_TOTAL_ESTOQUE == Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "valor_gasto_total_estoque_menor":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_GASTO_TOTAL_ESTOQUE < Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_GASTO_TOTAL_ESTOQUE < Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "valor_gasto_total_estoque_maior":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_GASTO_TOTAL_ESTOQUE > Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_GASTO_TOTAL_ESTOQUE > Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "valor_potencial_venda_estoque":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_POTENCIAL_VENDA_ESTOQUE == Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_POTENCIAL_VENDA_ESTOQUE == Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "valor_potencial_venda_estoque_menor":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_POTENCIAL_VENDA_ESTOQUE < Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_POTENCIAL_VENDA_ESTOQUE < Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "valor_potencial_venda_estoque_maior":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_POTENCIAL_VENDA_ESTOQUE > Convert.ToDecimal(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.VALOR_POTENCIAL_VENDA_ESTOQUE > Convert.ToDecimal(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "data_atualizacao_estoque":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.DATA_ATUALIZACAO_ESTOQUE == DateTime.Parse(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.DATA_ATUALIZACAO_ESTOQUE == DateTime.Parse(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "data_atualizacao_estoque_maior":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.DATA_ATUALIZACAO_ESTOQUE > DateTime.Parse(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.DATA_ATUALIZACAO_ESTOQUE > DateTime.Parse(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 case "data_atualizacao_estoque_menor":
-                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.DATA_ATUALIZACAO_ESTOQUE < DateTime.Parse(filtro.Valor)).ToListAsync();
+                    estoqueProduto = await _context.EstoqueProdutos.Where(e => e.DATA_ATUALIZACAO_ESTOQUE < DateTime.Parse(filtro.Valor) && e.ID_USUARIO_FK == idUsuario).ToListAsync();
                     break;
                 default:
                     return BadRequest("Somente os campos são permitidos: 'quant_total_estoque', 'quant_total_estoque_menor'," +
