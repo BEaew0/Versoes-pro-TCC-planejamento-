@@ -50,7 +50,7 @@ namespace TesouroAzulAPI.Controllers
 
             _context.Produtos.Add(produto);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok("Produto cadastrado com sucesso");
             
         }
 
