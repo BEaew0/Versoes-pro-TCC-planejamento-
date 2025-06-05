@@ -33,7 +33,7 @@ namespace TesouroAzulAPI.Controllers
 
         //POSTs
         //Cadastrar Produto
-
+        
         [Authorize(Roles = "user,admin")]
         [HttpPost("/cadastrar-produto")]
         public async Task<IActionResult> CadastrarProduto([FromBody] CadastrarProdutoDto produtoDto)
@@ -90,6 +90,25 @@ namespace TesouroAzulAPI.Controllers
         }
 
         // criar um post especifico somente para validade
+
+        // Buscar por nome similiar
+        [Authorize(Roles = "user")]
+        [HttpPost("/buscar-produtos-por-nome-similar")]
+        public async Task<IActionResult> BuscarPorNomeSimilar([FromBody] string nome)
+        {
+            // tratamento de erro
+            if (string.IsNullOrEmpty(nome)) return BadRequest("Nome não pode ser nulo ou vazio");
+            // busca id pelo token
+            int id_usuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var usuario = await _context.Usuarios.FindAsync(id_usuario);
+            if (usuario == null) return NotFound("Usuario não encontrado");
+            var produtos = await _context.Produtos
+                .Where(p => p.NOME_PRODUTO.Contains(nome) && p.ID_USUARIO_FK == id_usuario)
+                .ToListAsync();
+            if (!produtos.Any()) return NotFound("Nenhum produto encontrado com esse nome similar");
+            return Ok(produtos);
+
+        }
 
         //GETs
         //Buscar Produtos
