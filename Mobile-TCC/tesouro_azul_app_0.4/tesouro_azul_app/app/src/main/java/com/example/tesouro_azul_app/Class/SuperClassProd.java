@@ -94,9 +94,9 @@ public class SuperClassProd {
         public PedidoDto pedido;
 
         @SerializedName("item")
-        public List<ItemVendaDto> item;
+        public List<ItemCompraDto> item;
 
-        public PedidoCompraCompletoDto(PedidoDto pedido, List<ItemVendaDto> itens) {
+        public PedidoCompraCompletoDto(PedidoDto pedido, List<ItemCompraDto> itens) {
             this.pedido = pedido;
             this.item = itens;
         }
@@ -109,11 +109,15 @@ public class SuperClassProd {
             this.pedido = pedido;
         }
 
-        public List<ItemVendaDto> getItem() {
+        public List<ItemCompraDto> getItem() {
             return item;
         }
 
-        public void setItem(List<ItemVendaDto> item) {
+        public void setItem() {
+            setItem(null);
+        }
+
+        public void setItem(List<ItemCompraDto> item) {
             this.item = item;
         }
     }

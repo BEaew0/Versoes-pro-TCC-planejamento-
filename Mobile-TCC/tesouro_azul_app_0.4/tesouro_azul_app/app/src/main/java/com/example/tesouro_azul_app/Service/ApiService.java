@@ -104,7 +104,7 @@ public interface ApiService {
             @Body SuperClassProd.ImagemDto imagemDto);
 
     @DELETE("api/Produtos/{id}")
-    Call<Void> deletarProduto(@Header("Authorization") String token, @Path("id") int id);
+    Call<ResponseBody> deletarProduto(@Header("Authorization") String token, @Path("id") int id);
 
     // Pedidos de Compra Endpoints
     @POST("api/PedidoCompra/criar-pedido-compra")
