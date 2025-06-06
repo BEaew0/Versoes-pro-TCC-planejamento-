@@ -1,4 +1,4 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Pages;
 
 
 import android.app.Activity;
@@ -18,12 +18,12 @@ import android.widget.RelativeLayout;
 
 import android.widget.Toast;
 
+import com.example.tesouro_azul_app.Service.ApiService;
+import com.example.tesouro_azul_app.MainActivity;
+import com.example.tesouro_azul_app.R;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -38,7 +38,6 @@ import androidx.core.content.ContextCompat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.net.URI;
 
 public class ConfigActivity extends AppCompatActivity {
 

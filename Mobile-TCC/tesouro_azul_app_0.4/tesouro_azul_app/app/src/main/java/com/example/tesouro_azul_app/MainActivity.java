@@ -8,6 +8,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.example.tesouro_azul_app.Pages.ConfigActivity;
+import com.example.tesouro_azul_app.Pages.EntradaActivity;
+import com.example.tesouro_azul_app.Pages.GraficosActivity;
+import com.example.tesouro_azul_app.Pages.MetasActivity;
+import com.example.tesouro_azul_app.Pages.ProdutosActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     CardView ProdutoCard, graficosCard, MetasCard, configCard;
@@ -51,15 +57,11 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Intent intent = new Intent(MainActivity.this, ConfigActivity.class);
                     startActivity(intent);
-                    }catch (Exception e){
+                } catch (Exception e) {
                     Toast.makeText(MainActivity.this, "erro ao ir para config", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-
-
-        }
-
     }
+}
 

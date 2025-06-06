@@ -1,4 +1,4 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.example.tesouro_azul_app.Class.SuperClassProd;
+import com.example.tesouro_azul_app.R;
 
 import java.util.List;
 
@@ -89,4 +91,5 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
         produtos = novaLista;
         notifyDataSetChanged();
     }
+
 }

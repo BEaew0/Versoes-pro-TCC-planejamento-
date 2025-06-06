@@ -1,4 +1,4 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Pages;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -26,6 +26,12 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.tesouro_azul_app.Class.SuperClassProd;
+import com.example.tesouro_azul_app.Adapter.ProdutoAdapter;
+import com.example.tesouro_azul_app.R;
+import com.example.tesouro_azul_app.Service.RetrofitClient;
+import com.example.tesouro_azul_app.Service.ApiService;
+import com.example.tesouro_azul_app.Util.DatePickerUtil;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import org.json.JSONObject;
@@ -130,7 +136,7 @@ public class ProdutosActivity extends AppCompatActivity {
         prodImage.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-              if (ContextCompat.checkSelfPermission(ProdutosActivity.this, android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED)
+              if (ContextCompat.checkSelfPermission(ProdutosActivity.this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED)
               {
                   openGallery(); // Já tem permissão → Abre direto
               }

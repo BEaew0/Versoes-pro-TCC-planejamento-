@@ -1,4 +1,4 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Util;
 
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -22,5 +22,6 @@ public class TemaHerdado extends Application {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
+
 }
 

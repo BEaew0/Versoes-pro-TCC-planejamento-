@@ -1,19 +1,25 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Service;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.tesouro_azul_app.Pages.EntradaActivity;
+
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 //Adiciona automaticamente o token JWT às requisições.
 public class AuthInterceptor implements Interceptor {
@@ -27,8 +33,8 @@ public class AuthInterceptor implements Interceptor {
         sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
     }
 
-    @NonNull
     // Versão melhorada com tratamento de mais códigos de erro
+    @NonNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request originalRequest = chain.request();
@@ -77,6 +83,42 @@ public class AuthInterceptor implements Interceptor {
                 context.startActivity(intent);
                 ((Activity) context).finish();
             });
+        }
+    }
+
+    public static class RetrofitClient {
+        private static final String BASE_URL = "https://tesouroazul1.hospedagemdesites.ws/api"; // Substitua pela sua URL
+        private static Retrofit retrofit = null;
+
+        // Método para obter o serviço API com suporte a JWT(Json Web Token)
+        public static ApiService getApiService(Context context)
+        {
+            if (retrofit == null) {
+                HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();// Ferramenta para registrar detalhes das requisições e respostas HTTP no log.
+                loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);// Faz log do corpo da requisição e resposta
+
+                OkHttpClient client = new OkHttpClient.Builder()
+                        .addInterceptor(loggingInterceptor)
+                        .addInterceptor(new AuthInterceptor(context)) // Adiciona o interceptor de autenticação
+                        .connectTimeout(30, TimeUnit.SECONDS) // Timeout de conexão
+                        .readTimeout(30, TimeUnit.SECONDS)    // Timeout de leitura
+                        .writeTimeout(30, TimeUnit.SECONDS)   // Timeout de escrita
+                        .build();
+
+                retrofit = new Retrofit.Builder()
+                        .baseUrl(BASE_URL)
+                        .client(client)
+                        .addConverterFactory(GsonConverterFactory.create())// Informa ao Retrofit para converter JSON usando a biblioteca Gson.
+                        .build();
+            }
+            return retrofit.create(ApiService.class);//Cria uma instância da interface ApiService, que contém os endpoints da API.
+        }
+
+
+        //Zera a instância do Retrofit.
+        //Útil, por exemplo, após logout, quando um novo token precisará ser usado
+        public static void resetClient() {
+            retrofit = null;
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Service;
 
 // ApiClient.java
 import okhttp3.OkHttpClient;
@@ -6,6 +6,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import android.content.Context;
+
 import java.util.concurrent.TimeUnit;
 
 public class RetrofitClient {
@@ -35,11 +36,10 @@ public class RetrofitClient {
         }
         return retrofit.create(ApiService.class);//Cria uma instância da interface ApiService, que contém os endpoints da API.
     }
-
-
     //Zera a instância do Retrofit.
     //Útil, por exemplo, após logout, quando um novo token precisará ser usado
-    public static void resetClient() {
+    public static void resetClient()
+    {
         retrofit = null;
     }
 }

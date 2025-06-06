@@ -1,7 +1,23 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Service;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
+import com.example.tesouro_azul_app.Class.SuperClassProd;
+import com.example.tesouro_azul_app.Class.SuperClassUser;
+import com.example.tesouro_azul_app.Pages.EntradaActivity;
+
+import java.io.IOException;
 import java.util.List;
 
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -127,6 +143,9 @@ public interface ApiService {
 
         @DELETE("api/PedidoCompra/Itens/{id_item}")
         Call<Void> deletarItemCompra(@Path("id_item") int idItem);
+
+
+
 }
 
 
