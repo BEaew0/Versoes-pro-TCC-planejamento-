@@ -57,6 +57,9 @@ namespace TesouroAzulAPI.Controllers
             }
             await _context.SaveChangesAsync();
 
+            // Verifica quantidade no estoque e retorna aviso que o estoque ficou negativo
+            // Adicionar logica mais tarde aqui
+            
             return Ok(new
             {
                 PedidoVenda = pedidoVenda,
