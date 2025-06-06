@@ -41,7 +41,7 @@ namespace TesouroAzulAPI.Controllers
             var pedido = new PedidosCompra
             {
                 ID_USUARIO_FK = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                ID_FORNECEDOR_FK = dto.Pedido.ID_FORNECEDOR,
+                ID_FORNECEDOR_FK = dto.Pedido.ID_FORNECEDOR ?? null,
                 VALOR_PEDIDO = dto.Pedido.VALOR_VALOR
             };
 
@@ -122,6 +122,7 @@ namespace TesouroAzulAPI.Controllers
             {
                 case "fornecedor_pedido":
                     pedidoCampo = await _context.PedidosCompra.Where(p => p.ID_FORNECEDOR_FK == Convert.ToInt16(filtro.NovoValor)).ToListAsync();
+                    if (pedidoCampo == null) return NotFound("Fornecedor não cadastrado"); // Verificar aqui mais tarde para analisar se quebra lógica
 
                     break;
                 case "data_pedido":
