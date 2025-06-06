@@ -23,11 +23,11 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-
 public interface ApiService {
 
     // Criar Usuario
@@ -36,31 +36,29 @@ public interface ApiService {
 
     // Buscar todos os Usuarios
     @GET("api/Usuarios")
-    Call<List<SuperClassUser.Usuario>> buscarUsuarios();
+    Call<List<SuperClassUser.Usuario>> buscarUsuarios(@Header("Authorization") String token);
 
     // Buscar Usuario por ID
     @GET("api/Usuarios/{id}")
-    Call<SuperClassUser.Usuario> buscarUsuarioPorId(@Path("id") int id);
+    Call<SuperClassUser.Usuario> buscarUsuarioPorId(@Header("Authorization") String token, @Path("id") int id);
 
     // Atualizar campo do Usuario
     @PATCH("api/Usuarios/{id}/alterar-campo")
-    Call<SuperClassUser.Usuario> alterarCamposUsuario(@Path("id") int id, @Body SuperClassUser.AtualizarCampoUsuarioDto dto);
+    Call<SuperClassUser.Usuario> alterarCamposUsuario(@Header("Authorization") String token, @Path("id") int id, @Body SuperClassUser.AtualizarCampoUsuarioDto dto);
 
     // Atualizar Imagem
     @PATCH("api/Usuarios/{id}/imagem")
-    Call<SuperClassUser.Usuario> atualizarImagem(@Path("id") int id, @Body SuperClassUser.ImagemDto dto);
+    Call<SuperClassUser.Usuario> atualizarImagem(@Header("Authorization") String token, @Path("id") int id, @Body SuperClassUser.ImagemDto dto);
 
     // Deletar Usuario
     @DELETE("api/Usuarios/{id}")
-    Call<Void> deletarUsuario(@Path("id") int id);
+    Call<Void> deletarUsuario(@Header("Authorization") String token, @Path("id") int id);
 
     @POST("api/Usuarios/login")
     Call<SuperClassUser.LoginResponseDto> loginUsuario(@Body SuperClassUser.LoginRequestDto loginDto);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //O "ResponseBody" é a parte principal da resposta de uma solicitação HTTP.
-    //Ele contém os dados que o servidor está retornando ao cliente
     @GET("api/TestarConexao/StatusAPI")
     Call<ResponseBody> testarConexaoAPI();
 
@@ -68,84 +66,88 @@ public interface ApiService {
     Call<ResponseBody> testarConexaoBanco();
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    @POST("api/Produtos")
-    Call<Void> cadastrarProduto(@Body SuperClassProd.CadastrarProdutoDto produtoDto);
 
-    // Busca Produtos por Campo
-    @POST("api/Produtos/Buscar-por-campo")
-    Call<List<SuperClassProd.Produto>> buscarProdutosPorCampo(
-            @Query("id_usuario_fk") int idUsuario,
-            @Body SuperClassProd.CamposProdutoDto filtro);
+    @POST("api/Produtos/cadastrar-produto")
+    Call<Void> cadastrarProduto(@Header("Authorization") String token, @Body SuperClassProd.ProdutoDto produtoDto);
 
-    // Lista Todos os Produtos
+    @POST("api/Produtos/buscar-produtos-por-nome-similar")
+    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(
+            @Header("Authorization") String token,
+            @Body String nome
+    );
+
+    @POST("api/Produtos/buscar-produtos-por-campo")
+    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorCampo(
+            @Header("Authorization") String token,
+            @Body SuperClassProd.CamposProdutoDto filtro
+    );
+
     @GET("api/Produtos")
-    Call<List<SuperClassProd.Produto>> buscarTodosProdutos();
+    Call<List<SuperClassProd.ProdutoDto>> buscarTodosProdutos(@Header("Authorization") String token);
 
-    // Busca Produtos por Usuário
     @GET("api/Produtos/usuario/{id_usuario}")
-    Call<List<SuperClassProd.Produto>> buscarProdutosPorUsuario(@Path("id_usuario") int idUsuario);
+    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorUsuario(@Header("Authorization") String token, @Path("id_usuario") int idUsuario);
 
-    // Busca Produto por ID
     @GET("api/Produtos/produto/{id}")
-    Call<SuperClassProd.Produto> buscarProdutoPorId(@Path("id") int id);
+    Call<SuperClassProd.ProdutoDto> buscarProdutoPorId(@Header("Authorization") String token, @Path("id") int id);
 
-    // Atualiza o Campo do Produto
     @PATCH("api/Produtos/{id}")
-    Call<SuperClassProd.Produto> alterarProduto(
+    Call<SuperClassProd.ProdutoDto> alterarProduto(
+            @Header("Authorization") String token,
             @Path("id") int id,
             @Body SuperClassProd.CamposProdutoDto campo);
 
-    // Altera Imagem do Produto
     @PATCH("api/Produtos/Alterar-Imagem-por-{id}")
-    Call<SuperClassProd.Produto> alterarImagemProduto(@Path("id") int id);
+    Call<SuperClassProd.ProdutoDto> alterarImagemProduto(
+            @Header("Authorization") String token,
+            @Path("id") int id,
+            @Body SuperClassProd.ImagemDto imagemDto);
 
-    // Deleta o Produto
     @DELETE("api/Produtos/{id}")
-    Call<Void> deletarProduto(@Path("id") int id);
+    Call<Void> deletarProduto(@Header("Authorization") String token, @Path("id") int id);
 
+    // Pedidos de Compra Endpoints
+    @POST("api/PedidoCompra/criar-pedido-compra")
+    Call<SuperClassProd.PedidoCompraCompletoDto> criarPedidoCompra(@Header("Authorization") String token, @Body SuperClassProd.PedidoCompraCompletoDto dto);
 
-        // Pedidos de Compra Endpoints
-        @POST("api/PedidoCompra/criar-pedido-compra")
-        Call<SuperClassProd.PedidoCompraResponse> criarPedidoCompra(@Body SuperClassProd.PedidoCompraCompletoDto dto);
+    @POST("api/PedidoCompra/inserir-itens-em-pedido")
+    Call<List<SuperClassProd.ItemCompraDto>> inserirItemCompra(@Header("Authorization") String token, @Body List<SuperClassProd.ItemCompraDto> dto);
 
-        @POST("api/PedidoCompra/inserir-itens-em-pedido")
-        Call<List<SuperClassProd.ItemCompra>> inserirItemCompra(@Body List<SuperClassProd.ItemCompraDto> dto);
+    @POST("api/PedidoCompra/pedido-compra/Buscar-por-campo")
+    Call<List<SuperClassProd.PedidoCompraCompletoDto>> pedidoBuscarPorCampo(@Header("Authorization") String token, @Body SuperClassProd.CamposProdutoDto filtro);
 
-        @POST("api/PedidoCompra/pedido-compra/Buscar-por-campo")
-        Call<List<SuperClassProd.PedidoCompra>> pedidoBuscarPorCampo(@Body SuperClassProd.CamposDto filtro);
+    @POST("api/PedidoCompra/item-compra/Buscar-por-campo")
+    Call<List<SuperClassProd.ItemCompraDto>> itemBuscarPorCampo(
+            @Header("Authorization") String token,
+            @Body SuperClassProd.CamposProdutoDto filtro); // id_pedido deve estar dentro do filtro
 
-        @POST("api/PedidoCompra/item-compra/Buscar-por-campo")
-        Call<List<SuperClassProd.ItemCompra>> itemBuscarPorCampo(
-                @Query("id_pedido") int idPedido,
-                @Body SuperClassProd.CamposDto filtro);
+    @GET("api/PedidoCompra/buscar-todos-pedidos")
+    Call<List<SuperClassProd.PedidoCompraCompletoDto>> buscarComprasPedido(@Header("Authorization") String token);
 
-        @GET("api/PedidoCompra/buscar-todos-pedidos")
-        Call<List<SuperClassProd.PedidoCompra>> buscarComprasPedido();
+    @GET("api/PedidoCompra/Itens/{id_pedido}")
+    Call<List<SuperClassProd.ItemCompraDto>> buscarItensCompraPorPedido(@Header("Authorization") String token, @Path("id_pedido") int idPedido);
 
-        @GET("api/PedidoCompra/Itens/{id_pedido}")
-        Call<List<SuperClassProd.ItemCompra>> buscarItensCompraPorPedido(@Path("id_pedido") int idPedido);
+    @GET("api/PedidoCompra/buscar-pedidos-usuario")
+    Call<List<SuperClassProd.PedidoCompraCompletoDto>> buscarComprasPedidoPorUsuario(@Header("Authorization") String token);
 
-        @GET("api/PedidoCompra/buscar-pedidos-usuario")
-        Call<List<SuperClassProd.PedidoCompra>> buscarComprasPedidoPorUsuario();
+    @PATCH("api/PedidoCompra/alterar-pedido-por-campo/{id_pedido}")
+    Call<SuperClassProd.PedidoCompraCompletoDto> alterarPedidoCompra(
+            @Header("Authorization") String token,
+            @Path("id_pedido") int idPedido,
+            @Body SuperClassProd.CamposProdutoDto dto);
 
-        @PATCH("api/PedidoCompra/alterar-pedido-por-campo/{id_pedido}")
-        Call<SuperClassProd.PedidoCompra> alterarPedidoCompra(
-                @Path("id_pedido") int idPedido,
-                @Body SuperClassProd.CamposDto dto);
+    @PATCH("api/PedidoCompra/alterar-item-do-pedido/{id_item}")
+    Call<SuperClassProd.ItemCompraDto> alterarItemCompra(
+            @Header("Authorization") String token,
+            @Path("id_item") int idItem,
+            @Body SuperClassProd.CamposProdutoDto dto);
 
-        @PATCH("api/PedidoCompra/alterar-item-do-pedido/{id_item}")
-        Call<SuperClassProd.ItemCompra> alterarItemCompra(
-                @Path("id_item") int idItem,
-                @Body SuperClassProd.CamposDto dto);
+    @DELETE("api/PedidoCompra/{id_pedido}")
+    Call<Void> deletarPedidoCompra(@Header("Authorization") String token, @Path("id_pedido") int idPedido);
 
-        @DELETE("api/PedidoCompra/{id_pedido}")
-        Call<Void> deletarPedidoCompra(@Path("id_pedido") int idPedido);
-
-        @DELETE("api/PedidoCompra/Itens/{id_item}")
-        Call<Void> deletarItemCompra(@Path("id_item") int idItem);
-
-
-
+    @DELETE("api/PedidoCompra/Itens/{id_item}")
+    Call<Void> deletarItemCompra(@Header("Authorization") String token, @Path("id_item") int idItem);
 }
+
 
 

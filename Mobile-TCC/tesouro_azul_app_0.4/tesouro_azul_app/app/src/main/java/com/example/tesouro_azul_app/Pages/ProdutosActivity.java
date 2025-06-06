@@ -28,9 +28,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Adapter.ProdutoAdapter;
+import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.R;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Service.ApiService;
+import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.example.tesouro_azul_app.Util.DatePickerUtil;
 import com.google.android.material.imageview.ShapeableImageView;
 
@@ -55,7 +57,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProdutosActivity extends AppCompatActivity {
 
-    private SuperClassProd.Produto produtoSelecionado = null;
+    private SuperClassProd.ProdutoDto produtoSelecionado = null;
 
     private static final int REQUEST_CODE_GALLERY = 1001;
     private static final int PICK_IMAGE = 1;
@@ -64,7 +66,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ProdutoAdapter adapter;
-    private List<SuperClassProd.Produto> listaProdutos = new ArrayList<>();
+    private List<SuperClassProd.ProdutoDto> listaProdutos = new ArrayList<>();
 
     EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd,FornProd;
     Button btnVenderProd, btnAdicionarProd, btnAlterarProd, btnExluir,btnComprar;
@@ -200,20 +202,22 @@ public class ProdutosActivity extends AppCompatActivity {
         // Mostrar progress bar (opcional)
         progressBar.setVisibility(View.VISIBLE);
 
+        String token = obterTokenUsuario();
+
         // Na sua Activity ou Fragment
         ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-        Call<List<SuperClassProd.Produto>> call = apiService.buscarTodosProdutos();
+        Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarTodosProdutos(token);
 
-        call.enqueue(new Callback<List<SuperClassProd.Produto>>() {
+        call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {
             @Override
-            public void onResponse(Call<List<SuperClassProd.Produto>> call,
-                                   Response<List<SuperClassProd.Produto>> response) {
+            public void onResponse(Call<List<SuperClassProd.ProdutoDto>> call,
+                                   Response<List<SuperClassProd.ProdutoDto>> response) {
 
                 progressBar.setVisibility(View.GONE);
 
                 if (response.isSuccessful() && response.body() != null)
                 {
-                    List<SuperClassProd.Produto> produtos = response.body();
+                    List<SuperClassProd.ProdutoDto> produtos = response.body();
                     adapter.atualizarLista(produtos);
                 }
                 else {
@@ -225,7 +229,7 @@ public class ProdutosActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<SuperClassProd.Produto>> call, Throwable t) {
+            public void onFailure(Call<List<SuperClassProd.ProdutoDto>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(ProdutosActivity.this,
                         "Falha na conexão: " + t.getMessage(),
@@ -236,15 +240,8 @@ public class ProdutosActivity extends AppCompatActivity {
     }
 
     //Ainda esta sendo feita
+    private void criarPedidoVenda() {
 
-    /*private void criarPedidoVenda() {
-        // 1. Verifica se há um produto selecionado
-        if (produtoSelecionado == null) {
-            Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // 2. Valida a quantidade
         String quantidadeStr = QuantProd.getText().toString().trim();
         if (quantidadeStr.isEmpty()) {
             Toast.makeText(this, "Informe a quantidade", Toast.LENGTH_SHORT).show();
@@ -281,7 +278,7 @@ public class ProdutosActivity extends AppCompatActivity {
         }
 
         // 4. Cálculos e preparação dos dados
-        double valorTotal = produtoSelecionado.getVALOR_PRODUTO() * quantidade;
+        double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
         String lote = "LOTE-" + System.currentTimeMillis();
 
         // 5. Criação dos DTOs para venda
@@ -302,7 +299,7 @@ public class ProdutosActivity extends AppCompatActivity {
         }
 
         // DTO principal para venda
-        SuperClassProd.PedidoVendaDto pedidoVenda = new SuperClassProd.PedidoVendaDto(
+        SuperClassProd.ItemVendaDto pedidoVenda = new SuperClassProd.ItemVendaDto(
                 idUsuario,
                 valorTotal
         );
@@ -352,7 +349,7 @@ public class ProdutosActivity extends AppCompatActivity {
                 Log.e("VENDA_ERROR", "Falha ao realizar venda", t);
             }
         });
-    }*/
+    }
 
     // Método para tratar erros específicos de venda
     private void tratarErroVenda(Response<?> response) {
@@ -379,65 +376,11 @@ public class ProdutosActivity extends AppCompatActivity {
     }
 
     //Ainda esta sendo feita
-    private void removerProduto() {
-        //  Obter o ID do produto selecionado (você precisará implementar essa lógica)
-        // Por exemplo, se você tiver um produto selecionado no adapter:
-        int produtoId = obterProdutoSelecionado();
-
-        if (produtoId == -1) {
-            Toast.makeText(this, "Selecione um produto para remover", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        //  Mostrar confirmação antes de remover
-        new AlertDialog.Builder(this)
-                .setTitle("Confirmar Exclusão")
-                .setMessage("Tem certeza que deseja remover este produto?")
-                .setPositiveButton("Sim", (dialog, which) -> {
-                    // 3. Chamada à API para remover
-                    ProgressDialog progressDialog = new ProgressDialog(this);
-                    progressDialog.setMessage("Removendo produto...");
-                    progressDialog.setCancelable(false);
-                    progressDialog.show();
-
-                    // Na sua Activity ou Fragment
-                    ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-                    Call<Void> call = apiService.deletarProduto(produtoId);
-
-                    call.enqueue(new Callback<Void>() {
-                        @Override
-                        public void onResponse(Call<Void> call, Response<Void> response) {
-                            progressDialog.dismiss();
-                            if (response.isSuccessful()) {
-                                Toast.makeText(ProdutosActivity.this,
-                                        "Produto removido com sucesso!", Toast.LENGTH_SHORT).show();
-                                carregarProdutos(); // Recarrega a lista
-                            } else {
-                                tratarErroApi(response);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Void> call, Throwable t) {
-                            progressDialog.dismiss();
-                            Toast.makeText(ProdutosActivity.this,
-                                    "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Não", null)
-                .show();
-    }
+    private void removerProduto() {}
 
     //Ainda esta sendo feita
     private void comprarProduto() {
-        // 1. Verifica se há um produto selecionado
-        if (produtoSelecionado == null) {
-            Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        // 2. Valida a quantidade
         String quantidadeStr = QuantProd.getText().toString().trim();
         if (quantidadeStr.isEmpty()) {
             Toast.makeText(this, "Informe a quantidade", Toast.LENGTH_SHORT).show();
@@ -456,7 +399,6 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
-        // 3. Valida a data de validade
         String dataValidade = ValProd.getText().toString().trim();
         String dataFormatada = null;
 
@@ -479,13 +421,13 @@ public class ProdutosActivity extends AppCompatActivity {
         }
 
         // 4. Cálculos e preparação dos dados
-        double valorTotal = produtoSelecionado.getVALOR_PRODUTO() * quantidade;
+        double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
         String lote = "LOTE-" + System.currentTimeMillis();
 
         // 5. Criação dos DTOs
         List<SuperClassProd.ItemCompraDto> itens = new ArrayList<>();
         itens.add(new SuperClassProd.ItemCompraDto(
-                produtoSelecionado.getID_PRODUTO(),
+                produtoSelecionado.ge(),
                 lote,
                 quantidade,
                 1, // N_ITEM_COMPRA (poderia ser incremental)
@@ -539,20 +481,19 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // 7. Chama a API
         ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-        Call<SuperClassProd.PedidoCompraResponse> call = apiService.criarPedidoCompra(pedidoDto);
+        Call<SuperClassProd.PedidoCompraCompletoDto> call = apiService.criarPedidoCompra(pedidoDto);
 
-        call.enqueue(new Callback<SuperClassProd.PedidoCompraResponse>() {
+        call.enqueue(new Callback<SuperClassProd.PedidoCompraCompletoDto>() {
             @Override
-            public void onResponse(Call<SuperClassProd.PedidoCompraResponse> call,
-                                   Response<SuperClassProd.PedidoCompraResponse> response) {
+            public void onResponse(Call<SuperClassProd.PedidoCompraCompletoDto> call,
+                                   Response<SuperClassProd.PedidoCompraCompletoDto> response) {
 
                 progressDialog.dismiss();
 
                 if (response.isSuccessful() && response.body() != null) {
                     // Sucesso
                     Toast.makeText(ProdutosActivity.this,
-                            "Compra realizada com sucesso! ID: " +
-                                    response.body().PedidoID, Toast.LENGTH_LONG).show();
+                            "Compra realizada com sucesso! ID: ", Toast.LENGTH_LONG).show();
 
                     limparCampos();
                     produtoSelecionado = null;
@@ -566,22 +507,13 @@ public class ProdutosActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<SuperClassProd.PedidoCompraResponse> call, Throwable t) {
+            public void onFailure(Call<SuperClassProd.PedidoCompraCompletoDto> call, Throwable t) {
                 progressDialog.dismiss();
                 Toast.makeText(ProdutosActivity.this,
                         "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
                 Log.e("COMPRA_ERROR", "Falha ao realizar compra", t);
             }
         });
-    }
-
-    //Rever
-    private int obterProdutoSelecionado() {
-        if (produtoSelecionado == null) {
-            Toast.makeText(this, "Nenhum produto selecionado", Toast.LENGTH_SHORT).show();
-            return -1;
-        }
-        return produtoSelecionado.getID_PRODUTO(); // Supondo que Produto tenha um método getID_PRODUTO()
     }
 
     //Ainda esta sendo feita
@@ -600,7 +532,7 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
-        //Conversão do valor para Double com tratamento de erro
+        // Conversão do valor para Double com tratamento de erro
         double valorProduto;
         try {
             valorProduto = Double.parseDouble(valorProdutoStr);
@@ -612,32 +544,30 @@ public class ProdutosActivity extends AppCompatActivity {
             Toast.makeText(this, "Valor do produto inválido", Toast.LENGTH_SHORT).show();
             return;
         }
-        int idUsuario = obterIdUsuarioLogado();
 
-        // Verificar se uma imagem foi selecionada
-        if (fotoProd == null || fotoProd.isEmpty())
-        {
-            // Criar objeto DTO sem imagem
-            SuperClassProd.CadastrarProdutoDto produtoDto = new SuperClassProd.CadastrarProdutoDto(
-                    idUsuario,       // ID_USUARIO
-                    codProduto,      // COD_PRODUTO
-                    nomeProduto,     // NOME_PRODUTO
-                    valorProduto,    // VALOR_PRODUTO
-                    tipoProduto,// TIPO_PRODUTO
-                    fotoProd = null
-            );
+        int idUsuario = 0;
+        String nome;
+        String email;
+
+        SuperClassUser.UsuarioTokenDto usuario = AuthUtils.getUsuarioLogado(this);
+        if (usuario != null) {
+            idUsuario = usuario.id;
+            nome = usuario.nome;
+            email = usuario.email;
+
+        } else {
+            Toast.makeText(this, "Usuário não logado ou token inválido", Toast.LENGTH_SHORT).show();
         }
 
-        // Criar objeto DTO com a imagem em Base64
-        SuperClassProd.CadastrarProdutoDto produtoDto = new SuperClassProd.CadastrarProdutoDto(
-                idUsuario,       // ID_USUARIO
-                codProduto,      // COD_PRODUTO
-                nomeProduto,     // NOME_PRODUTO
-                valorProduto,    // VALOR_PRODUTO
-                tipoProduto,    // TIPO_PRODUTO
-                fotoProd        // IMG_PRODUTO (string Base64)
+        // Criar objeto DTO com ou sem imagem
+        SuperClassProd.ProdutoDto produtoDto = new SuperClassProd.ProdutoDto(
+                idUsuario,
+                codProduto,
+                nomeProduto,
+                valorProduto,
+                tipoProduto,
+                fotoProd
         );
-
 
         // Mostrar progresso durante o upload
         ProgressDialog progressDialog = new ProgressDialog(this);
@@ -645,25 +575,25 @@ public class ProdutosActivity extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        // Usar o RetrofitClient singleton
+        // Obter instância da API com contexto
         ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-        Call<Void> call = apiService.cadastrarProduto(produtoDto);
 
-        // 9. Chamada à API com tratamento completo de erros
+        // Recuperar token do usuário logado (exemplo)
+        String token = obterTokenUsuario(); // Essa função precisa retornar o token em formato "Bearer eyJ..."
+
+        Call<Void> call = apiService.cadastrarProduto(token, produtoDto);
+
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 progressDialog.dismiss();
-
                 if (response.isSuccessful()) {
                     Toast.makeText(ProdutosActivity.this,
                             "Produto criado com sucesso!", Toast.LENGTH_SHORT).show();
                     limparCampos();
-                    // Resetar a imagem após envio bem-sucedido
                     prodImage.setImageResource(R.drawable.placeholder);
                     fotoProd = null;
-                } else
-                {
+                } else {
                     tratarErroApi(response);
                 }
             }
@@ -678,11 +608,14 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
-    //Rever
-    private int obterIdUsuarioLogado() {
-        // Implemente a lógica para obter o ID do usuário logado
-        // Exemplo: SharedPreferences, sessão, etc.
-        return 1; // Apenas exemplo - substitua pela implementação real
+    private String obterTokenUsuario() {
+        String token = AuthUtils.getToken(this); // "this" é o Context da Activity
+        if (token != null && !token.isEmpty()) {
+            return "Bearer " + token;
+        } else {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
+            return null;
+        }
     }
 
     private void limparCampos() {

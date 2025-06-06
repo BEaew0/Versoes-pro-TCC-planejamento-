@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
+import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
 
 import org.json.JSONException;
@@ -45,6 +46,27 @@ public class AuthUtils {
         String payloadJson = new String(Base64.decode(parts[1], Base64.URL_SAFE));
         return new JSONObject(payloadJson);//Transforma a string decodificada em um objeto JSON.
     }
+
+    public static SuperClassUser.UsuarioTokenDto getUsuarioLogado(Context context) {
+        String token = getToken(context);
+        if (token == null) return null;
+
+        try {
+            JSONObject payload = decodeJwtPayload(token);
+            if (payload == null) return null;
+
+            SuperClassUser.UsuarioTokenDto usuario = new SuperClassUser.UsuarioTokenDto();
+            usuario.id = payload.optInt("id", -1);  // ou "user_id" se for esse o nome no JWT
+            usuario.nome = payload.optString("nome", null);
+            usuario.email = payload.optString("email", null);
+
+            return usuario;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     public static String getClaimFromToken(Context context, String claimName) {
         String token = AuthUtils.getToken(context);//Usa AuthUtils.getToken() para recuperar o token armazenado.
