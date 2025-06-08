@@ -87,6 +87,10 @@ public class SuperClassProd {
         public void setImgProduto(String imgProduto) {
             this.imgProduto = imgProduto;
         }
+
+        public int getIdProduto() {
+            return 0;
+        }
     }
 
     public static class PedidoCompraCompletoDto {
@@ -119,6 +123,99 @@ public class SuperClassProd {
 
         public void setItem(List<ItemCompraDto> item) {
             this.item = item;
+        }
+    }
+    public static class PedidoCompraResponse {
+        @SerializedName("Pedido")
+        private PedidoCompraCompletoDto pedidoCompra;
+
+        @SerializedName("Itens")
+        private List<ItemCompraDto> itensCompra;
+
+        // Construtor
+        public PedidoCompraResponse(PedidoCompraCompletoDto pedidoCompra, List<ItemCompraDto> itensCompra) {
+            this.pedidoCompra = pedidoCompra;
+            this.itensCompra = itensCompra;
+        }
+
+        // Getters e Setters
+        public PedidoCompraCompletoDto getPedidoCompra() {
+            return pedidoCompra;
+        }
+
+        public void setPedidoCompra(PedidoCompraCompletoDto pedidoCompra) {
+            this.pedidoCompra = pedidoCompra;
+        }
+
+        public List<ItemCompraDto> getItensCompra() {
+            return itensCompra;
+        }
+
+        public void setItensCompra(List<ItemCompraDto> itensCompra) {
+            this.itensCompra = itensCompra;
+        }
+    }
+
+    public static class PedidoVendaCompletoDto {
+        @SerializedName("pedido")
+        public PedidoDto pedido;
+
+        @SerializedName("item")
+        public List<ItemVendaDto> item;
+
+        public PedidoVendaCompletoDto(PedidoDto pedido, List<ItemVendaDto> itens) {
+            this.pedido = pedido;
+            this.item = itens;
+        }
+
+        public PedidoDto getPedido() {
+            return pedido;
+        }
+
+        public void setPedido(PedidoDto pedido) {
+            this.pedido = pedido;
+        }
+
+        public List<ItemVendaDto> getItem() {
+            return item;
+        }
+
+        public void setItem() {
+            setItem(null);
+        }
+
+        public void setItem(List<ItemVendaDto> item) {
+            this.item = item;
+        }
+    }
+    public static class PedidoVendaResponse {
+        @SerializedName("PedidoVenda")
+        private PedidoVendaCompletoDto pedidoVenda;
+
+        @SerializedName("ItensVenda")
+        private List<ItemVendaDto> itensVenda;
+
+        // Construtor
+        public PedidoVendaResponse(PedidoVendaCompletoDto pedidoVenda, List<ItemVendaDto> itensVenda) {
+            this.pedidoVenda = pedidoVenda;
+            this.itensVenda = itensVenda;
+        }
+
+        // Getters e Setters
+        public PedidoVendaCompletoDto getPedidoVenda() {
+            return pedidoVenda;
+        }
+
+        public void setPedidoVenda(PedidoVendaCompletoDto pedidoVenda) {
+            this.pedidoVenda = pedidoVenda;
+        }
+
+        public List<ItemVendaDto> getItensVenda() {
+            return itensVenda;
+        }
+
+        public void setItensVenda(List<ItemVendaDto> itensVenda) {
+            this.itensVenda = itensVenda;
         }
     }
 
@@ -168,6 +265,9 @@ public class SuperClassProd {
             this.nItemVenda = nItemVenda;
             this.descontoItemVenda = descontoItemVenda;
             this.valorTotalItemVenda = valorTotalItemVenda;
+        }
+
+        public ItemVendaDto(int idProdutoFk, String lote, int quantidade, int nItemVenda, double descontoItemVenda, double valorTotal) {
         }
 
         public int getIdProdutoFk() {

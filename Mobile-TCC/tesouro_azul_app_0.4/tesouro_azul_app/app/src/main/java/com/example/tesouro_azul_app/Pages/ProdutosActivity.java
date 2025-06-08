@@ -41,12 +41,8 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 
 import okhttp3.ResponseBody;
@@ -166,7 +162,7 @@ public class ProdutosActivity extends AppCompatActivity {
         // Ações para os botões
        btnVenderProd.setOnClickListener(new View.OnClickListener() {
            @Override
-           public void onClick(View view) {criarPedidoVenda();}
+           public void onClick(View view) {realizarVenda();}
        });
 
         btnAdicionarProd.setOnClickListener(new View.OnClickListener() {
@@ -228,107 +224,110 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
-    //Ainda esta sendo feita
-    private void criarPedidoVenda() {}
 
-    // Método para tratar erros específicos de venda
-    private void tratarErroVenda(Response<?> response) {
+    private void realizarVenda() {
+        // 1. Validação do produto selecionado
+        if (produtoSelecionado == null) {
+            Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 2. Validação da quantidade
+        String quantidadeStr = QuantProd.getText().toString().trim();
+        if (quantidadeStr.isEmpty()) {
+            Toast.makeText(this, "Informe a quantidade", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int quantidade;
         try {
-            String errorBody = response.errorBody() != null ?
-                    response.errorBody().string() : "Erro desconhecido";
-
-            if (response.code() == 400) {
-                JSONObject errorJson = new JSONObject(errorBody);
-                if (errorJson.has("estoque")) {
-                    Toast.makeText(this, "Estoque insuficiente", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, "Dados inválidos: " + errorBody, Toast.LENGTH_LONG).show();
-                }
-            } else if (response.code() == 401) {
-                Toast.makeText(this, "Sessão expirada", Toast.LENGTH_LONG).show();
-                // Redirecionar para login
-            } else {
-                Toast.makeText(this, "Erro: " + response.code(), Toast.LENGTH_LONG).show();
-            }
-        } catch (Exception e) {
-            Toast.makeText(this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    //Ainda esta sendo feita
-    private void deletarProduto(int produtoId) {
-            // Mostrar diálogo de confirmação
-            new AlertDialog.Builder(this)
-                    .setTitle("Confirmar Exclusão")
-                    .setMessage("Tem certeza que deseja excluir este produto?")
-                    .setPositiveButton("Excluir", (dialog, which) -> {
-                        // Usuário confirmou, prosseguir com a exclusão
-                        executarDelecaoProduto(produtoId);
-                    })
-                    .setNegativeButton("Cancelar", null)
-                    .show();
-        }
-
-        private void executarDelecaoProduto(int produtoId) {
-            ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("Excluindo produto...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-
-            String token = obterTokenUsuario();
-            if (token == null) {
-                progressDialog.dismiss();
-                Toast.makeText(this, "Token inválido", Toast.LENGTH_SHORT).show();
+            quantidade = Integer.parseInt(quantidadeStr);
+            if (quantidade <= 0) {
+                Toast.makeText(this, "Quantidade deve ser maior que zero", Toast.LENGTH_SHORT).show();
                 return;
             }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-            Call<ResponseBody> call = apiService.deletarProduto(token, produtoId);
+        // 3. Cálculo do valor total (sem desconto por padrão)
+        double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
+        String lote = "LOTE-" + System.currentTimeMillis();
 
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    progressDialog.dismiss();
+        // 4. Obter usuário logado (vendedor)
+        int idUsuario = 0;
+        SuperClassUser.UsuarioTokenDto usuario = AuthUtils.getUsuarioLogado(this);
+        if (usuario != null) {
+            idUsuario = usuario.id;
+        } else {
+            Toast.makeText(this, "Usuário não logado ou token inválido", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                    if (response.isSuccessful()) {
-                        Toast.makeText(ProdutosActivity.this,
-                                "Produto excluído com sucesso!",
-                                Toast.LENGTH_LONG).show();
+        // 5. Criar DTOs conforme a estrutura da SuperClassProd para venda
+        SuperClassProd.ItemVendaDto itemVenda = new SuperClassProd.ItemVendaDto(
+                produtoSelecionado.getIdUsuario(),// ID do produto
+                lote,
+                quantidade,
+                1, // Número do item (fixo como 1 para venda única)
+                0.00, // Desconto (zero por padrão)
+                valorTotal
+        );
 
-                        // Atualizar lista de produtos
-                        carregarProdutos();
-                    } else {
-                        try {
-                            String errorBody = response.errorBody().string();
-                            mostrarErroDelecao(errorBody);
-                        } catch (IOException e) {
-                            mostrarErroDelecao("Erro ao processar resposta");
-                        }
-                    }
-                }
+        List<SuperClassProd.ItemVendaDto> itens = new ArrayList<>();
+        itens.add(itemVenda);
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    progressDialog.dismiss();
+        SuperClassProd.PedidoDto pedido = new SuperClassProd.PedidoDto(valorTotal);
+
+        // Usando PedidoCompraCompletoDto mesmo para venda (ajustar conforme sua API)
+        SuperClassProd.PedidoVendaCompletoDto pedidoVenda = new SuperClassProd.PedidoVendaCompletoDto(
+                pedido,
+                itens
+        );
+
+        // Mostrar progresso
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Processando venda...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // Chamar API para realizar venda
+        String token = obterTokenUsuario();
+        if (token == null) {
+            progressDialog.dismiss();
+            return;
+        }
+
+        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
+        Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda(token, pedidoVenda);
+
+        call.enqueue(new Callback<SuperClassProd.PedidoVendaCompletoDto>() {
+            @Override
+            public void onResponse(Call<SuperClassProd.PedidoVendaCompletoDto> call,
+                                   Response<SuperClassProd.PedidoVendaCompletoDto> response) {
+                progressDialog.dismiss();
+
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ProdutosActivity.this,
-                            "Falha na conexão: " + t.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                    Log.e("DELETE_PRODUTO", "Erro ao deletar produto", t);
-                }
-            });
-        }
+                            "Venda realizada com sucesso!",
+                            Toast.LENGTH_LONG).show();
 
-        private void mostrarErroDelecao(String mensagem) {
-            if (mensagem.contains("associado a pedidos")) {
-                new AlertDialog.Builder(this)
-                        .setTitle("Não é possível excluir")
-                        .setMessage("Este produto está vinculado a pedidos e não pode ser excluído.")
-                        .setPositiveButton("OK", null)
-                        .show();
-            } else {
-                Toast.makeText(this, "Erro: " + mensagem, Toast.LENGTH_LONG).show();
+                    limparCampos();
+                    produtoSelecionado = null;
+                    carregarProdutos(); // Atualizar lista de produtos após venda
+                }
             }
-        }
+
+            @Override
+            public void onFailure(Call<SuperClassProd.PedidoVendaCompletoDto> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(ProdutosActivity.this,
+                        "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
+                Log.e("VENDA_ERROR", "Falha ao realizar venda", t);
+            }
+        });
+    }
 
     //Ainda sendo feita
     private void realizarCompra() {
@@ -372,9 +371,10 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
+
         // 5. Criar DTOs conforme a estrutura da SuperClassProd
         SuperClassProd.ItemCompraDto itemCompra = new SuperClassProd.ItemCompraDto(
-                produtoSelecionado.getIdUsuario(), // ID do produto
+                produtoSelecionado.getIdUsuario(), // ID do produto(Não tenho como pegar o id do produto)
                 lote,
                 quantidade,
                 1, // Número do item (fixo como 1 para compra única)
@@ -396,7 +396,6 @@ public class ProdutosActivity extends AppCompatActivity {
         progressDialog.setMessage("Processando compra...");
         progressDialog.setCancelable(false);
         progressDialog.show();
-
 
         // 7. Chamar API para realizar compra
         String token = obterTokenUsuario();
@@ -436,7 +435,6 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
-
     private void tratarErroCompra(Response<?> response) {
         try {
             String errorBody = response.errorBody() != null ?
@@ -473,7 +471,204 @@ public class ProdutosActivity extends AppCompatActivity {
     }
 
     //Ainda esta sendo feita
-    private void alterarProduto(){}
+    private void deletarProduto(int produtoId) {
+            // Mostrar diálogo de confirmação
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirmar Exclusão")
+                    .setMessage("Tem certeza que deseja excluir este produto?")
+                    .setPositiveButton("Excluir", (dialog, which) -> {
+                        // Usuário confirmou, prosseguir com a exclusão
+                        executarDeletarProduto(produtoId);
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        }
+
+        private void executarDeletarProduto(int produtoId) {
+            ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Excluindo produto...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            String token = obterTokenUsuario();
+            if (token == null) {
+                progressDialog.dismiss();
+                Toast.makeText(this, "Token inválido", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
+            Call<ResponseBody> call = apiService.deletarProduto(token, produtoId);
+
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    progressDialog.dismiss();
+
+                    if (response.isSuccessful()) {
+                        Toast.makeText(ProdutosActivity.this,
+                                "Produto excluído com sucesso!",
+                                Toast.LENGTH_LONG).show();
+
+                        // Atualizar lista de produtos
+                        carregarProdutos();
+                    } else {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            mostrarErroDelete(errorBody);
+                        } catch (IOException e) {
+                            mostrarErroDelete("Erro ao processar resposta");
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    progressDialog.dismiss();
+                    Toast.makeText(ProdutosActivity.this,
+                            "Falha na conexão: " + t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                    Log.e("DELETE_PRODUTO", "Erro ao deletar produto", t);
+                }
+            });
+        }
+
+        private void mostrarErroDelete(String mensagem) {
+            if (mensagem.contains("associado a pedidos")) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Não é possível excluir")
+                        .setMessage("Este produto está vinculado a pedidos e não pode ser excluído.")
+                        .setPositiveButton("OK", null)
+                        .show();
+            } else {
+                Toast.makeText(this, "Erro: " + mensagem, Toast.LENGTH_LONG).show();
+            }
+        }
+
+
+
+
+    //Ainda esta sendo feita
+    private void alterarProduto() {
+        // 1. Verificar se há um produto selecionado
+        if (produtoSelecionado == null) {
+            Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 2. Obter o campo a ser alterado e o novo valor
+        String campo = ""; // Você precisa definir como obter isso (pode ser um Spinner ou outra UI)
+        String novoValor = ""; // Você precisa obter isso de um EditText ou outro componente
+
+        // Exemplo básico - você deve adaptar para sua UI:
+        if (NomeProd.isFocused()) {
+            campo = "nome_produto";
+            novoValor = NomeProd.getText().toString().trim();
+        } else if (ValorProd.isFocused()) {
+            campo = "valor_produto";
+            novoValor = ValorProd.getText().toString().trim();
+        } else if (TipoProd.isFocused()) {
+            campo = "tipo_produto";
+            novoValor = TipoProd.getText().toString().trim();
+        } else if (CodProd.isFocused()) {
+            campo = "cod_produto";
+            novoValor = CodProd.getText().toString().trim();
+        }
+
+
+        if (campo.isEmpty() || novoValor.isEmpty()) {
+            Toast.makeText(this, "Selecione um campo e informe o novo valor", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 4. Criar o DTO para alteração
+        SuperClassProd.CamposProdutoDto camposProduto = new SuperClassProd.CamposProdutoDto(
+                campo,
+                novoValor
+        );
+
+        // 5. Mostrar progresso
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Atualizando produto...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // 6. Obter token e verificar autenticação
+        String token = obterTokenUsuario();
+        if (token == null) {
+            progressDialog.dismiss();
+            return;
+        }
+
+        // 7. Chamar a API para alterar o produto
+        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
+        Call<SuperClassProd.ProdutoDto> call = apiService.alterarProduto(
+                token,
+                produtoSelecionado.getIdUsuario(), // Supondo que este seja o ID do produto
+                camposProduto
+        );
+
+        call.enqueue(new Callback<SuperClassProd.ProdutoDto>() {
+            @Override
+            public void onResponse(Call<SuperClassProd.ProdutoDto> call, Response<SuperClassProd.ProdutoDto> response) {
+                progressDialog.dismiss();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    // Atualizar o produto selecionado com os novos dados
+                    produtoSelecionado = response.body();
+
+                    // Atualizar a UI com os novos valores
+                    NomeProd.setText(produtoSelecionado.getNomeProduto());
+                    ValorProd.setText(String.valueOf(produtoSelecionado.getValorProduto()));
+                    // Atualize outros campos conforme necessário
+
+                    Toast.makeText(ProdutosActivity.this,
+                            "Produto atualizado com sucesso!", Toast.LENGTH_SHORT).show();
+
+                    // Atualizar a lista de produtos
+                    carregarProdutos();
+                } else {
+                    tratarErroAlteracao(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuperClassProd.ProdutoDto> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(ProdutosActivity.this,
+                        "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
+                Log.e("ALTERACAO_ERROR", "Falha ao alterar produto", t);
+            }
+        });
+    }
+
+    private void tratarErroAlteracao(Response<?> response) {
+        try {
+            String errorBody = response.errorBody() != null ?
+                    response.errorBody().string() : "Erro desconhecido";
+
+            String mensagem;
+            switch (response.code()) {
+                case 400:
+                    mensagem = "Dados inválidos: " + errorBody;
+                    break;
+                case 404:
+                    mensagem = "Produto não encontrado";
+                    break;
+                case 401:
+                    mensagem = "Não autorizado - faça login novamente";
+                    break;
+                default:
+                    mensagem = "Erro ao atualizar produto: " + response.code();
+            }
+
+            Toast.makeText(this, mensagem, Toast.LENGTH_LONG).show();
+            Log.e("API_ERROR", "Código: " + response.code() + " - " + errorBody);
+        } catch (IOException e) {
+            Toast.makeText(this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
+            Log.e("IO_ERROR", "Erro ao ler errorBody", e);
+        }
+    }
 
     private void criarProduto() {
         // Validação dos campos de entrada

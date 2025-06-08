@@ -3,6 +3,8 @@ package com.example.tesouro_azul_app.Pages;
 
 import android.app.Activity;
 import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -10,8 +12,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -21,9 +26,15 @@ import android.widget.Toast;
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.MainActivity;
 import com.example.tesouro_azul_app.R;
+import com.example.tesouro_azul_app.Service.RetrofitClient;
+import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -36,13 +47,12 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 
 public class ConfigActivity extends AppCompatActivity {
-
-    private String Host="https://tesouroazul1.hospedagemdesites.ws/api";
-    private String url,ret;
 
     public static String fotox;
 
@@ -91,8 +101,6 @@ public class ConfigActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
-
-
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_config);
 
@@ -112,7 +120,6 @@ public class ConfigActivity extends AppCompatActivity {
                 .build();
 
         apiService = retrofit.create(ApiService.class);
-
 
         // Define o estado inicial do Switch de acordo com a preferência
     swicthTheme.setChecked(isNightMode);
@@ -135,6 +142,7 @@ public class ConfigActivity extends AppCompatActivity {
             Toast.makeText(this, "Erro ao resgatar imagem", Toast.LENGTH_SHORT).show();
         }
 
+        buscarImagemUsuario();
 
         Xleave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,22 +200,14 @@ public class ConfigActivity extends AppCompatActivity {
         {
             @Override
             public void onClick(View view)
-            {
-
-
-
-
-            }
+            {}
         });
 
         SairConta.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
-            {
-                //Processo que remove o login do aplicativo
-
-            }
+            {deslogarUsuario();}
         });
 
         ExcluirConta.setOnClickListener(new View.OnClickListener()
@@ -350,6 +350,126 @@ public class ConfigActivity extends AppCompatActivity {
                 e.printStackTrace(); // Exibe erro caso o arquivo não seja encontrado
             }
         }
+    }
+
+    private String obterTokenUsuario() {
+        String token = AuthUtils.getToken(this); // "this" é o Context da Activity
+        if (token != null && !token.isEmpty()) {
+            return "Bearer " + token;
+        } else {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+
+    private void deslogarUsuario() {
+        new AlertDialog.Builder(this)
+                .setTitle("Sair")
+                .setMessage("Deseja realmente sair da sua conta?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    // 2. Executar logout quando usuário confirmar
+                    executarLogout();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+     // Executa o processo de logout de forma segura
+    private void executarLogout() {
+        // Mostrar progresso
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Saindo...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // 1. Limpar token e dados de autenticação
+        AuthUtils.logout(this);
+
+        // 2. Limpar qualquer dado de sessão adicional (se necessário)
+        limparDadosSessao();
+
+        // 3. Fechar qualquer conexão ativa
+        RetrofitClient.resetClient();
+
+        // 4. Redirecionar para tela de login após um pequeno delay
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            progressDialog.dismiss();
+            redirecionarParaLogin();
+        }, 1000); // Delay de 1 segundo para melhor UX
+    }
+
+    private void buscarImagemUsuario() {
+
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Carregando imagem...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        String token = AuthUtils.getToken(this);
+        if (token == null) {
+            progressDialog.dismiss();
+            return;
+        }
+
+        ApiService apiService = RetrofitClient.getApiService(this);
+        Call<ResponseBody> call = apiService.buscarUsuarioFoto("Bearer " + token);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                progressDialog.dismiss();
+
+                if (response.isSuccessful()) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonResponse);
+
+                        if (jsonObject.has("imagemBase64")) {
+                            String imagemBase64 = jsonObject.getString("imagemBase64");
+                            byte[] imagemBytes = Base64.decode(imagemBase64, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.length);
+
+                            userIcon.setImageBitmap(bitmap);
+
+                        } else {
+                            Toast.makeText(ConfigActivity.this,
+                                    "Usuário não possui imagem", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(ConfigActivity.this,
+                                "Erro ao processar imagem", Toast.LENGTH_SHORT).show();
+                        Log.e("IMAGEM_ERROR", "Erro: " + e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(ConfigActivity.this,
+                        "Falha na conexão", Toast.LENGTH_SHORT).show();
+                Log.e("API_ERROR", "Erro: " + t.getMessage());
+            }
+        });
+    }
+
+    //Limpa dados adicionais da sessão do usuário
+    private void limparDadosSessao() {
+        SharedPreferences prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        prefs.edit()
+                .remove("ultimo_usuario")
+                .remove("configuracoes_usuario")
+                .apply();
+    }
+
+    private void redirecionarParaLogin() {
+        Intent intent = new Intent(this, EntradaActivity.class);
+
+        // Configura flags para limpar a pilha de atividades
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        startActivity(intent);
+        finish(); // Finaliza a atividade atual
     }
 
 

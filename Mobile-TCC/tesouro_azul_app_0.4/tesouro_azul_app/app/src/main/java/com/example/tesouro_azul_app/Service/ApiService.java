@@ -1,23 +1,10 @@
 package com.example.tesouro_azul_app.Service;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-
 import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
-import com.example.tesouro_azul_app.Pages.EntradaActivity;
 
-import java.io.IOException;
 import java.util.List;
 
-import okhttp3.Interceptor;
-import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -27,7 +14,7 @@ import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
+
 public interface ApiService {
 
     // Criar Usuario
@@ -46,9 +33,16 @@ public interface ApiService {
     @PATCH("api/Usuarios/{id}/alterar-campo")
     Call<SuperClassUser.Usuario> alterarCamposUsuario(@Header("Authorization") String token, @Path("id") int id, @Body SuperClassUser.AtualizarCampoUsuarioDto dto);
 
-    // Atualizar Imagem
-    @PATCH("api/Usuarios/{id}/imagem")
-    Call<SuperClassUser.Usuario> atualizarImagem(@Header("Authorization") String token, @Path("id") int id, @Body SuperClassUser.ImagemDto dto);
+    @GET("api/Usuarios/Buscar-Imagem")
+    Call<ResponseBody> buscarUsuarioFoto(
+            @Header("Authorization") String token
+    );
+
+    @PATCH("api/Usuarios/alterar-imagem")
+    Call<ResponseBody> atualizarImagem(
+            @Header("Authorization") String token,
+            @Body SuperClassProd.ImagemDto dto
+    );
 
     // Deletar Usuario
     @DELETE("api/Usuarios/{id}")
@@ -147,7 +141,91 @@ public interface ApiService {
 
     @DELETE("api/PedidoCompra/Itens/{id_item}")
     Call<Void> deletarItemCompra(@Header("Authorization") String token, @Path("id_item") int idItem);
+
+
+    // Endpoint para criar um pedido de venda completo
+    @POST("criar-pedido-venda")
+    Call<SuperClassProd.PedidoVendaCompletoDto> criarPedidoVenda(
+            @Header("Authorization") String token,
+            @Body SuperClassProd.PedidoVendaCompletoDto pedidoVenda
+    );
+
+    // Endpoint para inserir itens em um pedido de venda existente
+    @POST("inserir-itens-em-pedido-venda/{id_pedido_venda}")
+    Call<List<SuperClassProd.ItemVendaDto>> inserirItensEmPedidoVenda(
+            @Header("Authorization") String token,
+            @Body List<SuperClassProd.ItemVendaDto> itens
+    );
+
+    // Endpoint para buscar pedidos de venda por campo específico
+    @POST("pedido-venda/buscar-por-campo")
+    Call<List<SuperClassProd.PedidoVendaCompletoDto>> buscarPedidoVendaPorCampo(
+            @Header("Authorization") String token,
+            @Body SuperClassProd.CamposProdutoDto filtro
+    );
+
+    // Endpoint para buscar itens de venda por campo específico
+    @POST("itens-venda/buscar-por-campo")
+    Call<List<SuperClassProd.ItemVendaDto>> buscarItensVendaPorCampo(
+            @Header("Authorization") String token,
+            @Body SuperClassProd.CamposProdutoDto filtro
+    );
+
+    // Endpoint para buscar todos os pedidos de venda (apenas admin)
+    @GET("buscar-todos-pedidos")
+    Call<List<SuperClassProd.PedidoVendaCompletoDto>> buscarTodosPedidosVenda(
+            @Header("Authorization") String token
+    );
+
+    // Endpoint para buscar pedidos de venda do usuário atual
+    @GET("buscar-pedidos-por-usuario")
+    Call<List<SuperClassProd.PedidoVendaCompletoDto>> buscarPedidosVendaPorUsuario(
+            @Header("Authorization") String token
+    );
+
+    // Endpoint para buscar todos os itens de venda (apenas admin)
+    @GET("buscar-todos-itens-venda")
+    Call<List<SuperClassProd.ItemVendaDto>> buscarTodosItensVenda(
+            @Header("Authorization") String token
+    );
+
+    // Endpoint para buscar itens de venda do usuário atual
+    @GET("buscar-itens-venda-por-usuario")
+    Call<List<SuperClassProd.ItemVendaDto>> buscarItensVendaPorUsuario(
+            @Header("Authorization") String token
+    );
+
+    // Endpoint para alterar um pedido de venda por campo específico
+    @PATCH("alterar-pedido-por-campo/{id_pedido_venda}")
+    Call<SuperClassProd.PedidoVendaCompletoDto> alterarPedidoVenda(
+            @Header("Authorization") String token,
+            @Path("id_pedido_venda") int idPedidoVenda,
+            @Body SuperClassProd.CamposProdutoDto campo
+    );
+
+    // Endpoint para alterar um item de venda específico
+    @PATCH("alterar-item-do-pedido-{id}")
+    Call<SuperClassProd.ItemVendaDto> alterarItemVenda(
+            @Header("Authorization") String token,
+            @Path("id") int idItemVenda,
+            @Body SuperClassProd.CamposProdutoDto campo
+    );
+
+    // Endpoint para deletar um pedido de venda
+    @DELETE("deletar-pedido-venda/{id}")
+    Call<Void> deletarPedidoVenda(
+            @Header("Authorization") String token,
+            @Path("id") int idPedidoVenda
+    );
+
+    // Endpoint para deletar um item de venda específico
+    @DELETE("deletar-item-venda/{id}")
+    Call<Void> deletarItemVenda(
+            @Header("Authorization") String token,
+            @Path("id") int idItemVenda
+    );
 }
+
 
 
 
