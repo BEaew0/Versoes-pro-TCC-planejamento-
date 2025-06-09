@@ -95,4 +95,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run("http: //0.0.0.0:5232");
+app.Run("http://0.0.0.0:5232"); // Ao realizar o teste em localhost remover este caminho
