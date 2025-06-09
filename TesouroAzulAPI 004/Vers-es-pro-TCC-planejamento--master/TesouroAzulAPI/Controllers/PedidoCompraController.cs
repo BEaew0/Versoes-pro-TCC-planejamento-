@@ -51,8 +51,9 @@ namespace TesouroAzulAPI.Controllers
 
             // Adicionar busca aqui para descobrir o ID do pedido criado e adicionar na variavel
             int idPedido = pedido.ID_PEDIDO;
-
+            
             var itensSalvo = new List<ItensCompra>();
+            if (itensSalvo == null || !dto.Item.Any()) return Ok(new { mensagem = "Somente compra criado" , pedido });
             foreach (var item in dto.Item)
             {
                 var itemCompra = new ItensCompra
