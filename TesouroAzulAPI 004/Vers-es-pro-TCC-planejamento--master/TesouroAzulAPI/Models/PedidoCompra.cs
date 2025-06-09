@@ -14,7 +14,6 @@ namespace TesouroAzulAPI.Models
         [Required]
         public int ID_USUARIO_FK { get; set; }
 
-        [Required]
         public int? ID_FORNECEDOR_FK { get; set; }
 
         [Required]
