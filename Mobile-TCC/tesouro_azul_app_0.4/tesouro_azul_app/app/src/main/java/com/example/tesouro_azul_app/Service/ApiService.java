@@ -21,6 +21,11 @@ public interface ApiService {
     @POST("api/Usuarios")
     Call<SuperClassUser.Usuario> criarUsuario(@Body SuperClassUser.CriarUsuarioDto usuarioDto);
 
+    @PATCH("api/desativar-usuario")
+    Call<ResponseBody> desativarUsuario(
+            @Header("Authorization") String token
+    );
+
     // Buscar todos os Usuarios
     @GET("api/Usuarios")
     Call<List<SuperClassUser.Usuario>> buscarUsuarios(@Header("Authorization") String token);
@@ -84,6 +89,10 @@ public interface ApiService {
 
     @GET("api/Produtos/produto/{id}")
     Call<SuperClassProd.ProdutoDto> buscarProdutoPorId(@Header("Authorization") String token, @Path("id") int id);
+
+    @POST("/buscar-produtos-por-nome-similar")
+    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(@Body String nomeProdTxt);
+
 
     @PATCH("api/Produtos/{id}")
     Call<SuperClassProd.ProdutoDto> alterarProduto(

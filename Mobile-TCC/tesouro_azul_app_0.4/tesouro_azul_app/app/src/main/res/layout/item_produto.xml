@@ -33,28 +33,32 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"/>
+                android:textColor="@android:color/black"
+                android:text="Nada"/>
 
             <TextView
                 android:id="@+id/txtCodigo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
+                android:layout_marginTop="4dp"
+                android:text="Nada" />
 
             <TextView
                 android:id="@+id/txtValor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
+                android:layout_marginTop="4dp"
+                android:text="Nada"/>
 
             <TextView
                 android:id="@+id/txtTipo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
+                android:layout_marginTop="4dp"
+                android:text="Nada"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

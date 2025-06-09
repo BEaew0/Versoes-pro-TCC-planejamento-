@@ -65,7 +65,7 @@ public class ProdutosActivity extends AppCompatActivity {
     private ProdutoAdapter adapter;
     private List<SuperClassProd.ProdutoDto> listaProdutos = new ArrayList<>();
 
-    EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd,FornProd;
+    EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd,FornProd,SearchProd;
     Button btnVenderProd, btnAdicionarProd, btnAlterarProd, btnExluir,btnComprar;
     ShapeableImageView prodImage;
     ProgressBar progressBar;
@@ -85,6 +85,7 @@ public class ProdutosActivity extends AppCompatActivity {
         prodImage = findViewById(R.id.prod_image);
         recyclerView = findViewById(R.id.recyclerViewProdutos);
 
+        SearchProd = (EditText) findViewById(R.id.txtPesquisaProd);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         NomeProd = (EditText) findViewById(R.id.txtNomeProd) ;
         ValorProd = (EditText) findViewById(R.id.txtValorProd);
@@ -182,6 +183,45 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
+    private void buscarPorNome(String nome) {
+
+        String token = obterTokenUsuario();
+
+        // Adiciona o prefixo "Bearer " no token, se necessário
+        String authHeader =  token;
+
+        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
+        Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarProdutosPorNomeSimilar(authHeader, nome);
+
+        call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {
+            @Override
+            public void onResponse(Call<List<SuperClassProd.ProdutoDto>> call,
+                                   Response<List<SuperClassProd.ProdutoDto>> response) {
+
+                if (response.isSuccessful() && response.body() != null) {
+                    List<SuperClassProd.ProdutoDto> produtos = response.body();
+
+                    if (!produtos.isEmpty()) {
+                        adapter.atualizarLista(produtos);
+                    } else {
+                        Toast.makeText(ProdutosActivity.this, "Nenhum produto encontrado.", Toast.LENGTH_SHORT).show();
+                        adapter.atualizarLista(new ArrayList<>()); // Limpa a lista
+                    }
+
+                } else {
+                    Toast.makeText(ProdutosActivity.this, "Erro ao buscar: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Log.e("API_ERROR", "Código: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<SuperClassProd.ProdutoDto>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(ProdutosActivity.this, "Erro na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("API_FAILURE", "Erro: ", t);
+            }
+        });
+    }
 
     private void carregarProdutos() {
         // Mostrar progress bar (opcional)
@@ -223,7 +263,6 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private void realizarVenda() {
         // 1. Validação do produto selecionado
@@ -544,8 +583,6 @@ public class ProdutosActivity extends AppCompatActivity {
                 Toast.makeText(this, "Erro: " + mensagem, Toast.LENGTH_LONG).show();
             }
         }
-
-
 
 
     //Ainda esta sendo feita
