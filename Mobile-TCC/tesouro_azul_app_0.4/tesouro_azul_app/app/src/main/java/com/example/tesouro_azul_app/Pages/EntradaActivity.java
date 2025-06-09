@@ -1,21 +1,56 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Pages;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import com.example.tesouro_azul_app.Adapter.ProdutoAdapter;
+import com.example.tesouro_azul_app.Class.SuperClassProd;
+import com.example.tesouro_azul_app.Service.ApiService;
+import com.example.tesouro_azul_app.Service.AuthInterceptor;
+import com.example.tesouro_azul_app.Util.AuthUtils;
+import com.example.tesouro_azul_app.Class.SuperClassUser;
+import com.example.tesouro_azul_app.Util.DatePickerUtil;
+import com.example.tesouro_azul_app.MainActivity;
+import com.example.tesouro_azul_app.R;
+import com.example.tesouro_azul_app.Service.RetrofitClient;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.gson.Gson;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.InputType;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -25,10 +60,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import org.json.JSONObject;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -62,9 +101,7 @@ public class EntradaActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
-
             ApiOperation apiOperation = new ApiOperation();
-
             super.onCreate(savedInstanceState);
             setContentView(R.layout.entrada);
 
@@ -332,10 +369,10 @@ public class EntradaActivity extends AppCompatActivity
                         dataNascimento.setTime(nascimento);
 
                         int idade = hoje.get(Calendar.YEAR) - dataNascimento.get(Calendar.YEAR);
-                        if (hoje.get(Calendar.DAY_OF_YEAR) < dataNascimento.get(Calendar.DAY_OF_YEAR)) {
+                        if (hoje.get(Calendar.DAY_OF_YEAR) < dataNascimento.get(Calendar.DAY_OF_YEAR))
+                        {
                             idade--;
                         }
-
                         return idade >= 18;
                     }
                 }
@@ -681,7 +718,8 @@ public class EntradaActivity extends AppCompatActivity
                 }
 
                 @Override
-                public void onFailure(Call<SuperClassUser.LoginResponseDto> call, Throwable t) {
+                public void onFailure(Call<SuperClassUser.LoginResponseDto> call, Throwable t)
+                {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(EntradaActivity.this,
                             "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -690,4 +728,6 @@ public class EntradaActivity extends AppCompatActivity
             });
         }
     }
+
+
 }

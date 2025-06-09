@@ -1,19 +1,25 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Service;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.tesouro_azul_app.Pages.EntradaActivity;
+
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 //Adiciona automaticamente o token JWT às requisições.
 public class AuthInterceptor implements Interceptor {
@@ -27,8 +33,8 @@ public class AuthInterceptor implements Interceptor {
         sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
     }
 
-    @NonNull
     // Versão melhorada com tratamento de mais códigos de erro
+    @NonNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request originalRequest = chain.request();
@@ -79,5 +85,7 @@ public class AuthInterceptor implements Interceptor {
             });
         }
     }
+
+
 }
 

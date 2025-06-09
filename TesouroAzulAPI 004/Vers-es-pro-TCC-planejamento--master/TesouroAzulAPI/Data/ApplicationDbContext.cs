@@ -24,6 +24,10 @@ namespace TesouroAzulAPI.Data
 
         public DbSet<EstoqueProduto> EstoqueProdutos { get; set; }
 
+        public DbSet<Lucro> Lucros { get; set; }
+
+        public DbSet<ItensLucro> ItensLucro { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
