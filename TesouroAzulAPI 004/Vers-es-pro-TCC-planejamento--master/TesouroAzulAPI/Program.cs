@@ -7,7 +7,7 @@ using TesouroAzulAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adiciona o serviÁo de CORS
+// Adiciona o servi√ßo de CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -22,7 +22,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    new MySqlServerVersion(new Version(8, 0, 36)) // Ajuste conforme a vers„o do MySQL
+    new MySqlServerVersion(new Version(8, 0, 36)) // Ajuste conforme a vers√£o do MySQL
     ));
 
 builder.Services.AddEndpointsApiExplorer();
@@ -80,11 +80,18 @@ var app = builder.Build();
 // Habilita CORS antes de mapear os endpoints
 app.UseCors();
 
-if (app.Environment.IsDevelopment())
+/*if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+*/
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TesouroAzulAPI v1");
+    c.RoutePrefix = "swagger"; // ou "" se quiser que apare√ßa na raiz "/"
+});
 
 app.UseHttpsRedirection();
 
