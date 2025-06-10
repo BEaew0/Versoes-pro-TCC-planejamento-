@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.tesouro_azul_app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.tesouro_azul_app"
@@ -53,7 +53,7 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.16.0")// ou migre para Glide/Coil
 
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 
     implementation ("com.android.volley:volley:1.2.1")
 }

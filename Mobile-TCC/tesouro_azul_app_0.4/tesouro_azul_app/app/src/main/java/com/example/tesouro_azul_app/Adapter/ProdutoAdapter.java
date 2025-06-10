@@ -17,7 +17,6 @@ import com.example.tesouro_azul_app.R;
 
 import java.util.List;
 
-
 public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoViewHolder> {
 
     private List<SuperClassProd.ProdutoDto> produtos;

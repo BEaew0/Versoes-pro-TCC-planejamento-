@@ -8,18 +8,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.tesouro_azul_app.Pages.EntradaActivity;
+import com.example.tesouro_azul_app.EntradaActivity;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 //Adiciona automaticamente o token JWT às requisições.
 public class AuthInterceptor implements Interceptor {
