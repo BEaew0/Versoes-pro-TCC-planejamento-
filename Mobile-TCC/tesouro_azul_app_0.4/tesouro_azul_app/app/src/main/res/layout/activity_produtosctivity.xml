@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Pages.ProdutosActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/constraintLayout">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/prod_image"
+            android:layout_width="154dp"
+            android:layout_height="133dp"
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            android:layout_marginTop="17dp"
+            android:layout_marginEnd="2dp"
+            android:clickable="true"
+            android:contentDescription="@string/descricao_user_icon"
+            android:focusable="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/camera_icon"
+            app:layout_constraintEnd_toStartOf="@+id/txtQuant"
+            app:layout_constraintHorizontal_bias="0.8"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtFornecedor"
+            app:shapeAppearanceOverlay="@style/RoundedRectangleImageView" />
+
+        <Button
+            android:id="@+id/btnAdicionarProd"
+            android:layout_width="171dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="124dp"
+            android:backgroundTint="@color/blueButton"
+            android:text="Adicionar"
+            android:textSize="20dp"
+            app:layout_constraintStart_toEndOf="@+id/btnVenderProd"
+            app:layout_constraintTop_toBottomOf="@+id/txtQuant" />
+
+        <EditText
+            android:id="@+id/txtCodProd"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Codigo do produto"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/txtNomeProd"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Produto"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtCodProd" />
+
+        <EditText
+            android:id="@+id/txtValorProd"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Preço em R$"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtNomeProd" />
+
+
+        <EditText
+            android:id="@+id/txtTipo"
+            android:layout_width="210dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Tipo de produto"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtQuant" />
+
+        <EditText
+            android:id="@+id/txtQuant"
+            android:layout_width="208dp"
+            android:layout_height="57dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Quant produto"
+            android:inputType="number"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtFornecedor" />
+
+        <EditText
+            android:id="@+id/txtValidade"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="21dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Data de vencimento"
+            android:inputType="date"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtValorProd" />
+
+        <EditText
+            android:id="@+id/txtFornecedor"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Fornecedor"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.484"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtValidade" />
+
+        <Button
+            android:id="@+id/btnAlterarProd"
+            android:layout_width="171dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginEnd="17dp"
+            android:backgroundTint="@color/blueButton"
+            android:text="Alterar"
+            android:textSize="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnVenderProd"
+            app:layout_constraintTop_toBottomOf="@+id/btnAdicionarProd" />
+
+        <Button
+            android:id="@+id/btnExcluirProd"
+            android:layout_width="172dp"
+            android:layout_height="62dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginEnd="17dp"
+            android:backgroundTint="@color/blueButton"
+            android:text="Excluir"
+            android:textSize="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnAlterarProd" />
+
+        <Button
+            android:id="@+id/btnVenderProd"
+            android:layout_width="171dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="44dp"
+            android:backgroundTint="@color/blueButton"
+            android:text="Vender"
+            android:textSize="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prod_image" />
+
+        <Button
+            android:id="@+id/btnComprarProd"
+            android:layout_width="171dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="49dp"
+            android:backgroundTint="@color/blueButton"
+            android:text="Comprar"
+            android:textSize="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnVenderProd" />
+
+        <EditText
+            android:id="@+id/txtPesquisaProd"
+            android:layout_width="365dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="13dp"
+            android:layout_marginEnd="30dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Pesquisar Produto"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/cinza"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnExcluirProd" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="140dp"
+            android:layout_height="129dp"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="132dp"
+            android:layout_marginTop="20dp"
+            android:indeterminateTint="@color/blueButton"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnExcluirProd" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewProdutos"
+            android:layout_width="407dp"
+            android:layout_height="277dp"
+            android:layout_marginTop="15dp"
+            android:padding="4dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtPesquisaProd" />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
