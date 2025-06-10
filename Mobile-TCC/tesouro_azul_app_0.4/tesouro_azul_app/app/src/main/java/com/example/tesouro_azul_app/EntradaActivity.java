@@ -9,7 +9,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.example.tesouro_azul_app.Service.ApiService;
-import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.Util.DatePickerUtil;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
@@ -198,7 +197,7 @@ public class EntradaActivity extends AppCompatActivity
                     }
 
                     // Instância do validador
-                    ValidarClass validator = new ValidarClass();
+                    Validar validator = new Validar();
 
                     // Identifica o tipo de documento
                     String tipoDocumento = validator.identificarTipo(CPF_CNPJreg);
@@ -269,7 +268,7 @@ public class EntradaActivity extends AppCompatActivity
                     return true; // Se passou por todas as validações
                 }
 
-                class ValidarClass {
+                class Validar {
 
                     //retira todos os caractéres especiais como pontos e traços e define se é CPF
                     public boolean isCPF(String CPF_CNJPreg) {
@@ -348,7 +347,7 @@ public class EntradaActivity extends AppCompatActivity
 
                 public void CriarUsuario() {
                     String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
-                    ValidarClass validator = new ValidarClass();
+                    Validar validator = new Validar();
 
                     // Validação dos campos (usando o método existente)
                     if (!validarCadastro(v, EntradaActivity.this)) {
@@ -443,6 +442,7 @@ public class EntradaActivity extends AppCompatActivity
             });
         });
     }
+
     public class ApiOperation {
         private void ConectarAPI() {
             // 1. Obter instância do ApiService
@@ -696,4 +696,5 @@ public class EntradaActivity extends AppCompatActivity
             });
         }
     }
+
 }
