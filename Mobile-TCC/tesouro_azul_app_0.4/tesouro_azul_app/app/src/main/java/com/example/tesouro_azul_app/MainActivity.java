@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.example.tesouro_azul_app.Pages.ConfigActivity;
-import com.example.tesouro_azul_app.Pages.EntradaActivity;
 import com.example.tesouro_azul_app.Pages.GraficosActivity;
 import com.example.tesouro_azul_app.Pages.MetasActivity;
 import com.example.tesouro_azul_app.Pages.ProdutosActivity;

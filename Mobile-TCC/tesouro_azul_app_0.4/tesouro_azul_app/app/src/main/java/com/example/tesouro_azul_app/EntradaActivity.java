@@ -1,56 +1,25 @@
-package com.example.tesouro_azul_app.Pages;
+package com.example.tesouro_azul_app;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
-import com.example.tesouro_azul_app.Adapter.ProdutoAdapter;
-import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Service.ApiService;
-import com.example.tesouro_azul_app.Service.AuthInterceptor;
 import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.Util.DatePickerUtil;
-import com.example.tesouro_azul_app.MainActivity;
-import com.example.tesouro_azul_app.R;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.gson.Gson;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.text.InputType;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -60,14 +29,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import org.json.JSONObject;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -84,7 +49,6 @@ public class EntradaActivity extends AppCompatActivity
     private ProgressBar progressBar;
     private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
 
-    public static String nomeReg,senhaReg,conSenhaReg,emailReg,CPF_CNPJ_reg,nascReg;
     private EditText txtCPF_CNPJ,txtSenha;
 
     Button btnEnter,btnRegister;
@@ -100,8 +64,8 @@ public class EntradaActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        try {
-            ApiOperation apiOperation = new ApiOperation();
+
+
             super.onCreate(savedInstanceState);
             setContentView(R.layout.entrada);
 
@@ -125,9 +89,19 @@ public class EntradaActivity extends AppCompatActivity
 
             progressBar = findViewById(R.id.progressBar);
             txtLoading = findViewById(R.id.progress_text);
-            
-            apiOperation.ConectarAPI();
 
+            ApiOperation apiOperation = new ApiOperation();
+/*
+            try {
+                apiOperation.ConectarAPI();
+            } catch (Exception e) {
+                Log.e("EntradaActivity", "Erro ao conectar API", e);
+                Toast.makeText(this, "Erro ao inicializar aplicativo", Toast.LENGTH_SHORT).show();
+            }
+*/
+
+
+            /*
             // Verificar se usuário está logado
             if (!AuthUtils.isLoggedIn(this)) {
                 startActivity(new Intent(this, EntradaActivity.class));
@@ -135,7 +109,7 @@ public class EntradaActivity extends AppCompatActivity
                 return;
             }
 
-
+*/
             btnEnter.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -145,13 +119,8 @@ public class EntradaActivity extends AppCompatActivity
 
                     apiOperation.realizarLogin(email,senha);
 
-                    //Após periodo de testes ajeitar essa parte
-                    Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                    startActivity(intent);
-
                 }
             });
-        } catch (Exception e) {}
 
 
         if (mostrarSenha.isChecked())
@@ -474,7 +443,6 @@ public class EntradaActivity extends AppCompatActivity
             });
         });
     }
-
     public class ApiOperation {
         private void ConectarAPI() {
             // 1. Obter instância do ApiService
@@ -728,6 +696,4 @@ public class EntradaActivity extends AppCompatActivity
             });
         }
     }
-
-
 }
