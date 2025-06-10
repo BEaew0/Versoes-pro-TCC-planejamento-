@@ -60,6 +60,7 @@ public class ConfigActivity extends AppCompatActivity {
 
     private Bitmap bitmap;
 
+    private String tokenUser = obterTokenUsuario();
     ImageView Xleave,themeIcon;
     RelativeLayout trocarSenha,SairConta,ExcluirConta;
 
@@ -80,7 +81,6 @@ public class ConfigActivity extends AppCompatActivity {
     String bx;
     Uri imagemUri;
     Bitmap b;
-
 
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<String> requestPermissionLauncher;
@@ -215,7 +215,7 @@ public class ConfigActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-
+            desativarUsuario();
             }
         });
 
@@ -295,6 +295,7 @@ public class ConfigActivity extends AppCompatActivity {
         }
     }
 
+    //converte a imagem para POST
     public String imagem_string(Bitmap fotox)
     {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -309,6 +310,7 @@ public class ConfigActivity extends AppCompatActivity {
         return Base64.encodeToString(b1, Base64.DEFAULT);
     }
 
+    //Converte a imagem a view
     public Bitmap getFoto(String s)
     {
         // Decodifica a string Base64 de volta para um array de bytes
@@ -426,12 +428,11 @@ public class ConfigActivity extends AppCompatActivity {
 
                         if (jsonObject.has("imagemBase64")) {
                             String imagemBase64 = jsonObject.getString("imagemBase64");
-                            byte[] imagemBytes = Base64.decode(imagemBase64, Base64.DEFAULT);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.length);
+                            bitmap = getFoto(imagemBase64);
 
                             userIcon.setImageBitmap(bitmap);
-
-                        } else {
+                        } else
+                        {
                             Toast.makeText(ConfigActivity.this,
                                     "Usuário não possui imagem", Toast.LENGTH_SHORT).show();
                         }
@@ -472,5 +473,93 @@ public class ConfigActivity extends AppCompatActivity {
         finish(); // Finaliza a atividade atual
     }
 
+    private void desativarUsuario(){
+        new AlertDialog.Builder(this)
+                .setTitle("")
+                .setMessage("Deseja realmente sair da sua conta?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    // 2. Executar logout quando usuário confirmar
+                    Desativar();
+                })
+                .setNegativeButton("Não", null)
+                .show();
 
+    }
+
+    private void Desativar() {
+        // Mostrar diálogo de progresso
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Desativando conta...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        ApiService apiService = RetrofitClient.getApiService(this);
+        Call<ResponseBody> call = apiService.desativarUsuario(tokenUser);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                progressDialog.dismiss();
+
+                if (response.isSuccessful()) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonResponse);
+
+                        // Verifica se a resposta contém a mensagem de sucesso
+                        if (jsonObject.has("mensagem") && jsonObject.getString("mensagem").contains("sucesso")) {
+
+                            // Desativação bem-sucedida - fazer logout e redirecionar
+                            Toast.makeText(ConfigActivity.this,
+                                    "Conta desativada com sucesso", Toast.LENGTH_LONG).show();
+
+                            // Realizar logout
+                            deslogarUsuario();
+
+                            // Redirecionar para tela de login
+                           redirecionarParaLogin();
+
+                        } else {
+                            // Resposta inesperada da API
+                            Toast.makeText(ConfigActivity.this,
+                                    "Resposta inesperada do servidor", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(ConfigActivity.this,
+                                "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
+                        Log.e("DESATIVAR_ERROR", "Erro: " + e.getMessage());
+                    }
+                } else {
+                    // Tratar erros específicos da API
+                    try {
+                        String errorBody = response.errorBody().string();
+                        JSONObject errorObject = new JSONObject(errorBody);
+
+                        if (response.code() == 400 && errorBody.contains("já está desativado")) {
+                            Toast.makeText(ConfigActivity.this,
+                                    "Sua conta já está desativada", Toast.LENGTH_LONG).show();
+                        } else if (response.code() == 404) {
+                            Toast.makeText(ConfigActivity.this,
+                                    "Usuário não encontrado", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(ConfigActivity.this,
+                                    "Erro ao desativar conta: " + response.code(), Toast.LENGTH_LONG).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(ConfigActivity.this,
+                                "Erro ao desativar conta", Toast.LENGTH_SHORT).show();
+                        Log.e("DESATIVAR_ERROR", "Erro: " + e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(ConfigActivity.this,
+                        "Falha na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
+                Log.e("API_ERROR", "Erro: " + t.getMessage());
+            }
+        });
+    }
 }

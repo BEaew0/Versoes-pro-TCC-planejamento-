@@ -14,7 +14,8 @@ namespace TesouroAzulAPI.Controllers
 
         // POSTs
         // Criar lucro
-        //  Provavel de não utilizar por ser criado automatico no banco
+        
+        // Criar ItensLucro
 
         // Buscar lucro por campo
 

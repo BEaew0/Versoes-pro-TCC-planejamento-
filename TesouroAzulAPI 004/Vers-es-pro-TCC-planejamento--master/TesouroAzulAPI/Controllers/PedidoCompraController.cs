@@ -41,7 +41,7 @@ namespace TesouroAzulAPI.Controllers
             var pedido = new PedidosCompra
             {
                 ID_USUARIO_FK = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                ID_FORNECEDOR_FK = dto.Pedido.ID_FORNECEDOR ?? null,
+                ID_FORNECEDOR_FK = dto.Pedido.ID_FORNECEDOR.HasValue ? dto.Pedido.ID_FORNECEDOR.Value : (int?)null,
                 VALOR_PEDIDO = dto.Pedido.VALOR_VALOR
             };
 
@@ -51,8 +51,9 @@ namespace TesouroAzulAPI.Controllers
 
             // Adicionar busca aqui para descobrir o ID do pedido criado e adicionar na variavel
             int idPedido = pedido.ID_PEDIDO;
-
+            
             var itensSalvo = new List<ItensCompra>();
+            if (itensSalvo == null || !dto.Item.Any()) return Ok(new { mensagem = "Compra criado sem produto" , pedido });
             foreach (var item in dto.Item)
             {
                 var itemCompra = new ItensCompra
