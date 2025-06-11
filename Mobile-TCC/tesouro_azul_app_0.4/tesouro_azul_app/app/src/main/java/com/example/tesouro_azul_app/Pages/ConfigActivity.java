@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import com.example.tesouro_azul_app.EntradaActivity;
 import com.example.tesouro_azul_app.Service.ApiService;
-import com.example.tesouro_azul_app.MainActivity;
 import com.example.tesouro_azul_app.R;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Util.AuthUtils;

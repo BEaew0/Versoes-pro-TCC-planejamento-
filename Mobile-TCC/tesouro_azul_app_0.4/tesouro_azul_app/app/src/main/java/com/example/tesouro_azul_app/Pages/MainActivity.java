@@ -1,4 +1,4 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Pages;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,10 +8,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.example.tesouro_azul_app.Pages.ConfigActivity;
-import com.example.tesouro_azul_app.Pages.GraficosActivity;
-import com.example.tesouro_azul_app.Pages.MetasActivity;
-import com.example.tesouro_azul_app.Pages.ProdutosActivity;
+import com.example.tesouro_azul_app.R;
 
 public class MainActivity extends AppCompatActivity {
 
