@@ -2,22 +2,28 @@ package com.example.tesouro_azul_app;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.tesouro_azul_app.Pages.MainActivity;
+import com.example.tesouro_azul_app.Util.ValidatorUtils;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
+import com.example.tesouro_azul_app.Service.ApiService;
+import com.example.tesouro_azul_app.Class.SuperClassUser;
+import com.example.tesouro_azul_app.Util.DatePickerUtil;
+import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.google.gson.Gson;
 
 import android.content.Context;
 
-import android.content.SharedPreferences;
-import android.os.Handler;
 import android.text.InputType;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import android.content.Intent;
@@ -29,14 +35,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-
 
 public class EntradaActivity extends AppCompatActivity
 {
@@ -46,7 +49,6 @@ public class EntradaActivity extends AppCompatActivity
     private ProgressBar progressBar;
     private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
 
-    public static String nomeReg,senhaReg,conSenhaReg,emailReg,CPF_CNPJ_reg,nascReg;
     private EditText txtCPF_CNPJ,txtSenha;
 
     Button btnEnter,btnRegister;
@@ -62,10 +64,6 @@ public class EntradaActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        try {
-
-            ApiOperation apiOperation = new ApiOperation();
-
             super.onCreate(savedInstanceState);
             setContentView(R.layout.entrada);
 
@@ -77,60 +75,6 @@ public class EntradaActivity extends AppCompatActivity
 
             apiService = retrofit.create(ApiService.class);
 
-            mostrarSenha = (CheckBox) findViewById(R.id.mostrarSenhas);
-            txtCPF_CNPJ = (EditText) findViewById(R.id.txtCPF_CNPJ);
-            txtSenha = (EditText) findViewById(R.id.txtSenha);
-            btnEnter = (Button) findViewById(R.id.btnEnter);
-
-            String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
-            String senha = txtSenha.getText().toString().trim();
-
-            txtRegistrar = (TextView) findViewById(R.id.txtRegistrar);
-
-            progressBar = findViewById(R.id.progressBar);
-            txtLoading = findViewById(R.id.progress_text);
-            
-            apiOperation.ConectarAPI();
-
-            // Verificar se usuário está logado
-            if (!AuthUtils.isLoggedIn(this)) {
-                startActivity(new Intent(this, EntradaActivity.class));
-                finish();
-                return;
-            }
-
-
-            btnEnter.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    String email = txtCPF_CNPJ.getText().toString().trim();
-                    String senha = txtSenha.getText().toString().trim();
-
-                    apiOperation.realizarLogin(email,senha);
-
-                    //Após periodo de testes ajeitar essa parte
-                    Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                    startActivity(intent);
-
-                }
-            });
-        } catch (Exception e) {}
-
-
-        if (mostrarSenha.isChecked())
-        {
-            txtSenha.setInputType(InputType.TYPE_CLASS_TEXT);
-        }
-        else
-        {
-            txtSenha.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        }
-
-        txtRegistrar.setOnClickListener(v ->
-        {
-            setContentView(R.layout.registrar);//Muda para a tela de registro
-
             txtCPF_CNPJ_Reg = (EditText) findViewById(R.id.txtCPF_CNPJ_Reg);
             txtNomeReg = (EditText) findViewById(R.id.txtNomeProd);
             txtSenhaReg = (EditText) findViewById(R.id.txtSenhaReg);
@@ -141,19 +85,42 @@ public class EntradaActivity extends AppCompatActivity
             showSenhaReg = (CheckBox) findViewById(R.id.mostrarSenha);
             showSenhaConfir = (CheckBox) findViewById(R.id.mostrarSenhaConfir);
 
-            if (showSenhaConfir.isChecked())
-            {
-                txtConfirmSenha.setInputType(InputType.TYPE_CLASS_TEXT);
-            }else{
-                txtConfirmSenha.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            }
+        txtConfirmSenha.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        txtSenhaReg.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
-            if (showSenhaReg.isChecked())
-            {
-                txtSenhaReg.setInputType(InputType.TYPE_CLASS_TEXT);
-            }else{
-                txtSenhaReg.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            }
+       showSenhaReg.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+           @Override
+           public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+               if (showSenhaReg.isChecked()) {
+                   // Mostrar senha
+                   txtSenhaReg.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+               } else {
+                   // Ocultar senha
+                   txtSenhaReg.setTransformationMethod(PasswordTransformationMethod.getInstance());
+               }
+               // Colocar o cursor no final do texto após a mudança
+               txtSenhaReg.setSelection(txtSenhaReg.getText().length());
+           }
+       });
+
+       showSenhaConfir.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+           @Override
+           public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+               if (showSenhaConfir.isChecked()) {
+                   // Mostrar senha
+                   txtConfirmSenha.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+               } else {
+                   // Ocultar senha
+                   txtConfirmSenha.setTransformationMethod(PasswordTransformationMethod.getInstance());
+               }
+               // Colocar o cursor no final do texto após a mudança
+               txtConfirmSenha.setSelection(txtConfirmSenha.getText().length());
+           }
+       });
+
+
+
+
 
             txtNascimento.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -169,17 +136,11 @@ public class EntradaActivity extends AppCompatActivity
                     // como somos obrigados a usar uma versão velha do java ela é feia assim mesmo
                     if (validarCadastro(view, getApplicationContext())) {
 
-
                         Toast.makeText(EntradaActivity.this, "Validação bem sucedida", Toast.LENGTH_SHORT).show();
 
                         CriarUsuario();
-
-                        //processo de validação concluido
-                        Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                        startActivity(intent);
                     }
                 }
-
 
                 //Utiliza o validarClass para permitir o processo de validação
                 public boolean validarCadastro(View view, Context context) {
@@ -198,7 +159,8 @@ public class EntradaActivity extends AppCompatActivity
                     }
 
                     // Instância do validador
-                    ValidarClass validator = new ValidarClass();
+                    ValidatorUtils validator = new ValidatorUtils(); // Se usar métodos estáticos, nem precisa instanciar
+
 
                     // Identifica o tipo de documento
                     String tipoDocumento = validator.identificarTipo(CPF_CNPJreg);
@@ -217,7 +179,7 @@ public class EntradaActivity extends AppCompatActivity
                     try {
                         // Validação de maioridade
 
-                        if (!validator.MaiorIdade(dataNascimento)) {
+                        if (!validator.maiorIdade(dataNascimento)) {
                             Toast.makeText(context, "Menores de idade não são permitidos", Toast.LENGTH_SHORT).show();
                             return false;
                         }
@@ -269,92 +231,13 @@ public class EntradaActivity extends AppCompatActivity
                     return true; // Se passou por todas as validações
                 }
 
-
-                class ValidarClass {
-
-                    //retira todos os caractéres especiais como pontos e traços e define se é CPF
-                    public boolean isCPF(String CPF_CNJPreg) {
-                        return CPF_CNJPreg != null && CPF_CNJPreg.replaceAll("\\D", "").length() == 11;
-                    }
-
-                    //retira todos os caractéres especiais como pontos e traços e define se é CNPJ
-                    public boolean isCNPJ(String CFP_CNPJreg) {
-                        return CFP_CNPJreg != null && CFP_CNPJreg.replaceAll("\\D", "").length() == 14;
-                    }
-
-                    //responsavel por informar o tipo, alterando o valor da string tipo para outras operações
-                    public String identificarTipo(String CPF_CNJPreg) {
-                        if (isCPF(CPF_CNJPreg)) return "CPF";
-                        if (isCNPJ(CPF_CNJPreg)) return "CNPJ";
-                        return "Invalido";
-                    }
-
-                    //lógica para verificar se o cpf é valido
-                    public boolean validarCPF(String CPF_CNJPreg) {
-                        CPF_CNJPreg = CPF_CNJPreg.replaceAll("\\D", "");
-
-                        //detecta todos os numeros repitidos
-                        if (CPF_CNJPreg.length() != 11 || CPF_CNJPreg.matches("(\\d)\\1{10}"))
-                            return false;
-
-                        int soma = 0, peso = 10;
-                        for (int i = 0; i < 9; i++) soma += (CPF_CNJPreg.charAt(i) - '0') * peso--;
-                        int digito1 = 11 - (soma % 11);
-                        if (digito1 >= 10) digito1 = 0;
-
-                        soma = 0;
-                        peso = 11;
-                        for (int i = 0; i < 10; i++) soma += (CPF_CNJPreg.charAt(i) - '0') * peso--;
-                        int digito2 = 11 - (soma % 11);
-                        if (digito2 >= 10) digito2 = 0;
-
-                        return CPF_CNJPreg.endsWith(digito1 + "" + digito2);
-                    }
-
-                    //lógica para verificar se a cnpj é valida
-                    public boolean validarCNPJ(String CFP_CNPJreg) {
-                        CFP_CNPJreg = CFP_CNPJreg.replaceAll("\\D", "");
-                        if (CFP_CNPJreg.length() != 14 || CFP_CNPJreg.matches("(\\d)\\1{13}"))
-                            return false;
-
-                        int[] pesos1 = {5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2};
-                        int[] pesos2 = {6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2};
-
-                        int soma = 0;
-                        for (int i = 0; i < 12; i++)
-                            soma += (CFP_CNPJreg.charAt(i) - '0') * pesos1[i];
-                        int digito1 = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-
-                        soma = 0;
-                        for (int i = 0; i < 13; i++)
-                            soma += (CFP_CNPJreg.charAt(i) - '0') * pesos2[i];
-                        int digito2 = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-
-                        return CFP_CNPJreg.endsWith(digito1 + "" + digito2);
-                    }
-
-
-                    public boolean MaiorIdade(Date nascimento) {
-                        Calendar hoje = Calendar.getInstance();
-                        Calendar dataNascimento = Calendar.getInstance();
-                        dataNascimento.setTime(nascimento);
-
-                        int idade = hoje.get(Calendar.YEAR) - dataNascimento.get(Calendar.YEAR);
-                        if (hoje.get(Calendar.DAY_OF_YEAR) < dataNascimento.get(Calendar.DAY_OF_YEAR)) {
-                            idade--;
-                        }
-
-                        return idade >= 18;
-                    }
-
-                }
-
                 public void CriarUsuario() {
                     String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
-                    ValidarClass validator = new ValidarClass();
+                    ValidatorUtils validator = new ValidatorUtils(); // Se usar métodos estáticos, nem precisa instanciar
+
 
                     // Validação dos campos (usando o método existente)
-                    if (!validarCadastro(v, EntradaActivity.this)) {
+                    if (!validarCadastro(btnRegister, EntradaActivity.this)) {
                         return; // Se a validação falhar, interrompe a execução
                     }
 
@@ -421,11 +304,10 @@ public class EntradaActivity extends AppCompatActivity
                         {
                             if (response.isSuccessful())
                             {
-                                SuperClassUser.Usuario usuarioCriado = response.body();
-                                Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso! ID: " + usuarioCriado.getID_USUARIO(), Toast.LENGTH_SHORT).show();
-                                // Aqui você pode redirecionar para outra activity ou limpar os campos
-                            } else
-                            {
+                                Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            } else {
                                 try {
                                     String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
                                     Toast.makeText(EntradaActivity.this, "Erro no cadastro: " + errorBody, Toast.LENGTH_LONG).show();
@@ -445,199 +327,6 @@ public class EntradaActivity extends AppCompatActivity
                 }
 
             });
-        });
-
-
-    }
-    public class ApiOperation {
-        private void ConectarAPI() {
-            // 1. Obter instância do ApiService
-            ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-
-            // 2. Mostrar estado de carregamento
-            progressBar.setVisibility(View.VISIBLE);
-            txtLoading.setText("Conectando ao servidor...");
-            txtLoading.setVisibility(View.VISIBLE);
-
-            // 3. Esconder componentes da UI durante o carregamento
-            txtCPF_CNPJ.setVisibility(View.GONE);
-            txtSenha.setVisibility(View.GONE);
-            btnEnter.setVisibility(View.GONE);
-            txtRegistrar.setVisibility(View.GONE);
-
-            // 4. Fazer chamada à API
-            Call<Void> call = apiService.testarConexaoAPI();
-            call.enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        // Conexão bem-sucedida
-                        tratarConexaoBemSucedida();
-                    } else {
-                        // Erro na resposta da API
-                        tratarErroAPI(response);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    // Falha na conexão
-                    tratarFalhaConexao(t);
-                }
-            });
-        }
-
-        // Método auxiliar para tratamento de sucesso
-        private void tratarConexaoBemSucedida() {
-            runOnUiThread(() -> {
-                txtLoading.setText("Conexão estabelecida com sucesso!");
-
-                // Aguardar 2 segundos antes de mostrar a interface
-                new Handler().postDelayed(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    txtLoading.setVisibility(View.GONE);
-
-                    // Mostrar componentes da UI
-                    txtCPF_CNPJ.setVisibility(View.VISIBLE);
-                    txtSenha.setVisibility(View.VISIBLE);
-                    btnEnter.setVisibility(View.VISIBLE);
-                    txtRegistrar.setVisibility(View.VISIBLE);
-                }, 2000);
-            });
-        }
-
-        // Método auxiliar para tratamento de erro da API
-        private void tratarErroAPI(Response<Void> response) {
-            runOnUiThread(() -> {
-                try {
-                    String errorBody = response.errorBody() != null ?
-                            response.errorBody().string() : "Erro desconhecido";
-
-                    String errorMsg = "Erro na API: " + response.code();
-                    if (!errorBody.isEmpty()) {
-                        errorMsg += " - " + errorBody;
-                    }
-
-                    txtLoading.setText("Erro na conexão");
-                    Toast.makeText(EntradaActivity.this, errorMsg, Toast.LENGTH_LONG).show();
-                    Log.e("API_ERROR", errorMsg);
-
-                } catch (IOException e) {
-                    Log.e("API_ERROR", "Erro ao ler corpo do erro", e);
-                    Toast.makeText(EntradaActivity.this,
-                            "Erro ao processar resposta do servidor", Toast.LENGTH_LONG).show();
-                }
-
-                // Tentar reconexão após 5 segundos
-                agendarNovaTentativa();
-            });
-        }
-
-        // Método auxiliar para tratamento de falha de conexão
-        private void tratarFalhaConexao(Throwable t) {
-            runOnUiThread(() -> {
-                txtLoading.setText("Falha na conexão");
-                String errorMsg = "Erro de rede: " + t.getMessage();
-
-                Toast.makeText(EntradaActivity.this, errorMsg, Toast.LENGTH_LONG).show();
-                Log.e("NETWORK_ERROR", errorMsg, t);
-
-                // Tentar reconexão após 5 segundos
-                agendarNovaTentativa();
-            });
-        }
-
-        // Método auxiliar para agendar nova tentativa
-        private void agendarNovaTentativa() {
-            new Handler().postDelayed(() -> {
-                if (!isFinishing() && !isDestroyed()) {
-                    ConectarAPI();
-                }
-            }, 5000);
-        }
-
-        private void mostrarErro (String mensagem){
-            Toast.makeText(EntradaActivity.this,mensagem,Toast.LENGTH_LONG).show();
-
-            //volta a tentar após alguns segundos
-            new Handler().postDelayed(this::ConectarAPI, 3000);
-        }
-
-        //Depois arrume, quando o miguel melhorar
-        //Serve para login
-        public void realizarLogin(String email, String senha) {
-            // Validação básica
-            if (email.isEmpty() || senha.isEmpty()) {
-                Toast.makeText(EntradaActivity.this, "Preencha email e senha", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Mostrar progresso
-            progressBar.setVisibility(View.VISIBLE);
-
-            // Criar DTO de login
-            SuperClassUser.LoginRequestDto loginDto = new SuperClassUser.LoginRequestDto(email, senha);
-
-            // Chamar API
-            ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-            Call<SuperClassUser.LoginResponseDto> call = apiService.loginUsuario(loginDto);
-
-            call.enqueue(new Callback<SuperClassUser.LoginResponseDto>()
-            {
-                @Override
-                public void onResponse(Call<SuperClassUser.LoginResponseDto> call,
-                                       Response<SuperClassUser.LoginResponseDto> response) {
-
-                    progressBar.setVisibility(View.GONE);
-
-                    if (response.isSuccessful() && response.body() != null)
-                    {
-                        // Login bem-sucedido
-                        SuperClassUser.LoginResponseDto loginResponse = response.body();
-
-                        // Armazenar o token JWT
-                        SharedPreferences sharedPref = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("jwt_token", loginResponse.getToken());
-                        editor.apply();
-
-                        //  Navegar para a tela principal
-                        Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-
-                    } else {
-                        // Tratar erros da API
-                        try {
-                            String errorBody = response.errorBody() != null ?
-                                    response.errorBody().string() : "Erro desconhecido";
-
-                            if (response.code() == 401) {
-                                Toast.makeText(EntradaActivity.this,
-                                        "Email ou senha inválidos", Toast.LENGTH_LONG).show();
-                            } else if (response.code() == 400) {
-                                Toast.makeText(EntradaActivity.this,
-                                        "Usuário inativo", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(EntradaActivity.this,
-                                        "Erro: " + errorBody, Toast.LENGTH_LONG).show();
-                            }
-
-                        } catch (IOException e) {
-                            Toast.makeText(EntradaActivity.this,
-                                    "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<SuperClassUser.LoginResponseDto> call, Throwable t) {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(EntradaActivity.this,
-                            "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("LoginError", "Erro: ", t);
-                }
-            });
         }
     }
-}
+

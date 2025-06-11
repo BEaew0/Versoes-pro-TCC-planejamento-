@@ -1,14 +1,16 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Pages;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class MetasActivity extends AppCompatActivity {
+import com.example.tesouro_azul_app.R;
+
+public class RegistroActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_metas);
+        setContentView(R.layout.activity_registro);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Pages;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+
+import com.example.tesouro_azul_app.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, GraficosActivity.class);
-                startActivity(intent);//adoado
+                startActivity(intent);
             }
         });
 
@@ -51,15 +53,11 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Intent intent = new Intent(MainActivity.this, ConfigActivity.class);
                     startActivity(intent);
-                    }catch (Exception e){
+                } catch (Exception e) {
                     Toast.makeText(MainActivity.this, "erro ao ir para config", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-
-
-        }
-
     }
+}
 

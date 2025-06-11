@@ -1,14 +1,17 @@
-package com.example.tesouro_azul_app;
+package com.example.tesouro_azul_app.Pages;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class DetalhesProdutoActivity extends AppCompatActivity {
+import com.example.tesouro_azul_app.R;
+
+public class MetasActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detalhes_produto);
+        setContentView(R.layout.activity_metas);
     }
+
 }

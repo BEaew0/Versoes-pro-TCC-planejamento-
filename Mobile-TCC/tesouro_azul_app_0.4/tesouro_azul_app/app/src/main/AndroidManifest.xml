@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".TemaHerdado"
+        android:name=".Util.TemaHerdado"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,19 +23,19 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".DetalhesProdutoActivity"
+            android:name=".Pages.DetalhesProdutoActivity"
             android:exported="false" />
         <activity
-            android:name=".ConfigActivity"
+            android:name=".Pages.ConfigActivity"
             android:exported="false" />
         <activity
-            android:name=".MetasActivity"
+            android:name=".Pages.MetasActivity"
             android:exported="false" />
         <activity
-            android:name=".GraficosActivity"
+            android:name=".Pages.GraficosActivity"
             android:exported="false" />
         <activity
-            android:name=".EntradaActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,10 +44,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".EntradaActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".Pages.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".ProdutosActivity"
+            android:name=".Pages.ProdutosActivity"
             android:exported="false" />
     </application>
 
