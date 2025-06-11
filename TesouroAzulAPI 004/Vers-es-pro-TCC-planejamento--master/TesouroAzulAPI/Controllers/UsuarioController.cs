@@ -45,7 +45,7 @@ namespace TesouroAzulAPI.Controllers
                 CPF_USUARIO = usuarioDto.CPF_USUARIO,
                 CNPJ_USUARIO = usuarioDto.CNPJ_USUARIO,
                 ID_ASSINATURA_FK = usuarioDto.ID_ASSINATURA_FK,
-                FOTO_USUARIO = Convert.FromBase64String(usuarioDto.FOTO_USUARIO),
+                FOTO_USUARIO = String.IsNullOrEmpty(usuarioDto.FOTO_USUARIO) ? null : Convert.FromBase64String(usuarioDto.FOTO_USUARIO),
                 SENHA_USUARIO = usuarioDto.SENHA_USUARIO,
                 STATUS_USUARIO = usuarioDto.STATUS_USUARIO
 

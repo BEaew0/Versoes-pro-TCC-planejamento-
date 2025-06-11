@@ -51,6 +51,22 @@ namespace TesouroAzulAPI.Controllers
             return CreatedAtAction(nameof(BuscarFornecedorPorId), new { id = fornecedor.ID_FORNECEDOR }, fornecedor);
         }
 
+        // Buscar fornecedor por semelhancia
+        [Authorize(Roles = "user")]
+        [HttpPost("buscar-fornecedor-por-nome-similar")]
+        public async Task<IActionResult> BuscarFornecedorPorSimiliar([FromBody] string nomeFornecedor)
+        {
+            if (string.IsNullOrEmpty(nomeFornecedor)) return BadRequest("O nome do fornecedor não pode ser nulo ou vazio.");
+            
+            // Busca o ID do usuário logado
+            int idUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            // Busca fornecedores que contenham o nome fornecido e pertencem ao usuário logado
+            var fornecedoresEncontrados = await _context.Fornecedores
+                .Where(f => f.NOME_FORNECEDOR.Contains(nomeFornecedor) && f.ID_USUARIO_FK == idUsuario)
+                .ToListAsync();
+            return Ok(fornecedoresEncontrados);
+        }
         //GETs
         //Buscar Fornecedores
         [Authorize(Roles = "user,admin")] // Alterar para admin depois

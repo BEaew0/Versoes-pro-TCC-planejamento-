@@ -41,7 +41,7 @@ namespace TesouroAzulAPI.Controllers
             var pedido = new PedidosCompra
             {
                 ID_USUARIO_FK = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                ID_FORNECEDOR_FK = dto.Pedido.ID_FORNECEDOR,
+                ID_FORNECEDOR_FK = dto.Pedido.ID_FORNECEDOR.HasValue ? dto.Pedido.ID_FORNECEDOR.Value : (int?)null,
                 VALOR_PEDIDO = dto.Pedido.VALOR_VALOR
             };
 
@@ -51,8 +51,9 @@ namespace TesouroAzulAPI.Controllers
 
             // Adicionar busca aqui para descobrir o ID do pedido criado e adicionar na variavel
             int idPedido = pedido.ID_PEDIDO;
-
+            
             var itensSalvo = new List<ItensCompra>();
+            if (itensSalvo == null || !dto.Item.Any()) return Ok(new { mensagem = "Compra criado sem produto" , pedido });
             foreach (var item in dto.Item)
             {
                 var itemCompra = new ItensCompra
@@ -85,7 +86,8 @@ namespace TesouroAzulAPI.Controllers
         }
 
         // Inserir item em compra
-        [HttpPost("Itens")]
+        [Authorize(Roles = "user,admin")]
+        [HttpPost("inserir-itens-em-pedido")]
         public async Task<IActionResult> InserirItemCompra([FromBody] List<ItensCompraDto> dto)
         {
             if (dto == null || !dto.Any()) return BadRequest("Lista de itens não pode ser vazia");
@@ -110,17 +112,18 @@ namespace TesouroAzulAPI.Controllers
         }
 
         // Buscar pedido por campo do pedido
-        [HttpPost("Pedido/Buscar-por-campo")]
-        public async Task<ActionResult<IEnumerable<PedidosCompra>>> PedidoBuscarPorCampo(int id_usuario_fk, [FromBody] CamposDtos filtro)
+        [Authorize(Roles = "user,admin")]
+        [HttpPost("pedido-compra/Buscar-por-campo")]
+        public async Task<ActionResult<IEnumerable<PedidosCompra>>> PedidoBuscarPorCampo([FromBody] CamposDtos filtro)
         {
-            // tratamento de erro
-            if (id_usuario_fk == 0) return BadRequest("ID do usuário não pode ser 0");
+
             List<PedidosCompra> pedidoCampo = new();
 
             switch (filtro.Campo.ToLower())
             {
                 case "fornecedor_pedido":
                     pedidoCampo = await _context.PedidosCompra.Where(p => p.ID_FORNECEDOR_FK == Convert.ToInt16(filtro.NovoValor)).ToListAsync();
+                    if (pedidoCampo == null) return NotFound("Fornecedor não cadastrado"); // Verificar aqui mais tarde para analisar se quebra lógica
 
                     break;
                 case "data_pedido":
@@ -160,6 +163,7 @@ namespace TesouroAzulAPI.Controllers
             return Ok(pedidoCampo);
         }
         // Buscar por campo do item
+        [Authorize(Roles ="user,admin")]
         [HttpPost("item-compra/Buscar-por-campo")]
         public async Task<ActionResult<IEnumerable<ItensCompra>>> ItemBuscarPorCampo(int id_pedido, [FromBody] CamposDtos filtro)
         {
@@ -211,14 +215,17 @@ namespace TesouroAzulAPI.Controllers
         }
         //GETs
         //Buscar Compras Pedido
-        [HttpGet]
+        [Authorize(Roles ="user,admin")] // remover user
+        [HttpGet("buscar-todos-pedidos")]
         public async Task<ActionResult<IEnumerable<PedidosCompra>>> BuscarComprasPedido()
         {
             var pedido = await _context.PedidosCompra.ToListAsync();
             if (!pedido.Any()) return NotFound("Nenhum pedido encontrado");
             return Ok(pedido);
         }
+
         //Bucsar Itens das compras por pedido
+        [Authorize(Roles ="user,admin")]
         [HttpGet("Itens/{id_pedido}")]
         public async Task<ActionResult<IEnumerable<ItensCompra>>> BuscarItensCompraPorPedido(int id_pedido)
         {
@@ -228,19 +235,23 @@ namespace TesouroAzulAPI.Controllers
         }
 
         //Buscar Compras Pedido por usuario
-        [HttpGet("Usuario/{id_usuario}")]
-        public async Task<ActionResult<IEnumerable<PedidosCompra>>> BuscarComprasPedidoPorUsuario(int id_usuario)
+        [Authorize(Roles ="user,admin")]
+        [HttpGet("buscar-pedidos-usuario")]
+        public async Task<ActionResult<IEnumerable<PedidosCompra>>> BuscarComprasPedidoPorUsuario()
         {
+            // Buscando id
+            int idUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
             // tratamento de erro
-            if (id_usuario == 0) return BadRequest("ID do usuário não pode ser 0");
-            var pedido = await _context.PedidosCompra.Where(p => p.ID_USUARIO_FK == id_usuario).ToListAsync();
+            var pedido = await _context.PedidosCompra.Where(p => p.ID_USUARIO_FK == idUsuario).ToListAsync();
             if (!pedido.Any()) return NotFound("Nenhum pedido encontrado para este usuário");
             return Ok(pedido);
         }
 
         //PATCHs
         //Alterar Pedido Compra {campo}
-        [HttpPatch("{id_pedido}")]
+        [Authorize(Roles = "user,admin")]
+        [HttpPatch("alterar-pedido-por-campo/{id_pedido}")]
         public async Task<IActionResult> AlterarPedidoCompra(int id_pedido, [FromBody] CamposDtos dto)
         {
             // tratamento de erro
@@ -267,7 +278,8 @@ namespace TesouroAzulAPI.Controllers
             return Ok(pedido);
         }
         // Alterar Itens Compra {campo}
-        [HttpPatch("Itens/{id_item}")]
+        [Authorize(Roles ="user,admin")]
+        [HttpPatch("alterar-item-do-pedido/{id_item}")]
         public async Task<IActionResult> AlterarItemCompra(int id_item, [FromBody] CamposDtos dto)
         {
             // tratamento de erro
@@ -303,6 +315,7 @@ namespace TesouroAzulAPI.Controllers
 
         //DElETEs
         //Deletar pedido compra
+        [Authorize(Roles ="user,admin")]
         [HttpDelete("{id_pedido}")]
         public async Task<IActionResult> DeletarPedidoCompra(int id_pedido)
         {
@@ -315,6 +328,7 @@ namespace TesouroAzulAPI.Controllers
 
         }
         // Deletar Itens Compra
+        [Authorize(Roles ="user,admin")]
         [HttpDelete("Itens/{id_item}")]
         public async Task<IActionResult> DeletarITemCompra(int id_item)
         {

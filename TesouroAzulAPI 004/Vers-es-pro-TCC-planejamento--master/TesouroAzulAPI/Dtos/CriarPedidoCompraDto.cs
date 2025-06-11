@@ -4,7 +4,7 @@ namespace TesouroAzulAPI.Dtos
 {
     public class CriarPedidoCompraDto
     {
-        public int ID_FORNECEDOR { get; set; }
+        public int? ID_FORNECEDOR { get; set; } 
         public decimal VALOR_VALOR { get; set; }
 
     }

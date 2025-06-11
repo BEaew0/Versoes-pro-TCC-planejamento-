@@ -4,14 +4,12 @@ namespace TesouroAzulAPI.Dtos
 {
     public class CriarPedidoVendaDto
     {
-        public int ID_USUARIO_FK { get; set; }
         public decimal? VALOR_PEDIDO_VENDA { get; set; } = null; // Calculado dentro do DB
 
     }
     public class ItensVendaDto
     {
         public int ID_PRODUTO_FK { get; set; }
-        public int ID_PEDIDO_VENDA_FK { get; set; }
         public string? LOTE_VENDA { get; set; }
         public decimal QTS_ITEM_VENDA { get; set; }
         public int N_ITEM_VENDA { get; set; }

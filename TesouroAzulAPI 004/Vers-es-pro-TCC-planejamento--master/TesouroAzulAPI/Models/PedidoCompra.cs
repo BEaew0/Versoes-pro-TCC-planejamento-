@@ -14,8 +14,7 @@ namespace TesouroAzulAPI.Models
         [Required]
         public int ID_USUARIO_FK { get; set; }
 
-        [Required]
-        public int ID_FORNECEDOR_FK { get; set; }
+        public int? ID_FORNECEDOR_FK { get; set; }
 
         [Required]
         public DateTime DATA_PEDIDO { get; set;} = DateTime.Now;
