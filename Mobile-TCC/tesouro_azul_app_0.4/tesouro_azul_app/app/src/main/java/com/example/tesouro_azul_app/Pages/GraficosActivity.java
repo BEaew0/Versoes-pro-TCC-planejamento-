@@ -142,6 +142,11 @@ public class GraficosActivity extends AppCompatActivity {
 
     }
 
+    private void buscarLucro(){}
+
+    private void buscarItensVendido(){}
+
+    //Mock
     private void exibirBarra(BarChart barChart)
     {
         // Oculta os rótulos do eixo da direita (visualmente limpa o gráfico)
@@ -184,6 +189,7 @@ public class GraficosActivity extends AppCompatActivity {
 
     }
 
+    //Mock
     private void exibirPizza(PieChart pieChart)
     {
 
@@ -212,6 +218,7 @@ public class GraficosActivity extends AppCompatActivity {
 
     }
 
+    //Mock
     private void exibirLinha(LineChart lineChart)
     {
         // Cria os pontos (x, y) para o gráfico de linha
@@ -246,6 +253,7 @@ public class GraficosActivity extends AppCompatActivity {
 
     }
 
+    //Mock
     private void exibirGraficoSelecionado(String typeGraph, BarChart barChart, LineChart lineChart, PieChart pieChart)
     {
 

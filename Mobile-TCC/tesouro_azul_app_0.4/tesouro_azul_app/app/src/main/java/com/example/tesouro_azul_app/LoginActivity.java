@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -17,10 +16,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tesouro_azul_app.Class.ApiOperation;
-import com.example.tesouro_azul_app.Pages.MainActivity;
+import com.example.tesouro_azul_app.Service.ApiOperation;
 import com.example.tesouro_azul_app.Service.ApiService;
-import com.example.tesouro_azul_app.Util.AuthUtils;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -45,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/")// <- Coloque a URL base da sua API aqui
+                .baseUrl("http://vps59025.publiccloud.com.br:5232/")// <- Coloque a URL base da sua API aqui
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

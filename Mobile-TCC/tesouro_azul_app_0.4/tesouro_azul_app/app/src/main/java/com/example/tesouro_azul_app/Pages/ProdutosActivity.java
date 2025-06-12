@@ -107,7 +107,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Configura Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/")// <- Coloque a URL base da sua API aqui
+                .baseUrl("http://vps59025.publiccloud.com.br:5232/")// <- Coloque a URL base da sua API aqui
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -164,7 +164,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         btnExluir.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {deletarProduto(produtoSelecionado.getIdUsuario());}
+            public void onClick(View view) {deletarProduto(produtoSelecionado.getIdUsuarioFk());}
         });
 
         btnComprar.setOnClickListener(new View.OnClickListener() {
@@ -431,7 +431,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // 5. Criar DTOs conforme a estrutura da SuperClassProd para venda
         SuperClassProd.ItemVendaDto itemVenda = new SuperClassProd.ItemVendaDto(
-                produtoSelecionado.getIdUsuario(),// ID do produto
+                produtoSelecionado.getIdUsuarioFk(),// ID do produto
                 lote,
                 quantidade,
                 1, // Número do item (fixo como 1 para venda única)
@@ -535,17 +535,21 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
+        // Obter os valores necessários
+        int produtoId = produtoSelecionado.getIdProduto(); // Ou outra forma de obter o ID do produto
+        int pedidoId = obterIdDoPedidoAtual(); // Você precisa implementar esta lógica
+
 
         // 5. Criar DTOs conforme a estrutura da SuperClassProd
         SuperClassProd.ItemCompraDto itemCompra = new SuperClassProd.ItemCompraDto(
-                produtoSelecionado.getIdUsuario(), // ID do produto(Não tenho como pegar o id do produto)
+                produtoSelecionado.getId(), // ID do produto (corrigido para usar getId() em vez de getIdUsuario())
+                pedidoId, // ID do pedido (você precisará obter ou definir este valor)
+                validade, // Data atual como valor padrão para vaL_ITEM_COMPRA
                 lote,
                 quantidade,
-                1, // Número do item (fixo como 1 para compra única)
-                0.0, // Desconto (zero por padrão)
+                1, // Número do item (n_ITEM_COMPRA)
                 valorTotal
         );
-
         List<SuperClassProd.ItemCompraDto> itens = new ArrayList<>();
         itens.add(itemCompra);
 
@@ -598,6 +602,12 @@ public class ProdutosActivity extends AppCompatActivity {
                 Log.e("COMPRA_ERROR", "Falha ao realizar compra", t);
             }
         });
+    }
+
+    private int obterIdDoPedidoAtual() {
+        // Lógica para obter o ID do pedido atual
+        // Pode ser de um pedido recém-criado ou de uma variável de sessão
+        return pedidoAtualId; // Retornar o ID real
     }
     private void tratarErroCompra(Response<?> response) {
         try {
@@ -766,7 +776,7 @@ public class ProdutosActivity extends AppCompatActivity {
         ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
         Call<SuperClassProd.ProdutoDto> call = apiService.alterarProduto(
                 token,
-                produtoSelecionado.getIdUsuario(), // Supondo que este seja o ID do produto
+                produtoSelecionado.getIdUsuarioFk(), // Supondo que este seja o ID do produto
                 camposProduto
         );
 

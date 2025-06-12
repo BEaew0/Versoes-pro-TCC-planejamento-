@@ -1,5 +1,6 @@
 package com.example.tesouro_azul_app.Class;
 
+import java.util.Date;
 import java.util.List;
 
 //@SerializedName("nomeExatoDoCampoJSON")
@@ -9,9 +10,11 @@ public class SuperClassProd {
 
     // DTO para cadastro de produto
     public static class ProdutoDto {
+        @SerializedName("iD_PRODUTO")
+        private int idProduto;
 
-        @SerializedName("iD_USUARIO")
-        private int idUsuario;
+        @SerializedName("iD_USUARIO_FK")
+        private int idUsuarioFk;
 
         @SerializedName("coD_PRODUTO")
         private String codProduto;
@@ -28,10 +31,9 @@ public class SuperClassProd {
         @SerializedName("imG_PRODUTO")
         private String imgProduto;
 
-        // Construtor
-        public ProdutoDto(int idUsuario, String codProduto, String nomeProduto,
-                          double valorProduto, String tipoProduto, String imgProduto) {
-            this.idUsuario = idUsuario;
+        public ProdutoDto(int idProduto, int idUsuarioFk, String codProduto, String nomeProduto, double valorProduto, String tipoProduto, String imgProduto) {
+            this.idProduto = idProduto;
+            this.idUsuarioFk = idUsuarioFk;
             this.codProduto = codProduto;
             this.nomeProduto = nomeProduto;
             this.valorProduto = valorProduto;
@@ -40,12 +42,21 @@ public class SuperClassProd {
         }
 
         // Getters e Setters
-        public int getIdUsuario() {
-            return idUsuario;
+
+        public int getIdProduto() {
+            return idProduto;
         }
 
-        public void setIdUsuario(int idUsuario) {
-            this.idUsuario = idUsuario;
+        public void setIdProduto(int idProduto) {
+            this.idProduto = idProduto;
+        }
+
+        public int getIdUsuarioFk() {
+            return idUsuarioFk;
+        }
+
+        public void setIdUsuarioFk(int idUsuarioFk) {
+            this.idUsuarioFk = idUsuarioFk;
         }
 
         public String getCodProduto() {
@@ -88,11 +99,9 @@ public class SuperClassProd {
             this.imgProduto = imgProduto;
         }
 
-        public int getIdProduto() {
-            return 0;
-        }
-    }
 
+        // ... outros getters e setters
+    }
     public static class PedidoCompraCompletoDto {
         @SerializedName("pedido")
         public PedidoDto pedido;
@@ -322,32 +331,40 @@ public class SuperClassProd {
     public static class ItemCompraDto {
 
         @SerializedName("iD_PRODUTO_FK")
-        public int idProdutoFk;
+        private int idProdutoFk;
 
-        @SerializedName("lotE_VENDA")
-        public String loteVenda;
+        @SerializedName("iD_PEDIDO_FK")
+        private int idPedidoFk;
 
-        @SerializedName("qtS_ITEM_VENDA")
-        public int quantidadeItemVenda;
+        @SerializedName("vaL_ITEM_COMPRA")
+        private Date valItemCompra;
 
-        @SerializedName("n_ITEM_VENDA")
-        public int nItemVenda;
+        @SerializedName("lotE_COMPRA")
+        private String loteCompra;
 
-        @SerializedName("descontO_ITEM_VENDA")
-        public double descontoItemVenda;
+        @SerializedName("quantidadE_ITEM_COMPRA")
+        private int quantidadeItemCompra;
 
-        @SerializedName("valoR_TOTAL_ITEM_VENDA")
-        public double valorTotalItemVenda;
+        @SerializedName("n_ITEM_COMPRA")
+        private int nItemCompra;
 
-        public ItemCompraDto(int idProduto, String lote, int quantidade, int nItem, double desconto, double valorTotal) {
-            this.idProdutoFk = idProduto;
-            this.loteVenda = lote;
-            this.quantidadeItemVenda = quantidade;
-            this.nItemVenda = nItem;
-            this.descontoItemVenda = desconto;
-            this.valorTotalItemVenda = valorTotal;
+        @SerializedName("valoR_TOTAL_ITEM_COMPRA")
+        private double valorTotalItemCompra;
+
+        // Construtor
+        public ItemCompraDto(int idProdutoFk, int idPedidoFk, Date valItemCompra,
+                             String loteCompra, int quantidadeItemCompra,
+                             int nItemCompra, double valorTotalItemCompra) {
+            this.idProdutoFk = idProdutoFk;
+            this.idPedidoFk = idPedidoFk;
+            this.valItemCompra = valItemCompra;
+            this.loteCompra = loteCompra;
+            this.quantidadeItemCompra = quantidadeItemCompra;
+            this.nItemCompra = nItemCompra;
+            this.valorTotalItemCompra = valorTotalItemCompra;
         }
 
+        // Getters e Setters
         public int getIdProdutoFk() {
             return idProdutoFk;
         }
@@ -356,44 +373,52 @@ public class SuperClassProd {
             this.idProdutoFk = idProdutoFk;
         }
 
-        public String getLoteVenda() {
-            return loteVenda;
+        public int getIdPedidoFk() {
+            return idPedidoFk;
         }
 
-        public void setLoteVenda(String loteVenda) {
-            this.loteVenda = loteVenda;
+        public void setIdPedidoFk(int idPedidoFk) {
+            this.idPedidoFk = idPedidoFk;
         }
 
-        public int getQuantidadeItemVenda() {
-            return quantidadeItemVenda;
+        public Date getValItemCompra() {
+            return valItemCompra;
         }
 
-        public void setQuantidadeItemVenda(int quantidadeItemVenda) {
-            this.quantidadeItemVenda = quantidadeItemVenda;
+        public void setValItemCompra(Date valItemCompra) {
+            this.valItemCompra = valItemCompra;
         }
 
-        public int getnItemVenda() {
-            return nItemVenda;
+        public String getLoteCompra() {
+            return loteCompra;
         }
 
-        public void setnItemVenda(int nItemVenda) {
-            this.nItemVenda = nItemVenda;
+        public void setLoteCompra(String loteCompra) {
+            this.loteCompra = loteCompra;
         }
 
-        public double getDescontoItemVenda() {
-            return descontoItemVenda;
+        public int getQuantidadeItemCompra() {
+            return quantidadeItemCompra;
         }
 
-        public void setDescontoItemVenda(double descontoItemVenda) {
-            this.descontoItemVenda = descontoItemVenda;
+        public void setQuantidadeItemCompra(int quantidadeItemCompra) {
+            this.quantidadeItemCompra = quantidadeItemCompra;
         }
 
-        public double getValorTotalItemVenda() {
-            return valorTotalItemVenda;
+        public int getnItemCompra() {
+            return nItemCompra;
         }
 
-        public void setValorTotalItemVenda(double valorTotalItemVenda) {
-            this.valorTotalItemVenda = valorTotalItemVenda;
+        public void setnItemCompra(int nItemCompra) {
+            this.nItemCompra = nItemCompra;
+        }
+
+        public double getValorTotalItemCompra() {
+            return valorTotalItemCompra;
+        }
+
+        public void setValorTotalItemCompra(double valorTotalItemCompra) {
+            this.valorTotalItemCompra = valorTotalItemCompra;
         }
     }
 
