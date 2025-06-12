@@ -80,12 +80,16 @@ var app = builder.Build();
 // Habilita CORS antes de mapear os endpoints
 app.UseCors();
 
-/*if (app.Environment.IsDevelopment())
+/*
+// modelo de configuração do Swagger para desenvolvimento
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+// termina aqui
 */
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -102,4 +106,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run("http://0.0.0.0:5232"); // Ao realizar o teste em localhost remover este caminho
+app.Run("http://0.0.0.0:5232"); // Ao realizar o teste em localhost remover este caminho 
