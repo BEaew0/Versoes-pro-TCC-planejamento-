@@ -8,7 +8,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +29,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.tesouro_azul_app.Class.ProdutoMock;
 import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Adapter.ProdutoAdapter;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
@@ -64,6 +68,9 @@ public class ProdutosActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ProdutoAdapter adapter;
     private List<SuperClassProd.ProdutoDto> listaProdutos = new ArrayList<>();
+    private Handler handler = new Handler();//Para debounce
+    private Runnable runnable;
+    private static final int DELAY_MILLIS = 500; // Tempo de espera após digitação
 
     EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd,FornProd,SearchProd;
     Button btnVenderProd, btnAdicionarProd, btnAlterarProd, btnExluir,btnComprar;
@@ -94,6 +101,9 @@ public class ProdutosActivity extends AppCompatActivity {
         ValProd = (EditText) findViewById(R.id.txtValidade);
         CodProd = (EditText) findViewById(R.id.txtCodProd);
         FornProd = (EditText) findViewById(R.id.txtFornecedor);
+
+        configurarBusca();
+        carregarProdutosMock();
 
         // Configura Retrofit
         Retrofit retrofit = new Retrofit.Builder()
@@ -150,6 +160,8 @@ public class ProdutosActivity extends AppCompatActivity {
           }
       });
 
+
+
         btnExluir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {deletarProduto(produtoSelecionado.getIdUsuario());}
@@ -184,7 +196,80 @@ public class ProdutosActivity extends AppCompatActivity {
         });
 
     }
-    private void buscarPorNome(String nome) {
+    private void configurarBusca() {
+        SearchProd.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Cancelar busca anterior pendente
+                if (runnable != null) {
+                    handler.removeCallbacks(runnable);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String termoBusca = s.toString().trim();
+
+                // Implementar debounce para evitar buscas a cada tecla pressionada
+                runnable = () -> buscarPorNomeMock(termoBusca);
+                handler.postDelayed(runnable, DELAY_MILLIS);
+            }
+        });
+    }
+
+    //Mock:referece a objetos ou dados simulados
+    private void buscarPorNomeMock(String nome) {
+        // Simular tempo de carregamento da API
+        new Handler().postDelayed(() -> {
+            List<SuperClassProd.ProdutoDto> todosProdutos = ProdutoMock.gerarProdutosMockados();
+            List<SuperClassProd.ProdutoDto> produtosFiltrados = new ArrayList<>();
+
+            if (nome.isEmpty()) {
+                // Se não há termo de busca, mostrar todos
+                produtosFiltrados.addAll(todosProdutos);
+            } else {
+                // Filtrar produtos que contenham o termo de busca no nome
+                String termoBusca = nome.toLowerCase();
+                for (SuperClassProd.ProdutoDto produto : todosProdutos) {
+                    if (produto.getNomeProduto().toLowerCase().contains(termoBusca)) {
+                        produtosFiltrados.add(produto);
+                    }
+                }
+            }
+
+            // Atualizar UI na thread principal
+            runOnUiThread(() -> {
+                if (!produtosFiltrados.isEmpty()) {
+                    adapter.atualizarLista(produtosFiltrados);
+                } else {
+                    Toast.makeText(ProdutosActivity.this,
+                            "Nenhum produto encontrado com o nome: " + nome,
+                            Toast.LENGTH_SHORT).show();
+                    adapter.atualizarLista(new ArrayList<>());
+                }
+            });
+        }, 1000); // Simular 1 segundo de delay como uma chamada real de API
+    }
+    private void carregarProdutosMock() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Simular tempo de carregamento da API
+        new Handler().postDelayed(() -> {
+            List<SuperClassProd.ProdutoDto> produtos = ProdutoMock.gerarProdutosMockados();
+
+            // Atualizar UI na thread principal
+            runOnUiThread(() -> {
+                progressBar.setVisibility(View.GONE);
+                adapter.atualizarLista(produtos);
+            });
+        }, 1500); // Simular 1.5 segundos de delay como uma chamada real de API
+    }
+
+    //Repor e rever
+    private void buscarPorNomeApi1(String nome) {
 
         String token = obterTokenUsuario();
 
@@ -224,6 +309,45 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
+    //Repor e rever
+    private void buscarPorNomeApi2(String nome) {
+
+        String token = obterTokenUsuario();
+
+        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
+        Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarProdutosPorNomeSimilar(token, nome);
+
+        call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {
+            @Override
+            public void onResponse(Call<List<SuperClassProd.ProdutoDto>> call,
+                                   Response<List<SuperClassProd.ProdutoDto>> response) {
+
+                if (response.isSuccessful() && response.body() != null) {
+                    adapter.atualizarLista(response.body());
+
+                    if (response.body().isEmpty()) {
+                        Toast.makeText(ProdutosActivity.this,
+                                "Nenhum produto encontrado",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(ProdutosActivity.this,
+                            "Erro na busca: " + response.code(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<SuperClassProd.ProdutoDto>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(ProdutosActivity.this,
+                        "Falha na conexão",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    //Repor
     private void carregarProdutos() {
         // Mostrar progress bar (opcional)
         progressBar.setVisibility(View.VISIBLE);
