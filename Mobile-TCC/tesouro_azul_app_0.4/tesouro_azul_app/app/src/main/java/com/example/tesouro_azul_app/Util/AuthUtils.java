@@ -67,7 +67,6 @@ public class AuthUtils {
         }
     }
 
-
     public static String getClaimFromToken(Context context, String claimName) {
         String token = AuthUtils.getToken(context);//Usa AuthUtils.getToken() para recuperar o token armazenado.
         if (token == null) return null;

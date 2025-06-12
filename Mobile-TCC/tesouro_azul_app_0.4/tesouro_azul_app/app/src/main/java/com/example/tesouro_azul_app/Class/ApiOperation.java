@@ -73,7 +73,8 @@ public class ApiOperation {
                     try {
                         String responseBody = response.body().string();
                         Log.d("API_STATUS", "Resposta da API: " + responseBody);
-                        verificarStatusBanco(apiService);
+                        tratarConexaoBemSucedida();
+
                     } catch (IOException e) {
                         tratarErro("Erro ao ler resposta da API", e);
                     }
@@ -89,30 +90,7 @@ public class ApiOperation {
         });
     }
 
-    private void verificarStatusBanco(ApiService apiService) {
-        Call<ResponseBody> bancoCall = apiService.testarConexaoBanco();
-        bancoCall.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    try {
-                        String responseBody = response.body().string();
-                        Log.d("BANCO_STATUS", "Resposta do banco: " + responseBody);
-                        tratarConexaoBemSucedida();
-                    } catch (IOException e) {
-                        tratarErro("Erro ao ler resposta do banco", e);
-                    }
-                } else {
-                    tratarErroBanco(response);
-                }
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                tratarFalhaConexao(t);
-            }
-        });
-    }
 
     private void tratarErroAPI(Response<ResponseBody> response) {
         runOnUiThread(() -> {
@@ -128,19 +106,7 @@ public class ApiOperation {
         });
     }
 
-    private void tratarErroBanco(Response<ResponseBody> response) {
-        runOnUiThread(() -> {
-            try {
-                String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido no banco";
-                txtLoading.setText("Banco offline");
-                Toast.makeText(context, "Erro no banco de dados: " + errorBody, Toast.LENGTH_LONG).show();
-                Log.e("BANCO_ERROR", errorBody);
-            } catch (IOException e) {
-                tratarErro("Erro ao processar resposta do banco", e);
-            }
-            agendarNovaTentativa();
-        });
-    }
+
 
     private void tratarFalhaConexao(Throwable t) {
         runOnUiThread(() -> {
@@ -191,8 +157,6 @@ public class ApiOperation {
             Toast.makeText(context, "Preencha email e senha", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        progressBar.setVisibility(View.VISIBLE);
 
         SuperClassUser.LoginRequestDto loginDto = new SuperClassUser.LoginRequestDto(email, senha);
         ApiService apiService = RetrofitClient.getApiService(context);

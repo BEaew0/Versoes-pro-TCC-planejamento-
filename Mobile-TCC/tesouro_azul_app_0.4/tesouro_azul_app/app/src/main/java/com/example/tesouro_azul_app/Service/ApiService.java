@@ -17,6 +17,15 @@ import retrofit2.http.Path;
 
 public interface ApiService {
 
+    //@Body: Para enviar dados no corpo da requisição
+    //
+    //@Header: Para enviar cabeçalhos (como o token de autenticação)
+    //
+    //@Path: Para substituir partes dinâmicas da URL
+    //
+    //@Query: Para parâmetros de query string (não usado na sua interface)
+
+
     // Criar Usuario
     @POST("api/Usuarios")
     Call<SuperClassUser.Usuario> criarUsuario(@Body SuperClassUser.CriarUsuarioDto usuarioDto);

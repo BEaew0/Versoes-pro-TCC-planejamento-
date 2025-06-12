@@ -118,10 +118,6 @@ public class EntradaActivity extends AppCompatActivity
            }
        });
 
-
-
-
-
             txtNascimento.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -135,7 +131,6 @@ public class EntradaActivity extends AppCompatActivity
                     //isso é pra converter data de nascimento,
                     // como somos obrigados a usar uma versão velha do java ela é feia assim mesmo
                     if (validarCadastro(view, getApplicationContext())) {
-
                         Toast.makeText(EntradaActivity.this, "Validação bem sucedida", Toast.LENGTH_SHORT).show();
 
                         CriarUsuario();

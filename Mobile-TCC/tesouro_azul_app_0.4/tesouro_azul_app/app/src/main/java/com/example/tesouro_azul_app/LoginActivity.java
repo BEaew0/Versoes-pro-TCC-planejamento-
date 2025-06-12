@@ -27,8 +27,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private String Host="https://tesouroazul1.hospedagemdesites.ws/api";
-
     private ProgressBar progressBar;
 
     private EditText txtCPF_CNPJ,txtSenha;
@@ -47,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/")// <- Coloque a URL base da sua API aqui
+                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/")// <- Coloque a URL base da sua API aqui
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -76,17 +74,16 @@ public class LoginActivity extends AppCompatActivity {
                 findViewById(R.id.txtRegistrar)
         );
 
-        /*
+
             try {
                 apiOperation.ConectarAPI();
             } catch (Exception e) {
                 Log.e("LoginActivity", "Erro ao conectar API", e);
                 Toast.makeText(this, "Erro ao inicializar aplicativo", Toast.LENGTH_SHORT).show();
             }
-*/
 
-            /*
             // Verificar se usuário está logado
+        /*
             if (!AuthUtils.isLoggedIn(this)) {
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
@@ -95,7 +92,6 @@ public class LoginActivity extends AppCompatActivity {
 */
         txtSenha.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
-        /*
         btnEnter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,8 +102,7 @@ public class LoginActivity extends AppCompatActivity {
                 apiOperation.realizarLogin(email,senha);
             }
         });
-        */
-
+/*
         btnEnter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+*/
         mostrarSenha.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

@@ -60,7 +60,7 @@ public class ConfigActivity extends AppCompatActivity {
 
     private Bitmap bitmap;
 
-   /* private String tokenUser = obterTokenUsuario();*/
+    private String tokenUser = obterTokenUsuario();
     ImageView Xleave,themeIcon;
     RelativeLayout trocarSenha,SairConta,ExcluirConta;
 
@@ -115,7 +115,7 @@ public class ConfigActivity extends AppCompatActivity {
 
         // Configura Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/")// <- Coloque a URL base da sua API aqui
+                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/")// <- Coloque a URL base da sua API aqui
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -141,9 +141,9 @@ public class ConfigActivity extends AppCompatActivity {
         }catch (Exception e) {
             Toast.makeText(this, "Erro ao resgatar imagem", Toast.LENGTH_SHORT).show();
         }
-/*
+
         buscarImagemUsuario();
-*/
+
         Xleave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -207,7 +207,7 @@ public class ConfigActivity extends AppCompatActivity {
         {
             @Override
             public void onClick(View view)
-            {/*deslogarUsuario();*/}
+            {deslogarUsuario();}
         });
 
         ExcluirConta.setOnClickListener(new View.OnClickListener()
@@ -215,7 +215,7 @@ public class ConfigActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-            /*desativarUsuario();*/
+            desativarUsuario();
             }
         });
 
@@ -353,7 +353,7 @@ public class ConfigActivity extends AppCompatActivity {
             }
         }
     }
-/*
+
     private String obterTokenUsuario() {
         String token = AuthUtils.getToken(this); // "this" é o Context da Activity
         if (token != null && !token.isEmpty()) {
@@ -364,8 +364,7 @@ public class ConfigActivity extends AppCompatActivity {
         }
     }
 
- */
-/*
+
     private void deslogarUsuario() {
         new AlertDialog.Builder(this)
                 .setTitle("Sair")
@@ -377,9 +376,9 @@ public class ConfigActivity extends AppCompatActivity {
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
-*/
+
      // Executa o processo de logout de forma segura
-    /*
+
     private void executarLogout() {
         // Mostrar progresso
         ProgressDialog progressDialog = new ProgressDialog(this);
@@ -403,8 +402,8 @@ public class ConfigActivity extends AppCompatActivity {
         }, 1000); // Delay de 1 segundo para melhor UX
     }
 
-     */
-/*
+
+
     private void buscarImagemUsuario() {
 
         ProgressDialog progressDialog = new ProgressDialog(this);
@@ -478,8 +477,7 @@ public class ConfigActivity extends AppCompatActivity {
         finish(); // Finaliza a atividade atual
     }
 
-    */
-/*
+
     private void desativarUsuario(){
         new AlertDialog.Builder(this)
                 .setTitle("")
@@ -494,8 +492,8 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
 
- */
-/*
+
+
     private void Desativar() {
         // Mostrar diálogo de progresso
         ProgressDialog progressDialog = new ProgressDialog(this);
@@ -571,5 +569,5 @@ public class ConfigActivity extends AppCompatActivity {
                 Log.e("API_ERROR", "Erro: " + t.getMessage());
             }
         });
-    }*/
+    }
 }

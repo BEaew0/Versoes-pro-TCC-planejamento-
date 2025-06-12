@@ -10,7 +10,7 @@ import android.content.Context;
 import java.util.concurrent.TimeUnit;
 
 public class RetrofitClient {
-    private static final String BASE_URL = "https://tesouroazul1.hospedagemdesites.ws/api"; // Substitua pela sua URL
+    private static final String BASE_URL = "https://tesouroazul1.hospedagemdesites.ws/"; // Substitua pela sua URL
     private static Retrofit retrofit = null;
 
     // Método para obter o serviço API com suporte a JWT(Json Web Token)

@@ -97,7 +97,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Configura Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/api/")// <- Coloque a URL base da sua API aqui
+                .baseUrl("https://tesouroazul1.hospedagemdesites.ws/")// <- Coloque a URL base da sua API aqui
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -129,9 +129,9 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Define o adapter no RecyclerView
         recyclerView.setAdapter(adapter);
-/*
+
         carregarProdutos();
-*/
+
         prodImage.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View view) {
@@ -149,7 +149,7 @@ public class ProdutosActivity extends AppCompatActivity {
               }
           }
       });
-/*
+
         btnExluir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {deletarProduto(produtoSelecionado.getIdUsuario());}
@@ -182,7 +182,7 @@ public class ProdutosActivity extends AppCompatActivity {
                 DatePickerUtil.showDatePicker(ProdutosActivity.this, ValProd, false);
             }
         });
-        */
+
     }
     private void buscarPorNome(String nome) {
 
