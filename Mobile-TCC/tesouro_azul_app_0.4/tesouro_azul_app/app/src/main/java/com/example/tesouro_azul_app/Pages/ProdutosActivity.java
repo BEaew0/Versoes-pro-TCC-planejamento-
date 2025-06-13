@@ -38,15 +38,21 @@ import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.example.tesouro_azul_app.Util.DatePickerUtil;
+import com.example.tesouro_azul_app.Util.DateUtils;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import org.json.JSONObject;
+import com.example.tesouro_azul_app.Util.DateUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 import okhttp3.ResponseBody;
@@ -72,11 +78,19 @@ public class ProdutosActivity extends AppCompatActivity {
     private Runnable runnable;
     private static final int DELAY_MILLIS = 500; // Tempo de espera após digitação
 
-    EditText NomeProd,ValorProd,TipoProd,QuantProd,ValProd,CodProd,FornProd,SearchProd;
+    EditText NomeProd;
+    EditText ValorProd;
+    EditText TipoProd;
+    EditText QuantProd;
+    EditText ValProd;
+    EditText CodProd;
+    EditText FornProd;
+    EditText SearchProd;
     Button btnVenderProd, btnAdicionarProd, btnAlterarProd, btnExluir,btnComprar;
     ShapeableImageView prodImage;
     ProgressBar progressBar;
     private ApiService apiService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -492,6 +506,11 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
+    public String formatarData(Date data) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // Importante para usar UTC
+        return sdf.format(data);
+    }
 
     //Ainda sendo feita
     private void realizarCompra() {
@@ -535,14 +554,17 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
+        String validadetxt = ValProd.getText().toString();
+        String validade = DateUtils.formatStringToISO(validadetxt);
+
         // Obter os valores necessários
         int produtoId = produtoSelecionado.getIdProduto(); // Ou outra forma de obter o ID do produto
-        int pedidoId = obterIdDoPedidoAtual(); // Você precisa implementar esta lógica
+        int pedidoId = 0; // Você precisa implementar esta lógica
 
 
         // 5. Criar DTOs conforme a estrutura da SuperClassProd
         SuperClassProd.ItemCompraDto itemCompra = new SuperClassProd.ItemCompraDto(
-                produtoSelecionado.getId(), // ID do produto (corrigido para usar getId() em vez de getIdUsuario())
+                produtoSelecionado.getIdProduto(), // ID do produto (corrigido para usar getId() em vez de getIdUsuario())
                 pedidoId, // ID do pedido (você precisará obter ou definir este valor)
                 validade, // Data atual como valor padrão para vaL_ITEM_COMPRA
                 lote,
@@ -604,11 +626,6 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
-    private int obterIdDoPedidoAtual() {
-        // Lógica para obter o ID do pedido atual
-        // Pode ser de um pedido recém-criado ou de uma variável de sessão
-        return pedidoAtualId; // Retornar o ID real
-    }
     private void tratarErroCompra(Response<?> response) {
         try {
             String errorBody = response.errorBody() != null ?
@@ -884,12 +901,13 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Criar objeto DTO com ou sem imagem
         SuperClassProd.ProdutoDto produtoDto = new SuperClassProd.ProdutoDto(
-                idUsuario,
-                codProduto,
-                nomeProduto,
-                valorProduto,
-                tipoProduto,
-                fotoProd
+                0, // idProduto - você precisa definir ou obter este valor
+                idUsuario, // idUsuarioFk
+                codProduto, // codProduto
+                nomeProduto, // nomeProduto
+                valorProduto, // valorProduto
+                tipoProduto, // tipoProduto
+                fotoProd // imgProduto
         );
 
         // Mostrar progresso durante o upload
