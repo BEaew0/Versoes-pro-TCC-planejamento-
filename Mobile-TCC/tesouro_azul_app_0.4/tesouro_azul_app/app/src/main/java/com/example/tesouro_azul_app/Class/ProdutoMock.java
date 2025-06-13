@@ -5,33 +5,34 @@ import java.util.List;
 
 //Serve para emular a lista de produtos
 //Testo melhor no pc potente da etec
+
 public class ProdutoMock {
     public static List<SuperClassProd.ProdutoDto> gerarProdutosMockados() {
         List<SuperClassProd.ProdutoDto> produtos = new ArrayList<>();
 
         produtos.add(new SuperClassProd.ProdutoDto(
-                1, "Smartphone X", "SMX-001", 1999.90,
-                "Eletrônicos", "https://exemplo.com/smartphone.jpg"
+                1, 1, "SMX-001", "Smartphone X", 1999.90,
+                "Eletrônicos", ""
         ));
 
         produtos.add(new SuperClassProd.ProdutoDto(
-                2, "Notebook Pro", "NTB-202", 4599.00,
-                "Eletrônicos", "https://exemplo.com/notebook.jpg"
+                2, 1, "NTB-202", "Notebook Pro", 4599.00,
+                "Eletrônicos", ""
         ));
 
         produtos.add(new SuperClassProd.ProdutoDto(
-                3, "Mesa de Escritório", "MES-015", 599.90,
-                "Móveis", "https://exemplo.com/mesa.jpg"
+                3, 2, "MES-015", "Mesa de Escritório", 599.90,
+                "Móveis", ""
         ));
 
         produtos.add(new SuperClassProd.ProdutoDto(
-                4, "Cadeira Ergonômica", "CAD-033", 899.00,
-                "Móveis", "https://exemplo.com/cadeira.jpg"
+                4, 2, "CAD-033", "Cadeira Ergonômica", 899.00,
+                "Móveis", ""
         ));
 
         produtos.add(new SuperClassProd.ProdutoDto(
-                5, "Smartphone Y", "SMY-002", 1799.00,
-                "Eletrônicos", "https://exemplo.com/smartphone2.jpg"
+                5, 3, "SMY-002", "Smartphone Y", 1799.00,
+                "Eletrônicos", ""
         ));
 
         return produtos;

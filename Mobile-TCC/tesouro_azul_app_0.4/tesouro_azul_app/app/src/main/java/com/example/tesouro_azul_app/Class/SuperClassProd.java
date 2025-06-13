@@ -337,7 +337,7 @@ public class SuperClassProd {
         private int idPedidoFk;
 
         @SerializedName("vaL_ITEM_COMPRA")
-        private Date valItemCompra;
+        private String valItemCompra;
 
         @SerializedName("lotE_COMPRA")
         private String loteCompra;
@@ -352,7 +352,7 @@ public class SuperClassProd {
         private double valorTotalItemCompra;
 
         // Construtor
-        public ItemCompraDto(int idProdutoFk, int idPedidoFk, Date valItemCompra,
+        public ItemCompraDto(int idProdutoFk, int idPedidoFk, String valItemCompra,
                              String loteCompra, int quantidadeItemCompra,
                              int nItemCompra, double valorTotalItemCompra) {
             this.idProdutoFk = idProdutoFk;
@@ -381,11 +381,11 @@ public class SuperClassProd {
             this.idPedidoFk = idPedidoFk;
         }
 
-        public Date getValItemCompra() {
+        public String getValItemCompra() {
             return valItemCompra;
         }
 
-        public void setValItemCompra(Date valItemCompra) {
+        public void setValItemCompra(String valItemCompra) {
             this.valItemCompra = valItemCompra;
         }
 

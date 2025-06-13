@@ -38,11 +38,10 @@ import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.example.tesouro_azul_app.Util.DatePickerUtil;
-import com.example.tesouro_azul_app.Util.DateUtils;
+
 import com.google.android.material.imageview.ShapeableImageView;
 
 import org.json.JSONObject;
-import com.example.tesouro_azul_app.Util.DateUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -95,6 +94,8 @@ public class ProdutosActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_produtosctivity);
 
         btnVenderProd = findViewById(R.id.btnVenderProd);
@@ -554,8 +555,9 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
+
         String validadetxt = ValProd.getText().toString();
-        String validade = DateUtils.formatStringToISO(validadetxt);
+        String validade = formatarParaISO8601(validadetxt, formatoEntrada);
 
         // Obter os valores necessários
         int produtoId = produtoSelecionado.getIdProduto(); // Ou outra forma de obter o ID do produto
@@ -625,6 +627,28 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
+
+    public String formatarParaISO8601(String dataOriginal, String formatoOriginal) {
+        try {
+            // 1. Converter a String original para Date
+            SimpleDateFormat parser = new SimpleDateFormat(formatoOriginal, Locale.getDefault());
+            Date date = parser.parse(dataOriginal);
+
+            // 2. Formatar a Date para ISO 8601
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return formatter.format(date);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // ou lançar exceção
+        }
+    }
+
+    // Exemplo de uso:
+    String dataEntrada = "15/06/2023 14:30";
+    String formatoEntrada = "dd/MM/yyyy HH:mm";
+    String dataISO = formatarParaISO8601(dataEntrada, formatoEntrada);
 
     private void tratarErroCompra(Response<?> response) {
         try {
