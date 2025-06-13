@@ -47,7 +47,7 @@ namespace TesouroAzulAPI.Controllers
                 ID_ASSINATURA_FK = usuarioDto.ID_ASSINATURA_FK,
                 FOTO_USUARIO = String.IsNullOrEmpty(usuarioDto.FOTO_USUARIO) ? null : Convert.FromBase64String(usuarioDto.FOTO_USUARIO),
                 SENHA_USUARIO = usuarioDto.SENHA_USUARIO,
-                STATUS_USUARIO = usuarioDto.STATUS_USUARIO
+                STATUS_USUARIO = "a"
 
             };
 

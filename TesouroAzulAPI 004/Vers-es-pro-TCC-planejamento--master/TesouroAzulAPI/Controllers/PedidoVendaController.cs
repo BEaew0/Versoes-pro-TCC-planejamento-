@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace TesouroAzulAPI.Controllers
 {
+    [Route("api/PedidoVenda"), ApiController]
     public class PedidoVendaController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
