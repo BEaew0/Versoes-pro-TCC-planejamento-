@@ -13,7 +13,6 @@ namespace TesouroAzulAPI.Dtos
         public int ID_ASSINATURA_FK { get; set; } = 0; // 1 para não assinante; 2 para assinante
         public string? FOTO_USUARIO { get; set; } = null;
         public string SENHA_USUARIO { get; set; } = string.Empty;
-        public string STATUS_USUARIO { get; set; } = "a"; // a para ativo; d para desativo
 
 
     }
