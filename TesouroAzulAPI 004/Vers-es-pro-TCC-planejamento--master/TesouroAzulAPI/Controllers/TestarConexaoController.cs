@@ -25,7 +25,7 @@ namespace TesouroAzulAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { mensagem = "Erro ao conectar ao banco de dados.", erro = ex.Message });
+                return StatusCode(500, new { mensagem = "Erro ao conectar ao banco de dados: {ex.Message}" });
             }
         }
 
