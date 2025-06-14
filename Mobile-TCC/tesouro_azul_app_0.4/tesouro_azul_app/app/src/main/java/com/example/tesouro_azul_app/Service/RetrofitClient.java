@@ -18,7 +18,10 @@ public class RetrofitClient {
             // Configuração do OkHttpClient
             OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
 
-            // Adiciona interceptors
+            // 1. PRIMEIRO: Adiciona o CorsInterceptor (deve vir antes dos outros)
+            clientBuilder.addInterceptor(new CorsInterceptor());
+
+            // 2. Adiciona os demais interceptors
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
