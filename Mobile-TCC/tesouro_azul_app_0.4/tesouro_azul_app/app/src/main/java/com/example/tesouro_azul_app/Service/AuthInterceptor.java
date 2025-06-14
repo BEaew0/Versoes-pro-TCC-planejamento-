@@ -80,7 +80,5 @@ public class AuthInterceptor implements Interceptor {
             });
         }
     }
-
-
 }
 

@@ -10,32 +10,35 @@ import android.content.Context;
 import java.util.concurrent.TimeUnit;
 
 public class RetrofitClient {
-    private static final String BASE_URL = "http://vps59025.publiccloud.com.br:5232/"; // Substitua pela sua URL
+    private static final String BASE_URL = "http://vps59025.publiccloud.com.br:5232/";
     private static Retrofit retrofit = null;
 
-    // Método para obter o serviço API com suporte a JWT(Json Web Token)
-    public static ApiService getApiService(Context context)
-    {
+    public static ApiService getApiService(Context context) {
         if (retrofit == null) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();// Ferramenta para registrar detalhes das requisições e respostas HTTP no log.
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);// Faz log do corpo da requisição e resposta
+            // Configuração do OkHttpClient
+            OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
 
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(loggingInterceptor)
-                    .addInterceptor(new AuthInterceptor(context)) // Adiciona o interceptor de autenticação
-                    .connectTimeout(30, TimeUnit.SECONDS) // Timeout de conexão
-                    .readTimeout(30, TimeUnit.SECONDS)    // Timeout de leitura
-                    .writeTimeout(30, TimeUnit.SECONDS)   // Timeout de escrita
-                    .build();
+            // Adiciona interceptors
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
+            clientBuilder
+                    .addInterceptor(logging)
+                    .addInterceptor(new AuthInterceptor(context))
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS);
+
+            // Cria instância Retrofit
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())// Informa ao Retrofit para converter JSON usando a biblioteca Gson.
+                    .client(clientBuilder.build())
+                    .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
-        return retrofit.create(ApiService.class);//Cria uma instância da interface ApiService, que contém os endpoints da API.
+        return retrofit.create(ApiService.class);
     }
+
     //Zera a instância do Retrofit.
     //Útil, por exemplo, após logout, quando um novo token precisará ser usado
     public static void resetClient()
