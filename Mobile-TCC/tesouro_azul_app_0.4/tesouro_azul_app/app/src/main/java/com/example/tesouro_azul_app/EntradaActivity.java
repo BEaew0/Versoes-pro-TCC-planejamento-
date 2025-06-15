@@ -43,7 +43,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class EntradaActivity extends AppCompatActivity
 {
-
     private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
 
     Button btnRegister;
@@ -52,21 +51,13 @@ public class EntradaActivity extends AppCompatActivity
 
     private ApiService apiService;
 
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    Date dataAtual = new Date();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.entrada);
 
             // Configura Retrofit
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://srv869019.hstgr.cloud/")//
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            apiService = retrofit.create(ApiService.class);
+            apiService = RetrofitClient.getApiService(getApplicationContext());
 
             txtCPF_CNPJ_Reg = (EditText) findViewById(R.id.txtCPF_CNPJ_Reg);
             txtNomeReg = (EditText) findViewById(R.id.txtNomeProd);

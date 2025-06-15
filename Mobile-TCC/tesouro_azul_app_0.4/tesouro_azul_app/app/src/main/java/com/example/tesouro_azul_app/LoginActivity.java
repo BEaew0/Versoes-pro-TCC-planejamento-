@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.example.tesouro_azul_app.Pages.MainActivity;
 import com.example.tesouro_azul_app.Service.ApiOperation;
 import com.example.tesouro_azul_app.Service.ApiService;
+import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Util.AuthUtils;
 
 import retrofit2.Retrofit;
@@ -52,16 +53,8 @@ public class LoginActivity extends AppCompatActivity {
         // Carrega o layout da tela de login
         setContentView(R.layout.activity_login);
 
-        /*
-         * Configuração do Retrofit para chamadas à API
-         * (Observação: seria melhor usar a classe RetrofitClient já existente)
-         */
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://srv869019.hstgr.cloud/") // URL da API
-                .addConverterFactory(GsonConverterFactory.create()) // Conversor JSON
-                .build();
-
-        apiService = retrofit.create(ApiService.class); // Cria instância do serviço
+        //Configuração do Retrofit para chamadas à API
+        apiService = RetrofitClient.getApiService(getApplicationContext());
 
         // Inicialização dos componentes da interface
         mostrarSenha = (CheckBox) findViewById(R.id.mostrarSenhas);
@@ -72,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         txtLoading = findViewById(R.id.progress_text);
 
-        // Obtém valores iniciais dos campos (não está sendo usado)
+        // Obtém valores iniciais dos campos
         String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
         String senha = txtSenha.getText().toString().trim();
 
@@ -94,12 +87,13 @@ public class LoginActivity extends AppCompatActivity {
         btnEnter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Obtém valores dos campos
-                String email = txtCPF_CNPJ.getText().toString().trim();
-                String senha = txtSenha.getText().toString().trim();
+                if (CPF_CNPJ.isEmpty() || senha.isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 // Chama método de login da ApiOperation
-                apiOperation.realizarLogin(email, senha);
+                apiOperation.realizarLogin(CPF_CNPJ, senha);
             }
         });
 

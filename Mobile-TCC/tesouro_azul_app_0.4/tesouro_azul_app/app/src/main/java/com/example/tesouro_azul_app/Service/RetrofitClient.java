@@ -7,10 +7,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import android.content.Context;
 
+import java.security.KeyStore;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -62,12 +64,12 @@ public class RetrofitClient {
         try {
             // Configuração SSL/TLS para conexões seguras
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, getTrustManagers(), new java.security.SecureRandom());
+            sslContext.init(null, getTrustManagers(context), new java.security.SecureRandom());
 
             // Aplica as configurações SSL ao cliente
             clientBuilder.sslSocketFactory(
                     sslContext.getSocketFactory(),
-                    (X509TrustManager) getTrustManagers()[0]
+                    (X509TrustManager) getTrustManagers(context)[0]
             );
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
@@ -100,25 +102,16 @@ public class RetrofitClient {
      *
      * @return Array de TrustManagers configurados
      */
-    private static TrustManager[] getTrustManagers() {
-        return new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] chain, String authType) {
-                        // Não valida certificados do cliente
-                    }
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) {
-                        // Não valida certificados do servidor
-                    }
-
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[]{};
-                    }
-                }
-        };
+    private static TrustManager[] getTrustManagers(Context context) {
+        try {
+            // Carrega certificados do sistema
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory
+                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init((KeyStore) null);
+            return trustManagerFactory.getTrustManagers();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
