@@ -25,7 +25,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Classe responsável por gerenciar todas as operações de comunicação com a API,
+ * incluindo conexão, autenticação e tratamento de erros.
+ */
 public class ApiOperation {
+    // Componentes de UI
     private final Context context;
     private final ProgressBar progressBar;
     private final TextView txtLoading;
@@ -34,6 +39,15 @@ public class ApiOperation {
     private final Button btnEnter;
     private final TextView txtRegistrar;
 
+    // Controle de tentativas de reconexão
+    private int tentativa = 0;
+    private static final int MAX_TENTATIVAS = 5;
+    private static final int BACKOFF_INICIAL_MS = 1000; // 1 segundo
+
+    /**
+     * Construtor que inicializa todos os componentes de UI necessários
+     * para exibir status e interação com o usuário.
+     */
     public ApiOperation(Context context,
                         ProgressBar progressBar,
                         TextView txtLoading,
@@ -50,13 +64,19 @@ public class ApiOperation {
         this.txtRegistrar = txtRegistrar;
     }
 
+    /**
+     * Método principal para iniciar a conexão com a API.
+     * Configura a UI para estado de carregamento e inicia a verificação.
+     */
     public void ConectarAPI() {
         ApiService apiService = RetrofitClient.getApiService(context);
 
+        // Configura UI para estado de carregamento
         progressBar.setVisibility(View.VISIBLE);
         txtLoading.setText("Verificando conexões...");
         txtLoading.setVisibility(View.VISIBLE);
 
+        // Oculta campos de entrada durante a conexão
         txtCPF_CNPJ.setVisibility(View.GONE);
         txtSenha.setVisibility(View.GONE);
         btnEnter.setVisibility(View.GONE);
@@ -65,6 +85,10 @@ public class ApiOperation {
         verificarStatusAPI(apiService);
     }
 
+    /**
+     * Verifica o status da API através de uma chamada de teste.
+     * @param apiService Instância do serviço API configurado
+     */
     private void verificarStatusAPI(ApiService apiService) {
         Call<ResponseBody> apiCall = apiService.testarConexaoAPI();
         apiCall.enqueue(new Callback<ResponseBody>() {
@@ -75,7 +99,6 @@ public class ApiOperation {
                         String responseBody = response.body().string();
                         Log.d("API_STATUS", "Resposta da API: " + responseBody);
                         tratarConexaoBemSucedida();
-
                     } catch (IOException e) {
                         tratarErro("Erro ao ler resposta da API", e);
                     }
@@ -85,55 +108,88 @@ public class ApiOperation {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t)
-            {
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
                 tratarFalhaConexao(t);
             }
         });
     }
 
-
-
+    /**
+     * Trata erros retornados pela API (respostas não bem-sucedidas).
+     * @param response Resposta da API contendo o erro
+     */
     private void tratarErroAPI(Response<ResponseBody> response) {
         runOnUiThread(() -> {
             try {
-                String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido na API";
+                String errorBody = response.errorBody() != null ?
+                        response.errorBody().string() : "Erro desconhecido na API";
                 txtLoading.setText("API com problemas");
                 Toast.makeText(context, "Problema na API: " + errorBody, Toast.LENGTH_LONG).show();
                 Log.e("API_ERROR", errorBody);
             } catch (IOException e) {
                 tratarErro("Erro ao processar resposta da API", e);
             }
-            agendarNovaTentativa();
+            agendarNovaTentativaComBackoff();
         });
     }
 
-
-
+    /**
+     * Trata falhas na conexão com a API.
+     * @param t Exceção contendo detalhes do erro
+     */
     private void tratarFalhaConexao(Throwable t) {
         runOnUiThread(() -> {
             txtLoading.setText("Sem conexão");
             Toast.makeText(context, "Erro de rede: " + t.getMessage(), Toast.LENGTH_LONG).show();
             Log.e("NETWORK_ERROR", "Erro de rede", t);
-            agendarNovaTentativa();
+            agendarNovaTentativaComBackoff();
         });
     }
 
+    /**
+     * Tratamento genérico para erros do sistema.
+     * @param mensagem Mensagem amigável para o usuário
+     * @param e Exceção original
+     */
     private void tratarErro(String mensagem, Exception e) {
         runOnUiThread(() -> {
             txtLoading.setText("Erro no sistema");
             Toast.makeText(context, mensagem, Toast.LENGTH_LONG).show();
             Log.e("SYSTEM_ERROR", mensagem, e);
-            agendarNovaTentativa();
+            agendarNovaTentativaComBackoff();
         });
     }
 
-    private void agendarNovaTentativa() {
+    /**
+     * Agenda uma nova tentativa de conexão usando estratégia de backoff exponencial.
+     * Aumenta o intervalo entre tentativas progressivamente.
+     */
+    private void agendarNovaTentativaComBackoff() {
         runOnUiThread(() -> {
-            new Handler().postDelayed(this::ConectarAPI, 5000);
+            if (tentativa < MAX_TENTATIVAS) {
+                long delay = BACKOFF_INICIAL_MS * (long) Math.pow(2, tentativa);
+                tentativa++;
+
+                new Handler().postDelayed(() -> {
+                    txtLoading.setText("Tentando reconectar (" + tentativa + "/" + MAX_TENTATIVAS + ")...");
+                    ConectarAPI();
+                }, delay);
+            } else {
+                // Máximo de tentativas alcançado
+                txtLoading.setText("Falha na conexão");
+                btnEnter.setVisibility(View.VISIBLE);
+                btnEnter.setText("Tentar novamente");
+                btnEnter.setOnClickListener(v -> {
+                    tentativa = 0;
+                    ConectarAPI();
+                });
+            }
         });
     }
 
+    /**
+     * Atualiza a UI quando a conexão é estabelecida com sucesso.
+     */
     private void tratarConexaoBemSucedida() {
         runOnUiThread(() -> {
             txtLoading.setText("Tudo conectado com sucesso!");
@@ -148,12 +204,21 @@ public class ApiOperation {
         });
     }
 
+    /**
+     * Executa ações na thread principal (UI Thread).
+     * @param action Ação a ser executada
+     */
     private void runOnUiThread(Runnable action) {
         if (context instanceof Activity) {
             ((Activity) context).runOnUiThread(action);
         }
     }
 
+    /**
+     * Realiza o processo de autenticação do usuário.
+     * @param email Email do usuário
+     * @param senha Senha do usuário
+     */
     public void realizarLogin(String email, String senha) {
         if (email.isEmpty() || senha.isEmpty()) {
             Toast.makeText(context, "Preencha email e senha", Toast.LENGTH_SHORT).show();
@@ -170,13 +235,16 @@ public class ApiOperation {
                                    Response<SuperClassUser.LoginResponseDto> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
+                    // Login bem-sucedido
                     SuperClassUser.LoginResponseDto loginResponse = response.body();
 
+                    // Armazena o token JWT
                     SharedPreferences sharedPref = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("jwt_token", loginResponse.getToken());
                     editor.apply();
 
+                    // Navega para a tela principal
                     Intent intent = new Intent(context, MainActivity.class);
                     context.startActivity(intent);
                     if (context instanceof Activity) {
@@ -184,8 +252,10 @@ public class ApiOperation {
                     }
 
                 } else {
+                    // Trata diferentes códigos de erro
                     try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
+                        String errorBody = response.errorBody() != null ?
+                                response.errorBody().string() : "Erro desconhecido";
 
                         if (response.code() == 401) {
                             Toast.makeText(context, "Email ou senha inválidos", Toast.LENGTH_LONG).show();

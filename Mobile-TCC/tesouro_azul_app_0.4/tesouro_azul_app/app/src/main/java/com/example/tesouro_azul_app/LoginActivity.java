@@ -42,95 +42,97 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Verifica se o usuário já está logado (redireciona se verdadeiro)
         if (AuthUtils.isLoggedIn(this)) {
             startActivity(new Intent(this, MainActivity.class));
-            finish();
-            return;
+            finish(); // Finaliza a LoginActivity para não voltar com back button
+            return;   // Sai do método para não continuar a criação da tela de login
         }
+
+        // Carrega o layout da tela de login
         setContentView(R.layout.activity_login);
 
+        /*
+         * Configuração do Retrofit para chamadas à API
+         * (Observação: seria melhor usar a classe RetrofitClient já existente)
+         */
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://vps59025.publiccloud.com.br:5232/")// <- Coloque a URL base da sua API aqui
-                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl("https://srv869019.hstgr.cloud/") // URL da API
+                .addConverterFactory(GsonConverterFactory.create()) // Conversor JSON
                 .build();
 
-        apiService = retrofit.create(ApiService.class);
+        apiService = retrofit.create(ApiService.class); // Cria instância do serviço
 
+        // Inicialização dos componentes da interface
         mostrarSenha = (CheckBox) findViewById(R.id.mostrarSenhas);
         txtCPF_CNPJ = (EditText) findViewById(R.id.txtCPF_CNPJ);
         txtSenha = (EditText) findViewById(R.id.txtSenha);
         btnEnter = (Button) findViewById(R.id.btnEnter);
-
-        String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
-        String senha = txtSenha.getText().toString().trim();
-
         txtRegistrar = (TextView) findViewById(R.id.txtRegistrar);
-
         progressBar = findViewById(R.id.progressBar);
         txtLoading = findViewById(R.id.progress_text);
 
+        // Obtém valores iniciais dos campos (não está sendo usado)
+        String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
+        String senha = txtSenha.getText().toString().trim();
+
+        // Configura a ApiOperation (classe que centraliza operações com a API)
         ApiOperation apiOperation = new ApiOperation(
                 LoginActivity.this,
-                findViewById(R.id.progressBar),
-                findViewById(R.id.txtLoading),//Apenas para testes
-                findViewById(R.id.txtCPF_CNPJ),
-                findViewById(R.id.txtSenha),
-                findViewById(R.id.btnEnter),
-                findViewById(R.id.txtRegistrar)
+                progressBar,
+                txtLoading,
+                txtCPF_CNPJ,
+                txtSenha,
+                btnEnter,
+                txtRegistrar
         );
 
+        // Define máscara de senha padrão (caracteres ocultos)
         txtSenha.setTransformationMethod(PasswordTransformationMethod.getInstance());
-/*
+
+        // Listener para o botão de login
         btnEnter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                // Obtém valores dos campos
                 String email = txtCPF_CNPJ.getText().toString().trim();
                 String senha = txtSenha.getText().toString().trim();
 
-                apiOperation.realizarLogin(email,senha);
-            }
-        });
-        */
-
-
-        btnEnter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
+                // Chama método de login da ApiOperation
+                apiOperation.realizarLogin(email, senha);
             }
         });
 
+        // Listener para o checkbox "mostrar senha"
         mostrarSenha.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (mostrarSenha.isChecked()) {
-                    // Mostrar senha
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                // Alterna entre mostrar e ocultar a senha
+                if (isChecked) {
                     txtSenha.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
                 } else {
-                    // Ocultar senha
                     txtSenha.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 }
-                // Colocar o cursor no final do texto após a mudança
+                // Posiciona o cursor no final do texto
                 txtSenha.setSelection(txtSenha.getText().length());
             }
         });
 
+        // Listener para o texto de registro
         txtRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, EntradaActivity.class);
-                startActivity(intent);
+                // Navega para a tela de registro
+                startActivity(new Intent(LoginActivity.this, EntradaActivity.class));
             }
         });
 
+        // Tenta conectar com a API (verifica disponibilidade)
         try {
             apiOperation.ConectarAPI();
         } catch (Exception e) {
             Log.e("LoginActivity", "Erro ao conectar API", e);
             Toast.makeText(this, "Erro ao inicializar aplicativo", Toast.LENGTH_SHORT).show();
         }
-
     }
 }

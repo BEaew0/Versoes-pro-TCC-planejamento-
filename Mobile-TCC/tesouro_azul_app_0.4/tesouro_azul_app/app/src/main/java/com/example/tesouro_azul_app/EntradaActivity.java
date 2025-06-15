@@ -43,19 +43,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class EntradaActivity extends AppCompatActivity
 {
-    //quando tiver eu botoKKKKK
-    private String Host="https://tesouroazul1.hospedagemdesites.ws/api";
 
-    private ProgressBar progressBar;
     private EditText txtNomeReg,txtSenhaReg,txtConfirmSenha,txtEmail,txtCPF_CNPJ_Reg,txtNascimento;
 
-    private EditText txtCPF_CNPJ,txtSenha;
+    Button btnRegister;
 
-    Button btnEnter,btnRegister;
-
-    CheckBox mostrarSenha,showSenhaReg,showSenhaConfir;
-
-    private TextView txtRegistrar, txtLoading;
+    CheckBox showSenhaReg,showSenhaConfir;
 
     private ApiService apiService;
 
@@ -69,7 +62,7 @@ public class EntradaActivity extends AppCompatActivity
 
             // Configura Retrofit
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("http://vps59025.publiccloud.com.br:5232/")// <- Coloque a URL base da sua API aqui
+                    .baseUrl("https://srv869019.hstgr.cloud/")//
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
@@ -277,8 +270,8 @@ public class EntradaActivity extends AppCompatActivity
                             DATA_NASC_USUARIO,
                             CPF_USUARIO,
                             CNPJ_USUARIO,
-                            1, // ID_ASSINATURA_FK (valor padrão 1, ajuste conforme necessário)
-                            null, // FOTO_USUARIO (pode ser null ou string base64)
+                            0,
+                            null,
                             SENHA_USUARIO,
                             STATUS_USUARIO
                     );
