@@ -55,13 +55,13 @@ import java.io.FileNotFoundException;
 
 public class ConfigActivity extends AppCompatActivity {
 
-    public static String fotox;
+    private String fotox;
 
     private SharedPreferences sharedPreferences;
 
     private Bitmap bitmap;
 
-    private String tokenUser = obterTokenUsuario();
+    private String tokenUser;
     private ImageView Xleave,themeIcon;
     private RelativeLayout trocarSenha,SairConta,ExcluirConta;
 
@@ -76,11 +76,9 @@ public class ConfigActivity extends AppCompatActivity {
     private ShapeableImageView userIcon;
     private Uri filePath;
     private ApiService apiService;
-
     String bx;
     Uri imagemUri;
-    Bitmap b;
-
+    private Bitmap b = null;
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
@@ -110,7 +108,9 @@ public class ConfigActivity extends AppCompatActivity {
     setContentView(R.layout.activity_config);
 
         userIcon = findViewById(R.id.User_icon);
-    userIcon.setImageBitmap(b);
+        if (b != null) {
+            userIcon.setImageBitmap(b);
+        }
     SwitchMaterial swicthTheme = findViewById(R.id.switchTheme);
 
     themeIcon = findViewById(R.id.ThemeMode);
@@ -329,14 +329,14 @@ public class ConfigActivity extends AppCompatActivity {
 
     private void handleSelectedImage(Uri imageUri) {
         try {
-            // 1. Converte URI para Bitmap
+            //Converte URI para Bitmap
             Bitmap bitmap = BitmapFactory.decodeStream(
                     getContentResolver().openInputStream(imageUri));
 
-            // 2. Atualiza a ImageView
+            //Atualiza a ImageView
             userIcon.setImageBitmap(bitmap);
 
-            // 3. Converte para Base64 e armazena
+            //Converte para Base64 e armazena
             fotox = imagem_string(bitmap);
 
         } catch (FileNotFoundException e) {

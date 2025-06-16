@@ -97,6 +97,15 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        btnEnter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Navega para a tela principal
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                LoginActivity.this.startActivity(intent);
+            }
+        });
+
         // Listener para o checkbox "mostrar senha"
         mostrarSenha.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

@@ -192,7 +192,7 @@ public class ApiOperation {
      */
     private void tratarConexaoBemSucedida() {
         runOnUiThread(() -> {
-            txtLoading.setText("Tudo conectado com sucesso!");
+            txtLoading.setText("Sucesso");
             new Handler().postDelayed(() -> {
                 progressBar.setVisibility(View.GONE);
                 txtLoading.setVisibility(View.GONE);
