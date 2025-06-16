@@ -24,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.tesouro_azul_app.EntradaActivity;
+import com.example.tesouro_azul_app.LoginActivity;
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.R;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
@@ -61,8 +62,8 @@ public class ConfigActivity extends AppCompatActivity {
     private Bitmap bitmap;
 
     private String tokenUser = obterTokenUsuario();
-    ImageView Xleave,themeIcon;
-    RelativeLayout trocarSenha,SairConta,ExcluirConta;
+    private ImageView Xleave,themeIcon;
+    private RelativeLayout trocarSenha,SairConta,ExcluirConta;
 
     // Nome do arquivo de preferências e chave booleana usada para salvar o modo escuro
     private static final String PREF_NAME = "ThemePrefs";
@@ -71,9 +72,7 @@ public class ConfigActivity extends AppCompatActivity {
     //Declara uma constante para identificar o código da requisição da galeria,
     // o ícone do usuário e o launcher para abrir a galeria e receber o resultado.
     private static final int REQUEST_CODE_GALLERY = 1001;
-    private static final int PICK_IMAGE = 1;
 
-    private int PICK_IMAGE_REQUEST = 2;
     private ShapeableImageView userIcon;
     private Uri filePath;
     private ApiService apiService;
@@ -102,11 +101,18 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     super.onCreate(savedInstanceState);
+        if (!AuthUtils.isLoggedIn(this)) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish(); // Finaliza a LoginActivity para não voltar com back button
+            return;   // Sai do método para não continuar a criação da tela de login
+        }
+
     setContentView(R.layout.activity_config);
 
+        userIcon = findViewById(R.id.User_icon);
     userIcon.setImageBitmap(b);
     SwitchMaterial swicthTheme = findViewById(R.id.switchTheme);
-    userIcon = findViewById(R.id.User_icon);
+
     themeIcon = findViewById(R.id.ThemeMode);
     Xleave = (ImageView) findViewById(R.id.Xleave);
     trocarSenha = (RelativeLayout) findViewById(R.id.trocarSenha);
@@ -114,12 +120,7 @@ public class ConfigActivity extends AppCompatActivity {
     ExcluirConta = (RelativeLayout) findViewById(R.id.ExcluirConta);
 
         // Configura Retrofit
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://vps59025.publiccloud.com.br:5232/")// <- Coloque a URL base da sua API aqui
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        apiService = retrofit.create(ApiService.class);
+        apiService = RetrofitClient.getApiService(getApplicationContext());
 
         // Define o estado inicial do Switch de acordo com a preferência
     swicthTheme.setChecked(isNightMode);
@@ -129,12 +130,10 @@ public class ConfigActivity extends AppCompatActivity {
         try {
             galleryLauncher = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
-                    result ->
-                    {
-                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null)
-                        {
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Uri imageUri = result.getData().getData();
-                            userIcon.setImageURI(imageUri);
+                            handleSelectedImage(imageUri); // Método que criamos antes
                         }
                     });
 
@@ -252,10 +251,9 @@ public class ConfigActivity extends AppCompatActivity {
         }
     }
 
-    private void openGallery()
-    {
+    private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_IMAGE);
+        galleryLauncher.launch(intent); // Usa o launcher em vez de startActivityForResult
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
@@ -324,33 +322,26 @@ public class ConfigActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Verifica se a imagem foi selecionada com sucesso
-        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
-            imagemUri = data.getData(); // Obtém o URI da imagem
+        if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+            handleSelectedImage(data.getData());
+        }
+    }
 
-            try {
-                // Carrega a imagem a partir do URI (Uniform Resource Identifier,
-                // ou Identificador Uniforme de Recursos) é uma string (sequência de caracteres) que se refere a um recurso
+    private void handleSelectedImage(Uri imageUri) {
+        try {
+            // 1. Converte URI para Bitmap
+            Bitmap bitmap = BitmapFactory.decodeStream(
+                    getContentResolver().openInputStream(imageUri));
 
-                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imagemUri));
+            // 2. Atualiza a ImageView
+            userIcon.setImageBitmap(bitmap);
 
-                userIcon.setImageBitmap(bitmap); // Define a imagem no ImageView
+            // 3. Converte para Base64 e armazena
+            fotox = imagem_string(bitmap);
 
-                // Converte o bitmap para string Base64
-                bx = imagem_string(bitmap);
-
-                // Armazena a string Base64 em uma variável
-                fotox = bx;
-
-                // Reconverte a Base64 para Bitmap (talvez para validar ou reutilizar)
-                Bitmap b = getFoto(bx);
-
-                // Atualiza novamente o ImageView com o bitmap reconvertido
-                userIcon.setImageBitmap(b);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace(); // Exibe erro caso o arquivo não seja encontrado
-            }
+        } catch (FileNotFoundException e) {
+            Toast.makeText(this, "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
+            Log.e("IMAGE_ERROR", "Erro ao abrir imagem", e);
         }
     }
 
@@ -490,7 +481,6 @@ public class ConfigActivity extends AppCompatActivity {
                 .show();
 
     }
-
 
 
 
