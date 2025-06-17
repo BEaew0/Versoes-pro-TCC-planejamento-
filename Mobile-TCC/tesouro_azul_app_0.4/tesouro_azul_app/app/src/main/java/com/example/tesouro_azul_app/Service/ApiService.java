@@ -40,12 +40,13 @@ public interface ApiService {
     Call<List<SuperClassUser.Usuario>> buscarUsuarios(@Header("Authorization") String token);
 
     // Buscar Usuario por ID
-    @GET("api/Usuarios/{id}")
-    Call<SuperClassUser.Usuario> buscarUsuarioPorId(@Header("Authorization") String token, @Path("id") int id);
+    @GET("api/Usuarios/buscar-dados-usuario")
+    Call<SuperClassUser.Usuario> buscarUsuarioPorId(@Header("Authorization") String token);
 
     // Atualizar campo do Usuario
     @PATCH("api/Usuarios/{id}/alterar-campo")
     Call<SuperClassUser.Usuario> alterarCamposUsuario(@Header("Authorization") String token, @Path("id") int id, @Body SuperClassUser.AtualizarCampoUsuarioDto dto);
+
 
     @GET("api/Usuarios/Buscar-Imagem")
     Call<ResponseBody> buscarUsuarioFoto(

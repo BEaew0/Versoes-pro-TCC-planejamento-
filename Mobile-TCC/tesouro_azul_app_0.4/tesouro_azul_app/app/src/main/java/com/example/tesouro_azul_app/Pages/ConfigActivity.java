@@ -21,8 +21,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.EntradaActivity;
 import com.example.tesouro_azul_app.LoginActivity;
 import com.example.tesouro_azul_app.Service.ApiService;
@@ -61,7 +63,7 @@ public class ConfigActivity extends AppCompatActivity {
 
     private Bitmap bitmap;
 
-    private String tokenUser;
+    private String token;
     private ImageView Xleave,themeIcon;
     private RelativeLayout trocarSenha,SairConta,ExcluirConta;
 
@@ -74,19 +76,20 @@ public class ConfigActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_GALLERY = 1001;
 
     private ShapeableImageView userIcon;
-    private Uri filePath;
     private ApiService apiService;
-    String bx;
-    Uri imagemUri;
-    private Bitmap b = null;
+
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<String> requestPermissionLauncher;
+
+    TextView UserName,UserEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
     // Antes de carregar o layout, verificamos o tema salvo
     sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+
+    token = obterTokenUsuario();
 
     // Recupera se o modo escuro estava ativado na última vez
     boolean isNightMode = sharedPreferences.getBoolean(NIGHT_MODE_KEY, false);
@@ -106,11 +109,10 @@ public class ConfigActivity extends AppCompatActivity {
         }
 
     setContentView(R.layout.activity_config);
-
         userIcon = findViewById(R.id.User_icon);
-        if (b != null) {
-            userIcon.setImageBitmap(b);
-        }
+        UserEmail = findViewById(R.id.UserEmail);
+        UserName = findViewById(R.id.UserName);
+
     SwitchMaterial swicthTheme = findViewById(R.id.switchTheme);
 
     themeIcon = findViewById(R.id.ThemeMode);
@@ -133,7 +135,7 @@ public class ConfigActivity extends AppCompatActivity {
                     result -> {
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             Uri imageUri = result.getData().getData();
-                            handleSelectedImage(imageUri); // Método que criamos antes
+                            handleSelectedImage(imageUri);
                         }
                     });
 
@@ -142,6 +144,7 @@ public class ConfigActivity extends AppCompatActivity {
         }
 
         buscarImagemUsuario();
+        buscarNomeEmailUsuario();
 
         Xleave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,9 +159,10 @@ public class ConfigActivity extends AppCompatActivity {
         // Se não tiver, solicita. Se tiver, abre a galeria para o usuário escolher uma imagem.
         userIcon.setOnClickListener(view ->
         {
+            // Já tem permissão → Abre direto
             if (ContextCompat.checkSelfPermission(ConfigActivity.this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED)
             {
-                openGallery(); // Já tem permissão → Abre direto
+                openGallery();
             }
             else
             {
@@ -170,6 +174,11 @@ public class ConfigActivity extends AppCompatActivity {
                 );
             }
         });
+
+        if (fotox != null)
+        {
+            enviarImagem(fotox);
+        }
 
 
         // Listener para detectar mudanças no Switch
@@ -255,6 +264,7 @@ public class ConfigActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         galleryLauncher.launch(intent); // Usa o launcher em vez de startActivityForResult
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
@@ -294,8 +304,7 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     //converte a imagem para POST
-    public String imagem_string(Bitmap fotox)
-    {
+    public String imagem_string(Bitmap fotox) {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
 
         // Comprime o bitmap em formato JPEG com 100% de qualidade
@@ -309,8 +318,7 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     //Converte a imagem a view
-    public Bitmap getFoto(String s)
-    {
+    public Bitmap getFoto(String s) {
         // Decodifica a string Base64 de volta para um array de bytes
         byte[] decodes = Base64.decode(s, Base64.DEFAULT);
 
@@ -339,14 +347,41 @@ public class ConfigActivity extends AppCompatActivity {
             //Converte para Base64 e armazena
             fotox = imagem_string(bitmap);
 
+            enviarImagem(fotox);
+
         } catch (FileNotFoundException e) {
             Toast.makeText(this, "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
             Log.e("IMAGE_ERROR", "Erro ao abrir imagem", e);
         }
     }
 
+    private void enviarImagem(String imagemBase64) {
+        ApiService apiService = RetrofitClient.getApiService(this);
+
+        // Cria o DTO
+        SuperClassUser.ImagemDto imagemDto = new SuperClassUser.ImagemDto(imagemBase64);
+
+        Call<ResponseBody> call = apiService.atualizarImagem(token, imagemDto);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ConfigActivity.this, "Imagem enviada com sucesso!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(ConfigActivity.this, "Erro ao enviar imagem: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(ConfigActivity.this, "Falha na rede: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private String obterTokenUsuario() {
-        String token = AuthUtils.getToken(this); // "this" é o Context da Activity
+        token = AuthUtils.getToken(this); // "this" é o Context da Activity
         if (token != null && !token.isEmpty()) {
             return "Bearer " + token;
         } else {
@@ -354,7 +389,6 @@ public class ConfigActivity extends AppCompatActivity {
             return null;
         }
     }
-
 
     private void deslogarUsuario() {
         new AlertDialog.Builder(this)
@@ -368,8 +402,7 @@ public class ConfigActivity extends AppCompatActivity {
                 .show();
     }
 
-     // Executa o processo de logout de forma segura
-
+    // Executa o processo de logout de forma segura
     private void executarLogout() {
         // Mostrar progresso
         ProgressDialog progressDialog = new ProgressDialog(this);
@@ -396,20 +429,35 @@ public class ConfigActivity extends AppCompatActivity {
         }, 1000); // Delay de 1 segundo para melhor UX
     }
 
+    //Busca o nome e o email
+    private void buscarNomeEmailUsuario() {
+        ApiService apiService = RetrofitClient.getApiService(this);  // Supondo que você já tenha o RetrofitClient configurado com o token
 
+        Call<SuperClassUser.Usuario> call = apiService.buscarUsuarioPorId(token);
+
+        call.enqueue(new Callback<SuperClassUser.Usuario>() {
+            @Override
+            public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String nome = response.body().getNOME_USUARIO();
+                    String email = response.body().getEMAIL_USUARIO();
+
+                    UserEmail.setText(email);
+                    UserName.setText(nome);
+
+                } else {
+                    Toast.makeText(ConfigActivity.this, "Deu pauKKKkk " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuperClassUser.Usuario> call, Throwable t) {
+                Toast.makeText(ConfigActivity.this, "Erro ao buscar nome: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void buscarImagemUsuario() {
-
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Carregando imagem...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        String token = AuthUtils.getToken(this);
-        if (token == null) {
-            progressDialog.dismiss();
-            return;
-        }
 
         ApiService apiService = RetrofitClient.getApiService(this);
         Call<ResponseBody> call = apiService.buscarUsuarioFoto("Bearer " + token);
@@ -417,8 +465,6 @@ public class ConfigActivity extends AppCompatActivity {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                progressDialog.dismiss();
-
                 if (response.isSuccessful()) {
                     try {
                         String jsonResponse = response.body().string();
@@ -444,7 +490,6 @@ public class ConfigActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                progressDialog.dismiss();
                 Toast.makeText(ConfigActivity.this,
                         "Falha na conexão", Toast.LENGTH_SHORT).show();
                 Log.e("API_ERROR", "Erro: " + t.getMessage());
@@ -471,7 +516,6 @@ public class ConfigActivity extends AppCompatActivity {
         finish(); // Finaliza a atividade atual
     }
 
-
     private void desativarUsuario(){
         new AlertDialog.Builder(this)
                 .setTitle("")
@@ -492,7 +536,7 @@ public class ConfigActivity extends AppCompatActivity {
         progressDialog.show();
 
         ApiService apiService = RetrofitClient.getApiService(this);
-        Call<ResponseBody> call = apiService.desativarUsuario(tokenUser);
+        Call<ResponseBody> call = apiService.desativarUsuario(token);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override

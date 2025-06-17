@@ -461,6 +461,9 @@ public class SuperClassProd {
             this.imagemBase64 = imagemBase64;
         }
 
+        public ImagemDto() {
+        }
+
         public String getImagemBase64() {
             return imagemBase64;
         }

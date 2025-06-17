@@ -151,7 +151,7 @@ public class SuperClassUser {
         }
     }
 
-    public static class ImagemDto{
+    public static class ImagemDto extends SuperClassProd.ImagemDto {
 
         @SerializedName("imagemBase64")
         private String imagemBase64;
@@ -171,18 +171,38 @@ public class SuperClassUser {
 
     // modelo de retorno
     public class Usuario {
+
+        @SerializedName("iD_USUARIO")
         private int ID_USUARIO;
+
+        @SerializedName("nomE_USUARIO")
         private String NOME_USUARIO;
+
+        @SerializedName("emaiL_USUARIO")
         private String EMAIL_USUARIO;
+
+        @SerializedName("datA_NASC_USUARIO")
         private String DATA_NASC_USUARIO;
+
+        @SerializedName("cpF_USUARIO")
         private String CPF_USUARIO;
+
+        @SerializedName("cnpJ_USUARIO")
         private String CNPJ_USUARIO;
+
+        @SerializedName("iD_ASSINATURA_FK")
         private int ID_ASSINATURA_FK;
+
+        @SerializedName("fotO_USUARIO")
         private byte[] FOTO_USUARIO;
+
+        @SerializedName("senhA_USUARIO")
         private String SENHA_USUARIO;
+
+        @SerializedName("statuS_USUARIO")
         private String STATUS_USUARIO;
 
-        // Getters e Setters...
+        // Getters e Setters
 
         public int getID_USUARIO() {
             return ID_USUARIO;
@@ -353,9 +373,6 @@ public class SuperClassUser {
             this.email = email;
         }
     }
-
-
-
 
 }
 
