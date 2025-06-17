@@ -30,14 +30,14 @@
 
 
             <EditText
-                android:id="@+id/txtCPF_CNPJ"
+                android:id="@+id/txtEmailLogin"
                 android:layout_width="365dp"
                 android:layout_height="56dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="28dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
-                android:hint="CPF/CNPJ"
+                android:hint="Email"
                 android:inputType="text"
                 android:textColorHint="@color/cinza"
                 android:visibility="visible"
@@ -58,7 +58,7 @@
                 android:textColorHint="@color/cinza"
                 android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txtCPF_CNPJ"
+                app:layout_constraintTop_toBottomOf="@+id/txtEmailLogin"
                 tools:ignore="HardcodedText" />
 
             <Button
@@ -96,10 +96,10 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/progressBar"
                 android:layout_centerHorizontal="true"
-                android:layout_marginStart="140dp"
                 android:text="Carregando..."
                 android:textSize="22sp"
                 android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 

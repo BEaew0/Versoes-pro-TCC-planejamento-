@@ -121,7 +121,8 @@ public class RetrofitClient {
      * - Ao mudar configurações de conexão
      * - Em casos de necessidade de reconexão
      */
-    public static void resetClient() {
+    public static void resetClient()
+    {
         retrofit = null;
     }
 }

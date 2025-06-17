@@ -22,14 +22,11 @@ import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Util.AuthUtils;
 
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 public class LoginActivity extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
-    private EditText txtCPF_CNPJ,txtSenha;
+    private EditText txtEmail,txtSenha;
 
     Button btnEnter;
 
@@ -58,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Inicialização dos componentes da interface
         mostrarSenha = (CheckBox) findViewById(R.id.mostrarSenhas);
-        txtCPF_CNPJ = (EditText) findViewById(R.id.txtCPF_CNPJ);
+        txtEmail = (EditText) findViewById(R.id.txtEmailLogin);
         txtSenha = (EditText) findViewById(R.id.txtSenha);
         btnEnter = (Button) findViewById(R.id.btnEnter);
         txtRegistrar = (TextView) findViewById(R.id.txtRegistrar);
@@ -66,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
         txtLoading = findViewById(R.id.progress_text);
 
         // Obtém valores iniciais dos campos
-        String CPF_CNPJ = txtCPF_CNPJ.getText().toString().trim();
+        String email = txtEmail.getText().toString().trim();
         String senha = txtSenha.getText().toString().trim();
 
         // Configura a ApiOperation (classe que centraliza operações com a API)
@@ -74,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this,
                 progressBar,
                 txtLoading,
-                txtCPF_CNPJ,
+                txtEmail,
                 txtSenha,
                 btnEnter,
                 txtRegistrar
@@ -87,16 +84,17 @@ public class LoginActivity extends AppCompatActivity {
         btnEnter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (CPF_CNPJ.isEmpty() || senha.isEmpty()) {
+                if (email.isEmpty() || senha.isEmpty()) {
                     Toast.makeText(LoginActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 // Chama método de login da ApiOperation
-                apiOperation.realizarLogin(CPF_CNPJ, senha);
+                apiOperation.realizarLogin(email, senha);
             }
         });
 
+        /*
         btnEnter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.startActivity(intent);
             }
         });
-
+*/
         // Listener para o checkbox "mostrar senha"
         mostrarSenha.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -133,6 +131,7 @@ public class LoginActivity extends AppCompatActivity {
         // Tenta conectar com a API (verifica disponibilidade)
         try {
             apiOperation.ConectarAPI();
+
         } catch (Exception e) {
             Log.e("LoginActivity", "Erro ao conectar API", e);
             Toast.makeText(this, "Erro ao inicializar aplicativo", Toast.LENGTH_SHORT).show();

@@ -117,16 +117,9 @@ public class ProdutosActivity extends AppCompatActivity {
         CodProd = (EditText) findViewById(R.id.txtCodProd);
         FornProd = (EditText) findViewById(R.id.txtFornecedor);
 
-        configurarBusca();
-        carregarProdutosMock();
 
         // Configura Retrofit
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://vps59025.publiccloud.com.br:5232/")// <- Coloque a URL base da sua API aqui
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        apiService = retrofit.create(ApiService.class);
+        apiService = RetrofitClient.getApiService(getApplicationContext());
 
         // Configura o LayoutManager (define como os itens são organizados)
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -155,6 +148,7 @@ public class ProdutosActivity extends AppCompatActivity {
         // Define o adapter no RecyclerView
         recyclerView.setAdapter(adapter);
 
+        configurarBusca();
         carregarProdutos();
 
         prodImage.setOnClickListener(new View.OnClickListener() {
@@ -174,7 +168,6 @@ public class ProdutosActivity extends AppCompatActivity {
               }
           }
       });
-
 
 
         btnExluir.setOnClickListener(new View.OnClickListener() {
@@ -229,7 +222,7 @@ public class ProdutosActivity extends AppCompatActivity {
                 String termoBusca = s.toString().trim();
 
                 // Implementar debounce para evitar buscas a cada tecla pressionada
-                runnable = () -> buscarPorNomeMock(termoBusca);
+                runnable = () -> buscarPorNomeApi1(termoBusca);
                 handler.postDelayed(runnable, DELAY_MILLIS);
             }
         });
@@ -288,7 +281,6 @@ public class ProdutosActivity extends AppCompatActivity {
 
         String token = obterTokenUsuario();
 
-        // Adiciona o prefixo "Bearer " no token, se necessário
         String authHeader =  token;
 
         ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
@@ -364,13 +356,8 @@ public class ProdutosActivity extends AppCompatActivity {
 
     //Repor
     private void carregarProdutos() {
-        // Mostrar progress bar (opcional)
-        progressBar.setVisibility(View.VISIBLE);
-
         String token = obterTokenUsuario();
 
-        // Na sua Activity ou Fragment
-        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
         Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarTodosProdutos(token);
 
         call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {

@@ -90,7 +90,7 @@ public interface ApiService {
             @Body SuperClassProd.CamposProdutoDto filtro
     );
 
-    @GET("api/Produtos")
+    @GET("api/Produtos/buscar-todos-produtos-users")
     Call<List<SuperClassProd.ProdutoDto>> buscarTodosProdutos(@Header("Authorization") String token);
 
     @GET("api/Produtos/usuario/{id_usuario}")

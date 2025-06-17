@@ -34,7 +34,7 @@ public class ApiOperation {
     private final Context context;
     private final ProgressBar progressBar;
     private final TextView txtLoading;
-    private final EditText txtCPF_CNPJ;
+    private final EditText txtEmail;
     private final EditText txtSenha;
     private final Button btnEnter;
     private final TextView txtRegistrar;
@@ -51,14 +51,14 @@ public class ApiOperation {
     public ApiOperation(Context context,
                         ProgressBar progressBar,
                         TextView txtLoading,
-                        EditText txtCPF_CNPJ,
+                        EditText txtEmail,
                         EditText txtSenha,
                         Button btnEnter,
                         TextView txtRegistrar) {
         this.context = context;
         this.progressBar = progressBar;
         this.txtLoading = txtLoading;
-        this.txtCPF_CNPJ = txtCPF_CNPJ;
+        this.txtEmail = txtEmail;
         this.txtSenha = txtSenha;
         this.btnEnter = btnEnter;
         this.txtRegistrar = txtRegistrar;
@@ -77,7 +77,7 @@ public class ApiOperation {
         txtLoading.setVisibility(View.VISIBLE);
 
         // Oculta campos de entrada durante a conexão
-        txtCPF_CNPJ.setVisibility(View.GONE);
+        txtEmail.setVisibility(View.GONE);
         txtSenha.setVisibility(View.GONE);
         btnEnter.setVisibility(View.GONE);
         txtRegistrar.setVisibility(View.GONE);
@@ -177,6 +177,7 @@ public class ApiOperation {
             } else {
                 // Máximo de tentativas alcançado
                 txtLoading.setText("Falha na conexão");
+                progressBar.setVisibility(View.GONE);
                 btnEnter.setVisibility(View.VISIBLE);
                 btnEnter.setText("Tentar novamente");
                 btnEnter.setOnClickListener(v -> {
@@ -196,10 +197,20 @@ public class ApiOperation {
             new Handler().postDelayed(() -> {
                 progressBar.setVisibility(View.GONE);
                 txtLoading.setVisibility(View.GONE);
-                txtCPF_CNPJ.setVisibility(View.VISIBLE);
+                txtEmail.setVisibility(View.VISIBLE);
                 txtSenha.setVisibility(View.VISIBLE);
                 btnEnter.setVisibility(View.VISIBLE);
                 txtRegistrar.setVisibility(View.VISIBLE);
+                btnEnter.setText("Entrar");
+                btnEnter.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String email = txtEmail.getText().toString().trim();
+                        String senha = txtSenha.getText().toString().trim();
+
+                        realizarLogin(email, senha);
+                    }
+                });
             }, 1000);
         });
     }

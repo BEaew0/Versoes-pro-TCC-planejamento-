@@ -386,6 +386,9 @@ public class ConfigActivity extends AppCompatActivity {
         // 3. Fechar qualquer conexão ativa
         RetrofitClient.resetClient();
 
+        //Recria a conexao
+        apiService = RetrofitClient.getApiService(getApplicationContext());
+
         // 4. Redirecionar para tela de login após um pequeno delay
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             progressDialog.dismiss();
@@ -459,7 +462,7 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     private void redirecionarParaLogin() {
-        Intent intent = new Intent(this, EntradaActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
 
         // Configura flags para limpar a pilha de atividades
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -479,10 +482,7 @@ public class ConfigActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Não", null)
                 .show();
-
     }
-
-
 
     private void Desativar() {
         // Mostrar diálogo de progresso
