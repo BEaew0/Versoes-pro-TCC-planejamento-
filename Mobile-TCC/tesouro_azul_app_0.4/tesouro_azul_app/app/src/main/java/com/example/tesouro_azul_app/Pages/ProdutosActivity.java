@@ -365,8 +365,6 @@ public class ProdutosActivity extends AppCompatActivity {
             public void onResponse(Call<List<SuperClassProd.ProdutoDto>> call,
                                    Response<List<SuperClassProd.ProdutoDto>> response) {
 
-                progressBar.setVisibility(View.GONE);
-
                 if (response.isSuccessful() && response.body() != null)
                 {
                     List<SuperClassProd.ProdutoDto> produtos = response.body();
@@ -452,18 +450,9 @@ public class ProdutosActivity extends AppCompatActivity {
                 itens
         );
 
-        // Mostrar progresso
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Processando venda...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
 
         // Chamar API para realizar venda
         String token = obterTokenUsuario();
-        if (token == null) {
-            progressDialog.dismiss();
-            return;
-        }
 
         ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
         Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda(token, pedidoVenda);
@@ -472,7 +461,7 @@ public class ProdutosActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<SuperClassProd.PedidoVendaCompletoDto> call,
                                    Response<SuperClassProd.PedidoVendaCompletoDto> response) {
-                progressDialog.dismiss();
+
 
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ProdutosActivity.this,
@@ -487,7 +476,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<SuperClassProd.PedidoVendaCompletoDto> call, Throwable t) {
-                progressDialog.dismiss();
+
                 Toast.makeText(ProdutosActivity.this,
                         "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
                 Log.e("VENDA_ERROR", "Falha ao realizar venda", t);

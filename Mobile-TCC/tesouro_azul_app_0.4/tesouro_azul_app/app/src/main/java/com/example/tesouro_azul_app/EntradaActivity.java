@@ -18,7 +18,6 @@ import com.google.gson.Gson;
 
 import android.content.Context;
 
-import android.text.InputType;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -31,15 +30,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class EntradaActivity extends AppCompatActivity
 {
@@ -235,7 +230,6 @@ public class EntradaActivity extends AppCompatActivity
                         return;
                     }
 
-                    String STATUS_USUARIO = "a"; // "a" para ativo (ou ajuste conforme sua regra)
                     String EMAIL_USUARIO = txtEmail.getText().toString().trim();
                     String SENHA_USUARIO = txtSenhaReg.getText().toString().trim();
                     String NOME_USUARIO = txtNomeReg.getText().toString().trim();
@@ -255,7 +249,7 @@ public class EntradaActivity extends AppCompatActivity
                     }
 
                     // Cria o objeto CriarUsuarioDto
-                    SuperClassUser.CriarUsuarioDto usuarioDto = new SuperClassUser.CriarUsuarioDto(
+                    SuperClassUser.Usuario usuarioDto = new SuperClassUser.Usuario(
                             NOME_USUARIO,
                             EMAIL_USUARIO,
                             DATA_NASC_USUARIO,
@@ -263,18 +257,9 @@ public class EntradaActivity extends AppCompatActivity
                             CNPJ_USUARIO,
                             0,
                             null,
-                            SENHA_USUARIO,
-                            STATUS_USUARIO
+                            SENHA_USUARIO
                     );
 
-                    // Conversão para JSON
-                    Gson gson = new Gson();
-                    String json = gson.toJson(usuarioDto);
-                    Log.d("UsuarioPost", json); // Para verificar no Logcat(é uma ferramenta de linha de comando que despeja um registro de mensagens do sistema,
-                    // incluindo mensagens que você escreveu no app com a classe Log)
-
-                    // Usa o RetrofitClient já configurado
-                    ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
                     Call<SuperClassUser.Usuario> call = apiService.criarUsuario(usuarioDto);
 
                     call.enqueue(new Callback<SuperClassUser.Usuario>() {

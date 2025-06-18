@@ -381,7 +381,7 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     private String obterTokenUsuario() {
-        token = AuthUtils.getToken(this); // "this" é o Context da Activity
+        token = AuthUtils.getToken(ConfigActivity.this); //
         if (token != null && !token.isEmpty()) {
             return "Bearer " + token;
         } else {
@@ -439,8 +439,8 @@ public class ConfigActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    String nome = response.body().getNOME_USUARIO();
-                    String email = response.body().getEMAIL_USUARIO();
+                    String nome = response.body().getNomeUsuario();
+                    String email = response.body().getEmailUsuario();
 
                     UserEmail.setText(email);
                     UserName.setText(nome);

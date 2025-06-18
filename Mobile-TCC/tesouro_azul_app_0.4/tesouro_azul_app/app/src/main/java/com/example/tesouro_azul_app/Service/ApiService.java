@@ -27,8 +27,8 @@ public interface ApiService {
 
 
     // Criar Usuario
-    @POST("api/Usuarios")
-    Call<SuperClassUser.Usuario> criarUsuario(@Body SuperClassUser.CriarUsuarioDto usuarioDto);
+    @POST("api/Usuarios/criar-usuario")
+    Call<SuperClassUser.Usuario> criarUsuario(@Body SuperClassUser.Usuario usuarioDto);
 
     @PATCH("api/desativar-usuario")
     Call<ResponseBody> desativarUsuario(
