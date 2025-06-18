@@ -31,9 +31,7 @@ public interface ApiService {
     Call<SuperClassUser.Usuario> criarUsuario(@Body SuperClassUser.Usuario usuarioDto);
 
     @PATCH("api/desativar-usuario")
-    Call<ResponseBody> desativarUsuario(
-            @Header("Authorization") String token
-    );
+    Call<ResponseBody> desativarUsuario( String token);
 
     // Buscar todos os Usuarios
     @GET("api/Usuarios")
@@ -49,11 +47,9 @@ public interface ApiService {
 
 
     @GET("api/Usuarios/Buscar-Imagem")
-    Call<ResponseBody> buscarUsuarioFoto(
-            @Header("Authorization") String token
-    );
+    Call<ResponseBody> buscarUsuarioFoto(String token);
 
-    @PATCH("api/Usuarios/alterar-imagem")
+    @PATCH("/alterar-imagem")
     Call<ResponseBody> atualizarImagem(
             @Header("Authorization") String token,
             @Body SuperClassProd.ImagemDto dto
@@ -61,7 +57,7 @@ public interface ApiService {
 
     // Deletar Usuario
     @DELETE("api/Usuarios/{id}")
-    Call<Void> deletarUsuario(@Header("Authorization") String token, @Path("id") int id);
+    Call<Void> deletarUsuario(String token, @Path("id") int id);
 
     @POST("api/Usuarios/login")
     Call<SuperClassUser.LoginResponseDto> loginUsuario(@Body SuperClassUser.LoginRequestDto loginDto);

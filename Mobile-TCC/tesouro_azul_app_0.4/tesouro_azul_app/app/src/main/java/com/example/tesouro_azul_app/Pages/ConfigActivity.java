@@ -102,11 +102,6 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     super.onCreate(savedInstanceState);
-        if (!AuthUtils.isLoggedIn(this)) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish(); // Finaliza a LoginActivity para não voltar com back button
-            return;   // Sai do método para não continuar a criação da tela de login
-        }
 
     setContentView(R.layout.activity_config);
         userIcon = findViewById(R.id.User_icon);
@@ -460,7 +455,7 @@ public class ConfigActivity extends AppCompatActivity {
     private void buscarImagemUsuario() {
 
         ApiService apiService = RetrofitClient.getApiService(this);
-        Call<ResponseBody> call = apiService.buscarUsuarioFoto("Bearer " + token);
+        Call<ResponseBody> call = apiService.buscarUsuarioFoto(token);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override

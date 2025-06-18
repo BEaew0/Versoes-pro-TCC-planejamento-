@@ -41,6 +41,7 @@ import com.example.tesouro_azul_app.Util.DatePickerUtil;
 
 import com.google.android.material.imageview.ShapeableImageView;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -90,11 +91,9 @@ public class ProdutosActivity extends AppCompatActivity {
     ProgressBar progressBar;
     private ApiService apiService;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         setContentView(R.layout.activity_produtosctivity);
 
@@ -116,7 +115,6 @@ public class ProdutosActivity extends AppCompatActivity {
         ValProd = (EditText) findViewById(R.id.txtValidade);
         CodProd = (EditText) findViewById(R.id.txtCodProd);
         FornProd = (EditText) findViewById(R.id.txtFornecedor);
-
 
         // Configura Retrofit
         apiService = RetrofitClient.getApiService(getApplicationContext());
@@ -204,29 +202,7 @@ public class ProdutosActivity extends AppCompatActivity {
         });
 
     }
-    private void configurarBusca() {
-        SearchProd.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Cancelar busca anterior pendente
-                if (runnable != null) {
-                    handler.removeCallbacks(runnable);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String termoBusca = s.toString().trim();
-
-                // Implementar debounce para evitar buscas a cada tecla pressionada
-                runnable = () -> buscarPorNomeApi1(termoBusca);
-                handler.postDelayed(runnable, DELAY_MILLIS);
-            }
-        });
-    }
 
     //Mock:referece a objetos ou dados simulados
     private void buscarPorNomeMock(String nome) {
@@ -261,6 +237,7 @@ public class ProdutosActivity extends AppCompatActivity {
             });
         }, 1000); // Simular 1 segundo de delay como uma chamada real de API
     }
+
     private void carregarProdutosMock() {
         progressBar.setVisibility(View.VISIBLE);
 
@@ -274,6 +251,30 @@ public class ProdutosActivity extends AppCompatActivity {
                 adapter.atualizarLista(produtos);
             });
         }, 1500); // Simular 1.5 segundos de delay como uma chamada real de API
+    }
+
+    private void configurarBusca() {
+        SearchProd.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Cancelar busca anterior pendente
+                if (runnable != null) {
+                    handler.removeCallbacks(runnable);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String termoBusca = s.toString().trim();
+
+                // Implementar debounce para evitar buscas a cada tecla pressionada
+                runnable = () -> buscarPorNomeApi1(termoBusca);
+                handler.postDelayed(runnable, DELAY_MILLIS);
+            }
+        });
     }
 
     //Repor e rever
@@ -415,27 +416,24 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
-        // 3. Cálculo do valor total (sem desconto por padrão)
+        // 3. Cálculo do valor total
         double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
         String lote = "LOTE-" + System.currentTimeMillis();
 
-        // 4. Obter usuário logado (vendedor)
-        int idUsuario = 0;
-        SuperClassUser.UsuarioTokenDto usuario = AuthUtils.getUsuarioLogado(this);
-        if (usuario != null) {
-            idUsuario = usuario.id;
-        } else {
-            Toast.makeText(this, "Usuário não logado ou token inválido", Toast.LENGTH_SHORT).show();
+        // 4. Obter token do usuário
+        String token = AuthUtils.getToken(this);
+        if (token == null || token.isEmpty()) {
+            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 5. Criar DTOs conforme a estrutura da SuperClassProd para venda
+        // 5. Criar DTOs para a venda (CORREÇÃO: usando getIdProduto() em vez de getIdUsuarioFk())
         SuperClassProd.ItemVendaDto itemVenda = new SuperClassProd.ItemVendaDto(
-                produtoSelecionado.getIdUsuarioFk(),// ID do produto
+                produtoSelecionado.getIdProduto(),
                 lote,
                 quantidade,
-                1, // Número do item (fixo como 1 para venda única)
-                0.00, // Desconto (zero por padrão)
+                1, // Número do item
+                0.00, // Desconto
                 valorTotal
         );
 
@@ -444,41 +442,39 @@ public class ProdutosActivity extends AppCompatActivity {
 
         SuperClassProd.PedidoDto pedido = new SuperClassProd.PedidoDto(valorTotal);
 
-        // Usando PedidoCompraCompletoDto mesmo para venda (ajustar conforme sua API)
         SuperClassProd.PedidoVendaCompletoDto pedidoVenda = new SuperClassProd.PedidoVendaCompletoDto(
                 pedido,
                 itens
         );
 
-
-        // Chamar API para realizar venda
-        String token = obterTokenUsuario();
-
-        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-        Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda(token, pedidoVenda);
+        // 6. Chamar API para realizar venda (CORREÇÃO: adicionado "Bearer " antes do token)
+        ApiService apiService = RetrofitClient.getApiService(this);
+        Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda("Bearer " + token, pedidoVenda);
 
         call.enqueue(new Callback<SuperClassProd.PedidoVendaCompletoDto>() {
             @Override
             public void onResponse(Call<SuperClassProd.PedidoVendaCompletoDto> call,
                                    Response<SuperClassProd.PedidoVendaCompletoDto> response) {
-
-
                 if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(ProdutosActivity.this,
-                            "Venda realizada com sucesso!",
-                            Toast.LENGTH_LONG).show();
-
+                    Toast.makeText(ProdutosActivity.this, "Venda realizada com sucesso!", Toast.LENGTH_LONG).show();
                     limparCampos();
                     produtoSelecionado = null;
-                    carregarProdutos(); // Atualizar lista de produtos após venda
+                    carregarProdutos();
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
+                        Toast.makeText(ProdutosActivity.this,
+                                "Erro: " + (response.code() == 400 ? "Dados inválidos" : errorBody),
+                                Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(ProdutosActivity.this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<SuperClassProd.PedidoVendaCompletoDto> call, Throwable t) {
-
-                Toast.makeText(ProdutosActivity.this,
-                        "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProdutosActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("VENDA_ERROR", "Falha ao realizar venda", t);
             }
         });
@@ -491,65 +487,49 @@ public class ProdutosActivity extends AppCompatActivity {
 
     //Ainda sendo feita
     private void realizarCompra() {
-
-        if (produtoSelecionado == null)
-        {
+        // Validação do produto selecionado
+        if (produtoSelecionado == null) {
             Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 2. Validação da quantidade
+        //Validação da quantidade
         String quantidadeStr = QuantProd.getText().toString().trim();
-        if (quantidadeStr.isEmpty()) {
-            Toast.makeText(this, "Informe a quantidade", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         int quantidade;
         try {
             quantidade = Integer.parseInt(quantidadeStr);
-            if (quantidade <= 0) {
-                Toast.makeText(this, "Quantidade deve ser maior que zero", Toast.LENGTH_SHORT).show();
-                return;
+            if (quantidade == 0) {
+                quantidade = 1;
             }
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 3. Cálculo do valor total (sem desconto por padrão)
-        double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
-        String lote = "LOTE-" + System.currentTimeMillis();
-
-        // 4. Obter usuário logado
-        int idUsuario = 0;
-        SuperClassUser.UsuarioTokenDto usuario = AuthUtils.getUsuarioLogado(this);
-        if (usuario != null) {
-            idUsuario = usuario.id;
-        } else {
-            Toast.makeText(this, "Usuário não logado ou token inválido", Toast.LENGTH_SHORT).show();
+        // Validação da data de validade
+        String validadetxt = ValProd.getText().toString();
+        String validade = formatarParaISO8601(validadetxt, formatoEntrada);
+        if (validade == null) {
+            Toast.makeText(this, "Data de validade inválida", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Cálculo do valor total
+        double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
+        String lote = "LOTE-" + System.currentTimeMillis();
 
-        String validadetxt = ValProd.getText().toString();
-        String validade = formatarParaISO8601(validadetxt, formatoEntrada);
-
-        // Obter os valores necessários
-        int produtoId = produtoSelecionado.getIdProduto(); // Ou outra forma de obter o ID do produto
-        int pedidoId = 0; // Você precisa implementar esta lógica
-
-
-        // 5. Criar DTOs conforme a estrutura da SuperClassProd
+        // Criar DTOs para a compra
         SuperClassProd.ItemCompraDto itemCompra = new SuperClassProd.ItemCompraDto(
-                produtoSelecionado.getIdProduto(), // ID do produto (corrigido para usar getId() em vez de getIdUsuario())
-                pedidoId, // ID do pedido (você precisará obter ou definir este valor)
-                validade, // Data atual como valor padrão para vaL_ITEM_COMPRA
+                produtoSelecionado.getIdProduto(), // ID do produto
+                0, // ID do pedido (será gerado pelo servidor)
+                validade,
                 lote,
                 quantidade,
-                1, // Número do item (n_ITEM_COMPRA)
+                1, // Número do item
                 valorTotal
         );
+
         List<SuperClassProd.ItemCompraDto> itens = new ArrayList<>();
         itens.add(itemCompra);
 
@@ -560,26 +540,20 @@ public class ProdutosActivity extends AppCompatActivity {
                 itens
         );
 
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Processando compra...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        // 7. Chamar API para realizar compra
-        String token = obterTokenUsuario();
-        if (token == null) {
-            progressDialog.dismiss();
+        // Obter token de autenticação
+        String token = AuthUtils.getToken(this);
+        if (token == null || token.isEmpty()) {
+            Toast.makeText(this, "Token de autenticação inválido", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-        Call<SuperClassProd.PedidoCompraCompletoDto> call = apiService.criarPedidoCompra(token, pedidoCompra);
+        // Chamar API para realizar compra
+        Call<SuperClassProd.PedidoCompraCompletoDto> call = apiService.criarPedidoCompra("Bearer " + token, pedidoCompra);
 
         call.enqueue(new Callback<SuperClassProd.PedidoCompraCompletoDto>() {
             @Override
             public void onResponse(Call<SuperClassProd.PedidoCompraCompletoDto> call,
                                    Response<SuperClassProd.PedidoCompraCompletoDto> response) {
-                progressDialog.dismiss();
 
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ProdutosActivity.this,
@@ -590,13 +564,20 @@ public class ProdutosActivity extends AppCompatActivity {
                     produtoSelecionado = null;
                     carregarProdutos();
                 } else {
-                    tratarErroCompra(response);
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
+                        Toast.makeText(ProdutosActivity.this,
+                                "Erro: " + (response.code() == 400 ? "Dados inválidos" : errorBody),
+                                Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(ProdutosActivity.this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<SuperClassProd.PedidoCompraCompletoDto> call, Throwable t) {
-                progressDialog.dismiss();
+
                 Toast.makeText(ProdutosActivity.this,
                         "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
                 Log.e("COMPRA_ERROR", "Falha ao realizar compra", t);
@@ -626,41 +607,6 @@ public class ProdutosActivity extends AppCompatActivity {
     String formatoEntrada = "dd/MM/yyyy HH:mm";
     String dataISO = formatarParaISO8601(dataEntrada, formatoEntrada);
 
-    private void tratarErroCompra(Response<?> response) {
-        try {
-            String errorBody = response.errorBody() != null ?
-                    response.errorBody().string() : "Erro desconhecido";
-
-            String mensagemErro;
-            switch (response.code()) {
-                case 400:
-                    mensagemErro = "Dados inválidos: " + errorBody;
-                    break;
-                case 401:
-                    mensagemErro = "Não autorizado - token inválido ou expirado";
-                    // Opcional: redirecionar para tela de login
-                    break;
-                case 403:
-                    mensagemErro = "Acesso proibido";
-                    break;
-                case 404:
-                    mensagemErro = "Produto não encontrado";
-                    break;
-                case 500:
-                    mensagemErro = "Erro no servidor";
-                    break;
-                default:
-                    mensagemErro = "Erro: " + response.code();
-            }
-
-            Toast.makeText(this, mensagemErro, Toast.LENGTH_LONG).show();
-            Log.e("COMPRA_ERROR", "Código: " + response.code() + " - " + errorBody);
-        } catch (IOException e) {
-            Log.e("COMPRA_ERROR", "Erro ao ler errorBody", e);
-            Toast.makeText(this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     //Ainda esta sendo feita
     private void deletarProduto(int produtoId) {
             // Mostrar diálogo de confirmação
@@ -676,14 +622,9 @@ public class ProdutosActivity extends AppCompatActivity {
         }
 
         private void executarDeletarProduto(int produtoId) {
-            ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("Excluindo produto...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-
             String token = obterTokenUsuario();
             if (token == null) {
-                progressDialog.dismiss();
+
                 Toast.makeText(this, "Token inválido", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -694,7 +635,6 @@ public class ProdutosActivity extends AppCompatActivity {
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    progressDialog.dismiss();
 
                     if (response.isSuccessful()) {
                         Toast.makeText(ProdutosActivity.this,
@@ -715,7 +655,6 @@ public class ProdutosActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    progressDialog.dismiss();
                     Toast.makeText(ProdutosActivity.this,
                             "Falha na conexão: " + t.getMessage(),
                             Toast.LENGTH_SHORT).show();
@@ -776,16 +715,10 @@ public class ProdutosActivity extends AppCompatActivity {
                 novoValor
         );
 
-        // 5. Mostrar progresso
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Atualizando produto...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
         // 6. Obter token e verificar autenticação
         String token = obterTokenUsuario();
         if (token == null) {
-            progressDialog.dismiss();
+
             return;
         }
 
@@ -800,7 +733,6 @@ public class ProdutosActivity extends AppCompatActivity {
         call.enqueue(new Callback<SuperClassProd.ProdutoDto>() {
             @Override
             public void onResponse(Call<SuperClassProd.ProdutoDto> call, Response<SuperClassProd.ProdutoDto> response) {
-                progressDialog.dismiss();
 
                 if (response.isSuccessful() && response.body() != null) {
                     // Atualizar o produto selecionado com os novos dados
@@ -823,7 +755,6 @@ public class ProdutosActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<SuperClassProd.ProdutoDto> call, Throwable t) {
-                progressDialog.dismiss();
                 Toast.makeText(ProdutosActivity.this,
                         "Erro na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
                 Log.e("ALTERACAO_ERROR", "Falha ao alterar produto", t);
@@ -886,18 +817,6 @@ public class ProdutosActivity extends AppCompatActivity {
         }
 
         int idUsuario = 0;
-        String nome;
-        String email;
-
-        SuperClassUser.UsuarioTokenDto usuario = AuthUtils.getUsuarioLogado(this);
-        if (usuario != null) {
-            idUsuario = usuario.id;
-            nome = usuario.nome;
-            email = usuario.email;
-
-        } else {
-            Toast.makeText(this, "Usuário não logado ou token inválido", Toast.LENGTH_SHORT).show();
-        }
 
         // Criar objeto DTO com ou sem imagem
         SuperClassProd.ProdutoDto produtoDto = new SuperClassProd.ProdutoDto(
@@ -910,16 +829,8 @@ public class ProdutosActivity extends AppCompatActivity {
                 fotoProd // imgProduto
         );
 
-        // Mostrar progresso durante o upload
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Enviando produto...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
 
-        // Obter instância da API com contexto
-        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-
-        // Recuperar token do usuário logado (exemplo)
+        // Recuperar token do usuário logado
         String token = obterTokenUsuario(); // Essa função precisa retornar o token em formato "Bearer eyJ..."
 
         Call<Void> call = apiService.cadastrarProduto(token, produtoDto);
@@ -927,7 +838,6 @@ public class ProdutosActivity extends AppCompatActivity {
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                progressDialog.dismiss();
                 if (response.isSuccessful()) {
                     Toast.makeText(ProdutosActivity.this,
                             "Produto criado com sucesso!", Toast.LENGTH_SHORT).show();
@@ -941,7 +851,6 @@ public class ProdutosActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                progressDialog.dismiss();
                 Toast.makeText(ProdutosActivity.this,
                         "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("API_ERROR", "Erro na chamada API", t);

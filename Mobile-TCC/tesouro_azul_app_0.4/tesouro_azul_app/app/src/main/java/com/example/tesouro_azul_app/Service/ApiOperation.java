@@ -17,6 +17,7 @@ import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.Pages.MainActivity;
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
+import com.example.tesouro_azul_app.Util.AuthUtils;
 
 import java.io.IOException;
 
@@ -250,10 +251,7 @@ public class ApiOperation {
                     SuperClassUser.LoginResponseDto loginResponse = response.body();
 
                     // Armazena o token JWT
-                    SharedPreferences sharedPref = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("jwt_token", loginResponse.getToken());
-                    editor.apply();
+                    AuthUtils.saveToken(context, loginResponse.getToken());
 
                     // Navega para a tela principal
                     Intent intent = new Intent(context, MainActivity.class);
