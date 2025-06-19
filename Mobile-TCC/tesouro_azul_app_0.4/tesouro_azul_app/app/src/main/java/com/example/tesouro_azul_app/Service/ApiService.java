@@ -46,8 +46,9 @@ public interface ApiService {
     Call<SuperClassUser.Usuario> alterarCamposUsuario( String token, @Path("id") int id, @Body SuperClassUser.AtualizarCampoUsuarioDto dto);
 
 
-    @GET("api/Usuarios/Buscar-Imagem")
-    Call<ResponseBody> buscarUsuarioFoto(String token);
+        @GET("api/Usuarios/Buscar-Imagem")
+        Call<ResponseBody> buscarImagemUsuario(@Header("Authorization") String token);
+
 
     @PATCH("/alterar-imagem")
     Call<ResponseBody> atualizarImagem( String token,

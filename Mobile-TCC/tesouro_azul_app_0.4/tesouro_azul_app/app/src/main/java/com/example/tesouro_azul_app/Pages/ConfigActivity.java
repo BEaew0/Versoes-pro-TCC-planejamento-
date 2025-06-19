@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -303,62 +304,41 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     private void buscarImagemUsuario() {
-        if (token == null || token.trim().isEmpty()) {
-            Log.e(TAG, "Token não disponível ou vazio");
-            return;
-        }
-
-        if (apiService == null) {
-            showToast("Erro interno: serviço de API não inicializado");
-            Log.e(TAG, "apiService está nulo");
-            return;
-        }
-
-        Call<ResponseBody> call = apiService.buscarUsuarioFoto(token);
-        if (call == null) {
-            showToast("Erro na solicitação da imagem");
-            Log.e(TAG, "Call retornou nulo");
-            return;
-        }
+        Call<ResponseBody> call = apiService.buscarImagemUsuario(token);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    if (!response.isSuccessful()) {
-                        handleUnsuccessfulResponse(response);
-                        return;
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String responseString = response.body().string();
+
+                        // Agora você pode usar uma biblioteca JSON (ex: Gson) para extrair a imagem Base64
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        String imagemBase64 = jsonObject.getString("imagemBase64");
+
+                        // Agora você pode converter de Base64 para Bitmap e exibir
+                        byte[] imageBytes = Base64.decode(imagemBase64, Base64.DEFAULT);
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+                        // Exemplo: mostrar a imagem num ImageView
+                        userIcon.setImageBitmap(bitmap);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-
-                    ResponseBody responseBody = response.body();
-                    if (responseBody == null) {
-                        showToast("Resposta da API vazia");
-                        Log.e(TAG, "Response body é nulo");
-                        return;
-                    }
-
-                    String jsonString = responseBody.string();
-                    Log.d(TAG, "Resposta da API: " + jsonString);
-                    processImageResponse(jsonString);
-
-                } catch (IOException e) {
-                    showToast("Erro ao ler resposta da API");
-                    Log.e(TAG, "IO Error: " + e.getMessage(), e);
-                } catch (Exception e) {
-                    showToast("Erro inesperado");
-                    Log.e(TAG, "Unexpected error: " + e.getMessage(), e);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Erro ao buscar imagem: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                if (!call.isCanceled()) {
-                    showToast("Falha na conexão. Tente novamente.");
-                    Log.e(TAG, "Falha na requisição: " + t.getMessage(), t);
-                }
+                Toast.makeText(getApplicationContext(), "Falha na requisição: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     private void processImageResponse(String jsonResponse) {
         try {
