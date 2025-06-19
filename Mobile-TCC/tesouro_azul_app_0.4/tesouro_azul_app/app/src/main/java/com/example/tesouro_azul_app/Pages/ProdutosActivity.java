@@ -159,7 +159,7 @@ public class ProdutosActivity extends AppCompatActivity {
         }
 
         configurarBusca();
-        carregarProdutos();
+
 
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),

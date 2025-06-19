@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tesouro_azul_app.Class.SuperClassUser;
-import com.example.tesouro_azul_app.EntradaActivity;
 import com.example.tesouro_azul_app.LoginActivity;
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.R;
@@ -41,22 +39,16 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -92,6 +84,8 @@ public class ConfigActivity extends AppCompatActivity {
 
     TextView UserName,UserEmail;
 
+    private static final String TAG = "ConfigActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ThemeManager.applySavedTheme(this);
@@ -126,12 +120,6 @@ public class ConfigActivity extends AppCompatActivity {
              role = userInfo.getRole();
         }
 
-        // Carregar nome e email
-        buscarNomeEmailUsuario();
-
-        // Carregar foto de perfil
-        buscarImagemUsuario();
-
         //Prepara o launcher para abrir a galeria e, se o usuário selecionar uma imagem, define essa imagem como o novo ícone do usuário.
         try {
             galleryLauncher = registerForActivityResult(
@@ -146,6 +134,8 @@ public class ConfigActivity extends AppCompatActivity {
         }catch (Exception e) {
             Toast.makeText(this, "Erro ao resgatar imagem", Toast.LENGTH_SHORT).show();
         }
+
+        buscarImagemUsuario();
 
         Xleave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -268,14 +258,10 @@ public class ConfigActivity extends AppCompatActivity {
 
     private void handleSelectedImage(Uri imageUri) {
         try {
-            Bitmap originalBitmap = BitmapFactory.decodeStream(
-                    getContentResolver().openInputStream(imageUri));
+            Bitmap originalBitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
 
             // Reduz o tamanho da imagem antes de enviar
             Bitmap resizedBitmap = ImageUtils.resizeBitmap(originalBitmap, 800);
-
-            // Exibir a imagem na ImageView
-            userIcon.setImageBitmap(resizedBitmap);
 
             // Converter para Base64
             fotox = ImageUtils.bitmapToBase64(resizedBitmap);
@@ -370,57 +356,77 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     private void buscarImagemUsuario() {
-        // Verifica se o token está disponível
-        if (token == null || token.isEmpty()) {
-            showToast("Token de autenticação inválido");
-            Log.e("IMAGEM_ERROR", "Token não disponível");
-            return;
-        }
+        try {
+            // ✅ Verifica se o token está disponível e válido
+            if (token == null || token.trim().isEmpty()) {
+                showToast("Token de autenticação inválido");
+                Log.e("IMAGEM_ERROR", "Token não disponível ou vazio");
+                return;
+            }
 
-        Call<ResponseBody> call = apiService.buscarUsuarioFoto(token);
-        if (call == null) {
-            showToast("Erro na solicitação da imagem");
-            Log.e("IMAGEM_ERROR", "Call object é nulo");
-            return;
-        }
+            // ✅ Verifica se o apiService foi inicializado corretamente
+            if (apiService == null) {
+                showToast("Erro interno: serviço de API não inicializado");
+                Log.e("IMAGEM_ERROR", "apiService está nulo");
+                return;
+            }
 
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    if (!response.isSuccessful()) {
-                        handleUnsuccessfulResponse(response);
+            Call<ResponseBody> call = apiService.buscarUsuarioFoto(token);
+
+            if (call == null) {
+                showToast("Erro na solicitação da imagem");
+                Log.e("IMAGEM_ERROR", "Call retornou nulo");
+                return;
+            }
+
+            // ✅ Executa a chamada assíncrona com Callback
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    try {
+                        if (!response.isSuccessful()) {
+                            handleUnsuccessfulResponse(response);
+                            return;
+                        }
+
+                        ResponseBody responseBody = response.body();
+                        if (responseBody == null) {
+                            showToast("Resposta da API vazia");
+                            Log.e("IMAGEM_ERROR", "Response body é nulo");
+                            return;
+                        }
+
+                        String jsonString = responseBody.string();
+                        Log.d("IMAGEM_DEBUG", "Resposta da API: " + jsonString);
+
+                        processImageResponse(jsonString);
+
+                    } catch (IOException e) {
+                        showToast("Erro ao ler resposta da API");
+                        Log.e("IMAGEM_ERROR", "IO Error: " + e.getMessage(), e);
+                    } catch (Exception e) {
+                        showToast("Erro inesperado");
+                        Log.e("IMAGEM_ERROR", "Unexpected error: " + e.getMessage(), e);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    if (call.isCanceled()) {
+                        Log.w("IMAGEM_ERROR", "Chamada cancelada");
                         return;
                     }
 
-                    if (response.body() == null) {
-                        showToast("Resposta da API vazia");
-                        Log.e("IMAGEM_ERROR", "Response body é nulo");
-                        return;
-                    }
-
-                    processImageResponse(response.body().string());
-
-                } catch (IOException e) {
-                    showToast("Erro ao ler resposta da API");
-                    Log.e("IMAGEM_ERROR", "IO Error: " + e.getMessage(), e);
-                } catch (Exception e) {
-                    showToast("Erro inesperado");
-                    Log.e("IMAGEM_ERROR", "Unexpected error: " + e.getMessage(), e);
+                    showToast("Falha na conexão. Tente novamente.");
+                    Log.e("IMAGEM_ERROR", "Falha na requisição: " + t.getMessage(), t);
                 }
-            }
+            });
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                if (call.isCanceled()) {
-                    Log.w("IMAGEM_ERROR", "Chamada cancelada");
-                    return;
-                }
-
-                showToast("Falha na conexão. Tente novamente.");
-                Log.e("IMAGEM_ERROR", "Falha na requisição: " + t.getMessage(), t);
-            }
-        });
+        } catch (Exception e) {
+            // ✅ Captura qualquer exceção inesperada na preparação da requisição
+            showToast("Erro ao iniciar busca de imagem");
+            Log.e("IMAGEM_ERROR", "Erro inesperado ao iniciar função: " + e.getMessage(), e);
+        }
     }
 
     private void processImageResponse(String jsonResponse) {
