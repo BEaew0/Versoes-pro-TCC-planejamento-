@@ -37,9 +37,9 @@ public interface ApiService {
     @GET("api/Usuarios")
     Call<List<SuperClassUser.Usuario>> buscarUsuarios( String token);
 
-    // Buscar Usuario por ID
-    @GET("api/Usuarios/buscar-dados-usuario")
-    Call<SuperClassUser.Usuario> buscarUsuarioPorId( String token);
+    // Buscar Usuario
+    @GET("buscar-dados-usuario")
+    Call<SuperClassUser.Usuario> buscarUsuario(String token);
 
     // Atualizar campo do Usuario
     @PATCH("api/Usuarios/{id}/alterar-campo")

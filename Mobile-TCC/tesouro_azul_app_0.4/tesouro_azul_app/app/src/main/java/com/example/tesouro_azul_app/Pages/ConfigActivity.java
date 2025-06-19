@@ -31,6 +31,9 @@ import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.R;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Util.AuthUtils;
+import com.example.tesouro_azul_app.Util.ImageUtils;
+import com.example.tesouro_azul_app.Util.PermissionUtils;
+import com.example.tesouro_azul_app.Util.ThemeManager;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -87,43 +90,35 @@ public class ConfigActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-    // Antes de carregar o layout, verificamos o tema salvo
-    sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-
-    token = obterTokenUsuario();
-
-    // Recupera se o modo escuro estava ativado na última vez
-    boolean isNightMode = sharedPreferences.getBoolean(NIGHT_MODE_KEY, false);
-
-    // Define o tema do app conforme a preferência salva
-    if (isNightMode) {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-    } else {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-    }
+        ThemeManager.applySavedTheme(this);
 
     super.onCreate(savedInstanceState);
-
     setContentView(R.layout.activity_config);
+
         userIcon = findViewById(R.id.User_icon);
         UserEmail = findViewById(R.id.UserEmail);
         UserName = findViewById(R.id.UserName);
+        SwitchMaterial swicthTheme = findViewById(R.id.switchTheme);
 
-    SwitchMaterial swicthTheme = findViewById(R.id.switchTheme);
-
-    themeIcon = findViewById(R.id.ThemeMode);
-    Xleave = (ImageView) findViewById(R.id.Xleave);
-    trocarSenha = (RelativeLayout) findViewById(R.id.trocarSenha);
-    SairConta = (RelativeLayout) findViewById(R.id.SairConta);
-    ExcluirConta = (RelativeLayout) findViewById(R.id.ExcluirConta);
+        themeIcon = findViewById(R.id.ThemeMode);
+        Xleave = (ImageView) findViewById(R.id.Xleave);
+        trocarSenha = (RelativeLayout) findViewById(R.id.trocarSenha);
+        SairConta = (RelativeLayout) findViewById(R.id.SairConta);
+        ExcluirConta = (RelativeLayout) findViewById(R.id.ExcluirConta);
 
         // Configura Retrofit
         apiService = RetrofitClient.getApiService(getApplicationContext());
 
         // Define o estado inicial do Switch de acordo com a preferência
-    swicthTheme.setChecked(isNightMode);
-    updateThemeIcon(isNightMode);
+        swicthTheme.setChecked(ThemeManager.getNightModePreference(this));
+
+        token = obterTokenUsuario();
+
+        // Carregar nome e email
+        buscarNomeEmailUsuario();
+
+        // Carregar foto de perfil
+        buscarImagemUsuario();
 
         //Prepara o launcher para abrir a galeria e, se o usuário selecionar uma imagem, define essa imagem como o novo ícone do usuário.
         try {
@@ -140,8 +135,6 @@ public class ConfigActivity extends AppCompatActivity {
             Toast.makeText(this, "Erro ao resgatar imagem", Toast.LENGTH_SHORT).show();
         }
 
-
-
         Xleave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,50 +143,16 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
 
-
         //Ao clicar no ícone do usuário, verifica se tem permissão para acessar a galeria.
         // Se não tiver, solicita. Se tiver, abre a galeria para o usuário escolher uma imagem.
-        userIcon.setOnClickListener(view ->
-        {
-            // Já tem permissão → Abre direto
-            if (ContextCompat.checkSelfPermission(ConfigActivity.this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED)
-            {
-                openGallery();
-            }
-            else
-            {
-                // Solicita permissão
-                ActivityCompat.requestPermissions(
-                        ConfigActivity.this,
-                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
-                        REQUEST_CODE_GALLERY
-                );
-            }
-        });
-
-
-
+        userIcon.setOnClickListener(view -> {escolherImagem();});
 
         // Listener para detectar mudanças no Switch
         swicthTheme.setOnCheckedChangeListener((buttonView, isChecked) ->
         {
-            if (isChecked)
-            {
-                // Se o usuário ativar, muda para o modo escuro
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                saveThemePreference(true);
-                updateThemeIcon(true);// Salva essa escolha
-
-
-            } else
-            {
-                // Se o usuário desativar, volta para o modo claro
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                saveThemePreference(false);
-                updateThemeIcon(false);// Salva essa escolha
-            }
-
-            // Atualiza a tela com o novo tema
+            ThemeManager.saveNightModePreference(this, isChecked);
+            ThemeManager.applySavedTheme(this);
+            updateThemeIcon(isChecked);
             recreate();
         });
 
@@ -220,16 +179,6 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
 
-
-
-    }
-
-    // Função auxiliar para salvar a preferência no SharedPreferences
-    private void saveThemePreference(boolean isNight)
-    {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(NIGHT_MODE_KEY, isNight); // Salva o valor true ou false
-        editor.apply(); // Aplica as mudanças
     }
 
     private void updateThemeIcon(boolean isNightMode)
@@ -278,62 +227,46 @@ public class ConfigActivity extends AppCompatActivity {
                 Toast.makeText(this, "Permissão negada. Não é possível alterar a imagem.", Toast.LENGTH_SHORT).show();
 
                 // Verifica se o usuário *não* marcou "Nunca perguntar de novo"
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_IMAGES))
-                {
+                if (PermissionUtils.shouldShowRationale(this, Manifest.permission.READ_MEDIA_IMAGES)) {
                     new AlertDialog.Builder(this)
                             .setTitle("Permissão necessária")
                             .setMessage("Você precisa permitir o acesso à galeria para alterar a imagem.")
                             .setPositiveButton("OK", (dialog, which) -> {
-                                // Solicita novamente a permissão
-                                ActivityCompat.requestPermissions(
-                                        this,
-                                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
-                                        REQUEST_CODE_GALLERY
-                                );
+                                PermissionUtils.requestPermission(this, Manifest.permission.READ_MEDIA_IMAGES, REQUEST_CODE_GALLERY);
                             })
-                            .setNegativeButton("Cancelar", null) // Não faz nada se cancelar
+                            .setNegativeButton("Cancelar", null)
                             .show();
                 }
+
             }
         }
     }
 
-    //converte a imagem para POST
-    public String imagem_string(Bitmap fotox) {
-        ByteArrayOutputStream data = new ByteArrayOutputStream();
-
-        // Comprime o bitmap em formato JPEG com 100% de qualidade
-        fotox.compress(Bitmap.CompressFormat.JPEG, 100, data);
-
-        // Converte o bitmap em um array de bytes
-        byte[] b1 = data.toByteArray();
-
-        // Codifica os bytes em uma string Base64
-        return Base64.encodeToString(b1, Base64.DEFAULT);
+    private void escolherImagem()
+    {
+        // Já tem permissão → Abre direto
+        if (PermissionUtils.isPermissionGranted(this, Manifest.permission.READ_MEDIA_IMAGES)) {
+            openGallery();
+        } else {
+            PermissionUtils.requestPermission(this, Manifest.permission.READ_MEDIA_IMAGES, REQUEST_CODE_GALLERY);
+        }
     }
-
-    //Converte a imagem a view
-    public Bitmap getFoto(String s) {
-        // Decodifica a string Base64 de volta para um array de bytes
-        byte[] decodes = Base64.decode(s, Base64.DEFAULT);
-
-        // Converte o array de bytes para um objeto Bitmap
-        return BitmapFactory.decodeByteArray(decodes, 0, decodes.length);
-    }
-
 
     private void handleSelectedImage(Uri imageUri) {
         try {
-            //Converte URI para Bitmap
-            Bitmap bitmap = BitmapFactory.decodeStream(
+            Bitmap originalBitmap = BitmapFactory.decodeStream(
                     getContentResolver().openInputStream(imageUri));
 
-            //Atualiza a ImageView
-            userIcon.setImageBitmap(bitmap);
+            // Reduz o tamanho da imagem antes de enviar
+            Bitmap resizedBitmap = ImageUtils.resizeBitmap(originalBitmap, 800);
 
-            //Converte para Base64 e armazena
-            fotox = imagem_string(bitmap);
+            // Exibir a imagem na ImageView
+            userIcon.setImageBitmap(resizedBitmap);
 
+            // Converter para Base64
+            fotox = ImageUtils.bitmapToBase64(resizedBitmap);
+
+            // Enviar para API
             enviarImagem(fotox);
 
         } catch (FileNotFoundException e) {
@@ -418,14 +351,14 @@ public class ConfigActivity extends AppCompatActivity {
 
     //Busca o nome e o email
     private void buscarNomeEmailUsuario() {
-        ApiService apiService = RetrofitClient.getApiService(this);  // Supondo que você já tenha o RetrofitClient configurado com o token
-
-        Call<SuperClassUser.Usuario> call = apiService.buscarUsuarioPorId(token);
+        Call<SuperClassUser.Usuario> call = apiService.buscarUsuario(token);
 
         call.enqueue(new Callback<SuperClassUser.Usuario>() {
             @Override
-            public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response) {
-                if (response.isSuccessful() && response.body() != null) {
+            public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response)
+            {
+                if (response.isSuccessful() && response.body() != null)
+                {
                     String nome = response.body().getNomeUsuario();
                     String email = response.body().getEmailUsuario();
 
@@ -433,7 +366,7 @@ public class ConfigActivity extends AppCompatActivity {
                     UserName.setText(nome);
 
                 } else {
-                    Toast.makeText(ConfigActivity.this, "Deu pauKKKkk " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ConfigActivity.this, "Erro ao carregar perfil: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -449,13 +382,6 @@ public class ConfigActivity extends AppCompatActivity {
         if (token == null || token.isEmpty()) {
             showToast("Token de autenticação inválido");
             Log.e("IMAGEM_ERROR", "Token não disponível");
-            return;
-        }
-
-        ApiService apiService = RetrofitClient.getApiService(this);
-        if (apiService == null) {
-            showToast("Erro na configuração da API");
-            Log.e("IMAGEM_ERROR", "ApiService não inicializado");
             return;
         }
 
@@ -520,7 +446,7 @@ public class ConfigActivity extends AppCompatActivity {
                 return;
             }
 
-            Bitmap bitmap = getFoto(imagemBase64);
+            bitmap = ImageUtils.base64ToBitmap(imagemBase64);
             if (bitmap == null) {
                 showToast("Erro ao decodificar imagem");
                 return;
