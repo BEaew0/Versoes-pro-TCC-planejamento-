@@ -219,7 +219,7 @@ public class EntradaActivity extends AppCompatActivity
                     String tipoDocumento = validator.identificarTipo(CPF_CNPJreg);
 
                     String CPF_USUARIO = null;
-                    String CNPJ_USUARIO = null;
+                    String CNPJ_USUARIO = "000";
 
                     if ("CPF".equals(tipoDocumento)) {
                         CPF_USUARIO = CPF_CNPJreg.replaceAll("\\D", ""); // Remove caracteres não numéricos

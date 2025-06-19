@@ -10,11 +10,6 @@ public class SuperClassProd {
 
     // DTO para cadastro de produto
     public static class ProdutoDto {
-        @SerializedName("iD_PRODUTO")
-        private int idProduto;
-
-        @SerializedName("iD_USUARIO_FK")
-        private int idUsuarioFk;
 
         @SerializedName("coD_PRODUTO")
         private String codProduto;
@@ -31,9 +26,8 @@ public class SuperClassProd {
         @SerializedName("imG_PRODUTO")
         private String imgProduto;
 
-        public ProdutoDto(int idProduto, int idUsuarioFk, String codProduto, String nomeProduto, double valorProduto, String tipoProduto, String imgProduto) {
-            this.idProduto = idProduto;
-            this.idUsuarioFk = idUsuarioFk;
+        public ProdutoDto( String codProduto, String nomeProduto, double valorProduto, String tipoProduto, String imgProduto) {
+
             this.codProduto = codProduto;
             this.nomeProduto = nomeProduto;
             this.valorProduto = valorProduto;
@@ -42,22 +36,6 @@ public class SuperClassProd {
         }
 
         // Getters e Setters
-
-        public int getIdProduto() {
-            return idProduto;
-        }
-
-        public void setIdProduto(int idProduto) {
-            this.idProduto = idProduto;
-        }
-
-        public int getIdUsuarioFk() {
-            return idUsuarioFk;
-        }
-
-        public void setIdUsuarioFk(int idUsuarioFk) {
-            this.idUsuarioFk = idUsuarioFk;
-        }
 
         public String getCodProduto() {
             return codProduto;

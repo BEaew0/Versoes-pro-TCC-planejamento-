@@ -50,10 +50,12 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class ConfigActivity extends AppCompatActivity {
 
@@ -138,8 +140,7 @@ public class ConfigActivity extends AppCompatActivity {
             Toast.makeText(this, "Erro ao resgatar imagem", Toast.LENGTH_SHORT).show();
         }
 
-        buscarImagemUsuario();
-        buscarNomeEmailUsuario();
+
 
         Xleave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,10 +171,7 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
 
-        if (fotox != null)
-        {
-            enviarImagem(fotox);
-        }
+
 
 
         // Listener para detectar mudanças no Switch
@@ -221,6 +219,8 @@ public class ConfigActivity extends AppCompatActivity {
             desativarUsuario();
             }
         });
+
+
 
     }
 
@@ -321,14 +321,6 @@ public class ConfigActivity extends AppCompatActivity {
         return BitmapFactory.decodeByteArray(decodes, 0, decodes.length);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-            handleSelectedImage(data.getData());
-        }
-    }
 
     private void handleSelectedImage(Uri imageUri) {
         try {
@@ -453,45 +445,118 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     private void buscarImagemUsuario() {
+        // Verifica se o token está disponível
+        if (token == null || token.isEmpty()) {
+            showToast("Token de autenticação inválido");
+            Log.e("IMAGEM_ERROR", "Token não disponível");
+            return;
+        }
 
         ApiService apiService = RetrofitClient.getApiService(this);
+        if (apiService == null) {
+            showToast("Erro na configuração da API");
+            Log.e("IMAGEM_ERROR", "ApiService não inicializado");
+            return;
+        }
+
         Call<ResponseBody> call = apiService.buscarUsuarioFoto(token);
+        if (call == null) {
+            showToast("Erro na solicitação da imagem");
+            Log.e("IMAGEM_ERROR", "Call object é nulo");
+            return;
+        }
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    try {
-                        String jsonResponse = response.body().string();
-                        JSONObject jsonObject = new JSONObject(jsonResponse);
-
-                        if (jsonObject.has("imagemBase64")) {
-                            String imagemBase64 = jsonObject.getString("imagemBase64");
-                            bitmap = getFoto(imagemBase64);
-
-                            userIcon.setImageBitmap(bitmap);
-                        } else
-                        {
-                            Toast.makeText(ConfigActivity.this,
-                                    "Usuário não possui imagem", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        Toast.makeText(ConfigActivity.this,
-                                "Erro ao processar imagem", Toast.LENGTH_SHORT).show();
-                        Log.e("IMAGEM_ERROR", "Erro: " + e.getMessage());
+                try {
+                    if (!response.isSuccessful()) {
+                        handleUnsuccessfulResponse(response);
+                        return;
                     }
+
+                    if (response.body() == null) {
+                        showToast("Resposta da API vazia");
+                        Log.e("IMAGEM_ERROR", "Response body é nulo");
+                        return;
+                    }
+
+                    processImageResponse(response.body().string());
+
+                } catch (IOException e) {
+                    showToast("Erro ao ler resposta da API");
+                    Log.e("IMAGEM_ERROR", "IO Error: " + e.getMessage(), e);
+                } catch (Exception e) {
+                    showToast("Erro inesperado");
+                    Log.e("IMAGEM_ERROR", "Unexpected error: " + e.getMessage(), e);
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(ConfigActivity.this,
-                        "Falha na conexão", Toast.LENGTH_SHORT).show();
-                Log.e("API_ERROR", "Erro: " + t.getMessage());
+                if (call.isCanceled()) {
+                    Log.w("IMAGEM_ERROR", "Chamada cancelada");
+                    return;
+                }
+
+                showToast("Falha na conexão. Tente novamente.");
+                Log.e("IMAGEM_ERROR", "Falha na requisição: " + t.getMessage(), t);
             }
         });
     }
 
+    private void processImageResponse(String jsonResponse) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonResponse);
+
+            if (!jsonObject.has("imagemBase64")) {
+                showToast("Usuário não possui imagem");
+                return;
+            }
+
+            String imagemBase64 = jsonObject.getString("imagemBase64");
+            if (imagemBase64 == null || imagemBase64.isEmpty()) {
+                showToast("Imagem inválida ou vazia");
+                return;
+            }
+
+            Bitmap bitmap = getFoto(imagemBase64);
+            if (bitmap == null) {
+                showToast("Erro ao decodificar imagem");
+                return;
+            }
+
+            userIcon.setImageBitmap(bitmap);
+
+        } catch (JSONException e) {
+            showToast("Erro no formato da resposta");
+            Log.e("IMAGEM_ERROR", "JSON Error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            showToast("Erro ao processar imagem");
+            Log.e("IMAGEM_ERROR", "Image processing error: " + e.getMessage(), e);
+        }
+    }
+
+    private void handleUnsuccessfulResponse(Response<ResponseBody> response) {
+        String errorMessage = "Erro na requisição";
+        try {
+            if (response.errorBody() != null) {
+                String errorBody = response.errorBody().string();
+                errorMessage += ": " + errorBody;
+                Log.e("IMAGEM_ERROR", "Erro na resposta: " + response.code() + " - " + errorBody);
+            } else {
+                errorMessage += " (Código: " + response.code() + ")";
+                Log.e("IMAGEM_ERROR", "Erro na resposta: " + response.code());
+            }
+        } catch (IOException e) {
+            Log.e("IMAGEM_ERROR", "Erro ao ler errorBody", e);
+        }
+        showToast(errorMessage);
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(ConfigActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
     //Limpa dados adicionais da sessão do usuário
     private void limparDadosSessao() {
         SharedPreferences prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);

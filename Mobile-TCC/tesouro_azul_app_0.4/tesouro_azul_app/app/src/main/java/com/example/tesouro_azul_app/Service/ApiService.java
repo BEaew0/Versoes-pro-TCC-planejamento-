@@ -35,23 +35,22 @@ public interface ApiService {
 
     // Buscar todos os Usuarios
     @GET("api/Usuarios")
-    Call<List<SuperClassUser.Usuario>> buscarUsuarios(@Header("Authorization") String token);
+    Call<List<SuperClassUser.Usuario>> buscarUsuarios( String token);
 
     // Buscar Usuario por ID
     @GET("api/Usuarios/buscar-dados-usuario")
-    Call<SuperClassUser.Usuario> buscarUsuarioPorId(@Header("Authorization") String token);
+    Call<SuperClassUser.Usuario> buscarUsuarioPorId( String token);
 
     // Atualizar campo do Usuario
     @PATCH("api/Usuarios/{id}/alterar-campo")
-    Call<SuperClassUser.Usuario> alterarCamposUsuario(@Header("Authorization") String token, @Path("id") int id, @Body SuperClassUser.AtualizarCampoUsuarioDto dto);
+    Call<SuperClassUser.Usuario> alterarCamposUsuario( String token, @Path("id") int id, @Body SuperClassUser.AtualizarCampoUsuarioDto dto);
 
 
     @GET("api/Usuarios/Buscar-Imagem")
     Call<ResponseBody> buscarUsuarioFoto(String token);
 
     @PATCH("/alterar-imagem")
-    Call<ResponseBody> atualizarImagem(
-            @Header("Authorization") String token,
+    Call<ResponseBody> atualizarImagem( String token,
             @Body SuperClassProd.ImagemDto dto
     );
 
@@ -72,12 +71,11 @@ public interface ApiService {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @POST("api/Produtos/cadastrar-produto")
-    Call<Void> cadastrarProduto(@Header("Authorization") String token, @Body SuperClassProd.ProdutoDto produtoDto);
+    @POST("cadastrar-produto")
+    Call<Void> cadastrarProduto( String token, @Body SuperClassProd.ProdutoDto produtoDto);
 
     @POST("api/Produtos/buscar-produtos-por-nome-similar")
-    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(
-            @Header("Authorization") String token,
+    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(String token,
             @Body String nome
     );
 
@@ -88,13 +86,7 @@ public interface ApiService {
     );
 
     @GET("api/Produtos/buscar-todos-produtos-users")
-    Call<List<SuperClassProd.ProdutoDto>> buscarTodosProdutos(@Header("Authorization") String token);
-
-    @GET("api/Produtos/usuario/{id_usuario}")
-    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorUsuario(@Header("Authorization") String token, @Path("id_usuario") int idUsuario);
-
-    @GET("api/Produtos/produto/{id}")
-    Call<SuperClassProd.ProdutoDto> buscarProdutoPorId(@Header("Authorization") String token, @Path("id") int id);
+    Call<List<SuperClassProd.ProdutoDto>> buscarTodosProdutos(String token);
 
     @POST("/buscar-produtos-por-nome-similar")
     Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(@Body String nomeProdTxt);

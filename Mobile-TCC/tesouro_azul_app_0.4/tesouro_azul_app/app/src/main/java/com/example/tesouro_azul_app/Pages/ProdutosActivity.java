@@ -170,7 +170,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         btnExluir.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {deletarProduto(produtoSelecionado.getIdUsuarioFk());}
+            public void onClick(View view) {/*deletarProduto()*/;}
         });
 
         btnComprar.setOnClickListener(new View.OnClickListener() {
@@ -191,7 +191,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         btnAlterarProd.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {alterarProduto();}
+            public void onClick(View v) {/*alterarProduto();*/}
         });
 
         ValProd.setOnClickListener(new View.OnClickListener() {
@@ -429,7 +429,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // 5. Criar DTOs para a venda (CORREÇÃO: usando getIdProduto() em vez de getIdUsuarioFk())
         SuperClassProd.ItemVendaDto itemVenda = new SuperClassProd.ItemVendaDto(
-                produtoSelecionado.getIdProduto(),
+                0,
                 lote,
                 quantidade,
                 1, // Número do item
@@ -521,7 +521,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Criar DTOs para a compra
         SuperClassProd.ItemCompraDto itemCompra = new SuperClassProd.ItemCompraDto(
-                produtoSelecionado.getIdProduto(), // ID do produto
+                0,// ID do produto
                 0, // ID do pedido (será gerado pelo servidor)
                 validade,
                 lote,
@@ -677,6 +677,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
 
     //Ainda esta sendo feita
+    /*
     private void alterarProduto() {
         // 1. Verificar se há um produto selecionado
         if (produtoSelecionado == null) {
@@ -761,7 +762,7 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
-
+*/
     private void tratarErroAlteracao(Response<?> response) {
         try {
             String errorBody = response.errorBody() != null ?
@@ -820,8 +821,6 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Criar objeto DTO com ou sem imagem
         SuperClassProd.ProdutoDto produtoDto = new SuperClassProd.ProdutoDto(
-                0, // idProduto - você precisa definir ou obter este valor
-                idUsuario, // idUsuarioFk
                 codProduto, // codProduto
                 nomeProduto, // nomeProduto
                 valorProduto, // valorProduto
