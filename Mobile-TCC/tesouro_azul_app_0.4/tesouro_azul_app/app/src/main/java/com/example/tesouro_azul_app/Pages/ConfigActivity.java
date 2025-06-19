@@ -1,6 +1,5 @@
 package com.example.tesouro_azul_app.Pages;
 
-
 import android.app.Activity;
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -19,7 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,73 +52,96 @@ import java.io.IOException;
 
 public class ConfigActivity extends AppCompatActivity {
 
-    private String fotox;
-
-    private SharedPreferences sharedPreferences;
-
-    private Bitmap bitmap;
-
-    private String token;
-    private ImageView Xleave,themeIcon;
-    private RelativeLayout trocarSenha,SairConta,ExcluirConta;
-
-    // Nome do arquivo de preferências e chave booleana usada para salvar o modo escuro
+    // Constantes
+    private static final String TAG = "ConfigActivity";
+    private static final int REQUEST_CODE_GALLERY = 1001;
     private static final String PREF_NAME = "ThemePrefs";
     private static final String NIGHT_MODE_KEY = "night_mode";
+    private static final long PROGRESS_DIALOG_DELAY_MS = 1000L;
 
-    //Declara uma constante para identificar o código da requisição da galeria,
-    // o ícone do usuário e o launcher para abrir a galeria e receber o resultado.
-    private static final int REQUEST_CODE_GALLERY = 1001;
-
+    // Views
+    private ImageView Xleave, themeIcon;
+    private RelativeLayout trocarSenha, SairConta, ExcluirConta;
     private ShapeableImageView userIcon;
-    private ApiService apiService;
+    private TextView UserName, UserEmail;
 
+    // Dados
+    private String fotox;
+    private Bitmap bitmap;
+    private String token;
+    private int userId;
+    private String email;
+    private String role;
+
+    // Serviços e Utilitários
+    private ApiService apiService;
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<String> requestPermissionLauncher;
-
-    int userId;
-    String email;
-    String role;
-
-    TextView UserName,UserEmail;
-
-    private static final String TAG = "ConfigActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ThemeManager.applySavedTheme(this);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_config);
 
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_config);
+        initViews();
+        setupApiService();
+        setupUserInfo();
+        setupThemeSwitch();
+        setupGalleryLauncher();
+        setupClickListeners();
 
+        buscarImagemUsuario();
+    }
+
+    private void initViews() {
         userIcon = findViewById(R.id.User_icon);
         UserEmail = findViewById(R.id.UserEmail);
         UserName = findViewById(R.id.UserName);
         SwitchMaterial swicthTheme = findViewById(R.id.switchTheme);
-
         themeIcon = findViewById(R.id.ThemeMode);
-        Xleave = (ImageView) findViewById(R.id.Xleave);
-        trocarSenha = (RelativeLayout) findViewById(R.id.trocarSenha);
-        SairConta = (RelativeLayout) findViewById(R.id.SairConta);
-        ExcluirConta = (RelativeLayout) findViewById(R.id.ExcluirConta);
+        Xleave = findViewById(R.id.Xleave);
+        trocarSenha = findViewById(R.id.trocarSenha);
+        SairConta = findViewById(R.id.SairConta);
+        ExcluirConta = findViewById(R.id.ExcluirConta);
+    }
 
-        // Configura Retrofit
+    private void setupApiService() {
         apiService = RetrofitClient.getApiService(getApplicationContext());
+    }
 
-        // Define o estado inicial do Switch de acordo com a preferência
-        swicthTheme.setChecked(ThemeManager.getNightModePreference(this));
-
+    private void setupUserInfo() {
         token = obterTokenUsuario();
-
         SuperClassUser.TokenInfo userInfo = AuthUtils.getUserInfoFromToken(this);
 
         if (userInfo != null) {
             userId = userInfo.getUserId();
-             email = userInfo.getEmail();
-             role = userInfo.getRole();
+            email = userInfo.getEmail();
+            role = userInfo.getRole();
+            updateUserInfoViews();
         }
+    }
 
-        //Prepara o launcher para abrir a galeria e, se o usuário selecionar uma imagem, define essa imagem como o novo ícone do usuário.
+    private void updateUserInfoViews() {
+        UserEmail.setText(email);
+        UserName.setText(role);
+    }
+
+    private void setupThemeSwitch() {
+        SwitchMaterial swicthTheme = findViewById(R.id.switchTheme);
+        swicthTheme.setChecked(ThemeManager.getNightModePreference(this));
+
+        swicthTheme.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ThemeManager.saveNightModePreference(this, isChecked);
+            ThemeManager.applySavedTheme(this);
+            updateThemeIcon(isChecked);
+            recreate();
+        });
+
+        updateThemeIcon(swicthTheme.isChecked());
+    }
+
+    private void setupGalleryLauncher() {
         try {
             galleryLauncher = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
@@ -130,123 +151,76 @@ public class ConfigActivity extends AppCompatActivity {
                             handleSelectedImage(imageUri);
                         }
                     });
-
-        }catch (Exception e) {
-            Toast.makeText(this, "Erro ao resgatar imagem", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            showToast("Erro ao configurar galeria");
+            Log.e(TAG, "Erro ao configurar galleryLauncher", e);
         }
-
-        buscarImagemUsuario();
-
-        Xleave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ConfigActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        //Ao clicar no ícone do usuário, verifica se tem permissão para acessar a galeria.
-        // Se não tiver, solicita. Se tiver, abre a galeria para o usuário escolher uma imagem.
-        userIcon.setOnClickListener(view -> {escolherImagem();});
-
-        // Listener para detectar mudanças no Switch
-        swicthTheme.setOnCheckedChangeListener((buttonView, isChecked) ->
-        {
-            ThemeManager.saveNightModePreference(this, isChecked);
-            ThemeManager.applySavedTheme(this);
-            updateThemeIcon(isChecked);
-            recreate();
-        });
-
-        trocarSenha.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {}
-        });
-
-        SairConta.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {deslogarUsuario();}
-        });
-
-        ExcluirConta.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-            desativarUsuario();
-            }
-        });
-
     }
 
-    private void updateThemeIcon(boolean isNightMode)
-    {
-        if(isNightMode){
+    private void setupClickListeners() {
+        Xleave.setOnClickListener(view -> navigateToMainActivity());
+        userIcon.setOnClickListener(view -> escolherImagem());
+        trocarSenha.setOnClickListener(view -> { /* Implementar quando necessário */ });
+        SairConta.setOnClickListener(view -> deslogarUsuario());
+        ExcluirConta.setOnClickListener(view -> desativarUsuario());
+    }
+
+    private void navigateToMainActivity() {
+        Intent intent = new Intent(ConfigActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void updateThemeIcon(boolean isNightMode) {
+        if (isNightMode) {
             themeIcon.setImageResource(R.drawable.nigth_mode_icon);
             themeIcon.setBackgroundResource(R.drawable.round_back_night);
-        }
-        else {
+        } else {
             themeIcon.setImageResource(R.drawable.ligth_mode_icon);
             themeIcon.setBackgroundResource(R.drawable.round_back_white);
         }
-
     }
 
-    //Quando a activity for destruida limpa ActivityResultLauncher evitando vazamento de memoria
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (galleryLauncher != null)
-        {
-            galleryLauncher.unregister(); // Libera o registro do launcher
+        if (galleryLauncher != null) {
+            galleryLauncher.unregister();
         }
     }
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        galleryLauncher.launch(intent); // Usa o launcher em vez de startActivityForResult
+        galleryLauncher.launch(intent);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_CODE_GALLERY) // Verifica se é a permissão da galeria
-        {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
-                // Permissão concedida → Abre a galeria
+        if (requestCode == REQUEST_CODE_GALLERY) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openGallery();
-            }
-            else
-            {
-                // Permissão negada → Mostra mensagem ou desabilita funcionalidade
-                Toast.makeText(this, "Permissão negada. Não é possível alterar a imagem.", Toast.LENGTH_SHORT).show();
-
-                // Verifica se o usuário *não* marcou "Nunca perguntar de novo"
+            } else {
+                showToast("Permissão negada. Não é possível alterar a imagem.");
                 if (PermissionUtils.shouldShowRationale(this, Manifest.permission.READ_MEDIA_IMAGES)) {
-                    new AlertDialog.Builder(this)
-                            .setTitle("Permissão necessária")
-                            .setMessage("Você precisa permitir o acesso à galeria para alterar a imagem.")
-                            .setPositiveButton("OK", (dialog, which) -> {
-                                PermissionUtils.requestPermission(this, Manifest.permission.READ_MEDIA_IMAGES, REQUEST_CODE_GALLERY);
-                            })
-                            .setNegativeButton("Cancelar", null)
-                            .show();
+                    showPermissionRationaleDialog();
                 }
-
             }
         }
     }
 
-    private void escolherImagem()
-    {
-        // Já tem permissão → Abre direto
+    private void showPermissionRationaleDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Permissão necessária")
+                .setMessage("Você precisa permitir o acesso à galeria para alterar a imagem.")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    PermissionUtils.requestPermission(this, Manifest.permission.READ_MEDIA_IMAGES, REQUEST_CODE_GALLERY);
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void escolherImagem() {
         if (PermissionUtils.isPermissionGranted(this, Manifest.permission.READ_MEDIA_IMAGES)) {
             openGallery();
         } else {
@@ -254,58 +228,45 @@ public class ConfigActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void handleSelectedImage(Uri imageUri) {
         try {
             Bitmap originalBitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-
-            // Reduz o tamanho da imagem antes de enviar
             Bitmap resizedBitmap = ImageUtils.resizeBitmap(originalBitmap, 800);
-
-            // Converter para Base64
             fotox = ImageUtils.bitmapToBase64(resizedBitmap);
-
-            // Enviar para API
             enviarImagem(fotox);
-
         } catch (FileNotFoundException e) {
-            Toast.makeText(this, "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
-            Log.e("IMAGE_ERROR", "Erro ao abrir imagem", e);
+            showToast("Erro ao carregar imagem");
+            Log.e(TAG, "Erro ao abrir imagem", e);
         }
     }
 
     private void enviarImagem(String imagemBase64) {
-        ApiService apiService = RetrofitClient.getApiService(this);
-
-        // Cria o DTO
         SuperClassUser.ImagemDto imagemDto = new SuperClassUser.ImagemDto(imagemBase64);
-
         Call<ResponseBody> call = apiService.atualizarImagem(token, imagemDto);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(ConfigActivity.this, "Imagem enviada com sucesso!", Toast.LENGTH_SHORT).show();
+                    showToast("Imagem enviada com sucesso!");
                 } else {
-                    Toast.makeText(ConfigActivity.this, "Erro ao enviar imagem: " + response.code(), Toast.LENGTH_SHORT).show();
+                    showToast("Erro ao enviar imagem: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(ConfigActivity.this, "Falha na rede: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                showToast("Falha na rede: " + t.getMessage());
             }
         });
     }
 
     private String obterTokenUsuario() {
-        token = AuthUtils.getToken(ConfigActivity.this); //
-        if (token != null && !token.isEmpty()) {
-            return "Bearer " + token;
+        String rawToken = AuthUtils.getToken(ConfigActivity.this);
+        if (rawToken != null && !rawToken.isEmpty()) {
+            return "Bearer " + rawToken;
         } else {
-            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
+            showToast("Usuário não autenticado");
             return null;
         }
     }
@@ -314,119 +275,89 @@ public class ConfigActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Sair")
                 .setMessage("Deseja realmente sair da sua conta?")
-                .setPositiveButton("Sim", (dialog, which) -> {
-                    // 2. Executar logout quando usuário confirmar
-                    executarLogout();
-                })
+                .setPositiveButton("Sim", (dialog, which) -> executarLogout())
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
 
-    // Executa o processo de logout de forma segura
     private void executarLogout() {
-        // Mostrar progresso
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Saindo...");
-        progressDialog.setCancelable(false);
+        ProgressDialog progressDialog = createProgressDialog("Saindo...");
         progressDialog.show();
 
-        // 1. Limpar token e dados de autenticação
         AuthUtils.logout(this);
-
-        // 2. Limpar qualquer dado de sessão adicional (se necessário)
         limparDadosSessao();
-
-        // 3. Fechar qualquer conexão ativa
         RetrofitClient.resetClient();
-
-        //Recria a conexao
         apiService = RetrofitClient.getApiService(getApplicationContext());
 
-        // 4. Redirecionar para tela de login após um pequeno delay
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             progressDialog.dismiss();
             redirecionarParaLogin();
-        }, 1000); // Delay de 1 segundo para melhor UX
+        }, PROGRESS_DIALOG_DELAY_MS);
     }
 
-    //Adciona os dados nos texts
-    private void buscarNomeEmailUsuario() {
-        UserEmail.setText(email);
-        UserName.setText(role);
+    private ProgressDialog createProgressDialog(String message) {
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        return progressDialog;
     }
 
     private void buscarImagemUsuario() {
-        try {
-            // ✅ Verifica se o token está disponível e válido
-            if (token == null || token.trim().isEmpty()) {
-                showToast("Token de autenticação inválido");
-                Log.e("IMAGEM_ERROR", "Token não disponível ou vazio");
-                return;
-            }
+        if (token == null || token.trim().isEmpty()) {
+            Log.e(TAG, "Token não disponível ou vazio");
+            return;
+        }
 
-            // ✅ Verifica se o apiService foi inicializado corretamente
-            if (apiService == null) {
-                showToast("Erro interno: serviço de API não inicializado");
-                Log.e("IMAGEM_ERROR", "apiService está nulo");
-                return;
-            }
+        if (apiService == null) {
+            showToast("Erro interno: serviço de API não inicializado");
+            Log.e(TAG, "apiService está nulo");
+            return;
+        }
 
-            Call<ResponseBody> call = apiService.buscarUsuarioFoto(token);
+        Call<ResponseBody> call = apiService.buscarUsuarioFoto(token);
+        if (call == null) {
+            showToast("Erro na solicitação da imagem");
+            Log.e(TAG, "Call retornou nulo");
+            return;
+        }
 
-            if (call == null) {
-                showToast("Erro na solicitação da imagem");
-                Log.e("IMAGEM_ERROR", "Call retornou nulo");
-                return;
-            }
-
-            // ✅ Executa a chamada assíncrona com Callback
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    try {
-                        if (!response.isSuccessful()) {
-                            handleUnsuccessfulResponse(response);
-                            return;
-                        }
-
-                        ResponseBody responseBody = response.body();
-                        if (responseBody == null) {
-                            showToast("Resposta da API vazia");
-                            Log.e("IMAGEM_ERROR", "Response body é nulo");
-                            return;
-                        }
-
-                        String jsonString = responseBody.string();
-                        Log.d("IMAGEM_DEBUG", "Resposta da API: " + jsonString);
-
-                        processImageResponse(jsonString);
-
-                    } catch (IOException e) {
-                        showToast("Erro ao ler resposta da API");
-                        Log.e("IMAGEM_ERROR", "IO Error: " + e.getMessage(), e);
-                    } catch (Exception e) {
-                        showToast("Erro inesperado");
-                        Log.e("IMAGEM_ERROR", "Unexpected error: " + e.getMessage(), e);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    if (call.isCanceled()) {
-                        Log.w("IMAGEM_ERROR", "Chamada cancelada");
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    if (!response.isSuccessful()) {
+                        handleUnsuccessfulResponse(response);
                         return;
                     }
 
-                    showToast("Falha na conexão. Tente novamente.");
-                    Log.e("IMAGEM_ERROR", "Falha na requisição: " + t.getMessage(), t);
-                }
-            });
+                    ResponseBody responseBody = response.body();
+                    if (responseBody == null) {
+                        showToast("Resposta da API vazia");
+                        Log.e(TAG, "Response body é nulo");
+                        return;
+                    }
 
-        } catch (Exception e) {
-            // ✅ Captura qualquer exceção inesperada na preparação da requisição
-            showToast("Erro ao iniciar busca de imagem");
-            Log.e("IMAGEM_ERROR", "Erro inesperado ao iniciar função: " + e.getMessage(), e);
-        }
+                    String jsonString = responseBody.string();
+                    Log.d(TAG, "Resposta da API: " + jsonString);
+                    processImageResponse(jsonString);
+
+                } catch (IOException e) {
+                    showToast("Erro ao ler resposta da API");
+                    Log.e(TAG, "IO Error: " + e.getMessage(), e);
+                } catch (Exception e) {
+                    showToast("Erro inesperado");
+                    Log.e(TAG, "Unexpected error: " + e.getMessage(), e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                if (!call.isCanceled()) {
+                    showToast("Falha na conexão. Tente novamente.");
+                    Log.e(TAG, "Falha na requisição: " + t.getMessage(), t);
+                }
+            }
+        });
     }
 
     private void processImageResponse(String jsonResponse) {
@@ -454,10 +385,10 @@ public class ConfigActivity extends AppCompatActivity {
 
         } catch (JSONException e) {
             showToast("Erro no formato da resposta");
-            Log.e("IMAGEM_ERROR", "JSON Error: " + e.getMessage(), e);
+            Log.e(TAG, "JSON Error: " + e.getMessage(), e);
         } catch (Exception e) {
             showToast("Erro ao processar imagem");
-            Log.e("IMAGEM_ERROR", "Image processing error: " + e.getMessage(), e);
+            Log.e(TAG, "Image processing error: " + e.getMessage(), e);
         }
     }
 
@@ -467,13 +398,13 @@ public class ConfigActivity extends AppCompatActivity {
             if (response.errorBody() != null) {
                 String errorBody = response.errorBody().string();
                 errorMessage += ": " + errorBody;
-                Log.e("IMAGEM_ERROR", "Erro na resposta: " + response.code() + " - " + errorBody);
+                Log.e(TAG, "Erro na resposta: " + response.code() + " - " + errorBody);
             } else {
                 errorMessage += " (Código: " + response.code() + ")";
-                Log.e("IMAGEM_ERROR", "Erro na resposta: " + response.code());
+                Log.e(TAG, "Erro na resposta: " + response.code());
             }
         } catch (IOException e) {
-            Log.e("IMAGEM_ERROR", "Erro ao ler errorBody", e);
+            Log.e(TAG, "Erro ao ler errorBody", e);
         }
         showToast(errorMessage);
     }
@@ -481,7 +412,7 @@ public class ConfigActivity extends AppCompatActivity {
     private void showToast(String message) {
         Toast.makeText(ConfigActivity.this, message, Toast.LENGTH_SHORT).show();
     }
-    //Limpa dados adicionais da sessão do usuário
+
     private void limparDadosSessao() {
         SharedPreferences prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
         prefs.edit()
@@ -492,100 +423,76 @@ public class ConfigActivity extends AppCompatActivity {
 
     private void redirecionarParaLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
-
-        // Configura flags para limpar a pilha de atividades
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
         startActivity(intent);
-        finish(); // Finaliza a atividade atual
+        finish();
     }
 
-    private void desativarUsuario(){
+    private void desativarUsuario() {
         new AlertDialog.Builder(this)
-                .setTitle("")
-                .setMessage("Deseja realmente sair da sua conta?")
-                .setPositiveButton("Sim", (dialog, which) -> {
-                    // 2. Executar logout quando usuário confirmar
-                    Desativar();
-                })
+                .setTitle("Confirmação")
+                .setMessage("Deseja realmente desativar sua conta?")
+                .setPositiveButton("Sim", (dialog, which) -> iniciarProcessoDesativacao())
                 .setNegativeButton("Não", null)
                 .show();
     }
 
-    private void Desativar() {
-        // Mostrar diálogo de progresso
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Desativando conta...");
-        progressDialog.setCancelable(false);
+    private void iniciarProcessoDesativacao() {
+        ProgressDialog progressDialog = createProgressDialog("Desativando conta...");
         progressDialog.show();
 
-        ApiService apiService = RetrofitClient.getApiService(this);
         Call<ResponseBody> call = apiService.desativarUsuario(token);
-
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 progressDialog.dismiss();
-
-                if (response.isSuccessful()) {
-                    try {
-                        String jsonResponse = response.body().string();
-                        JSONObject jsonObject = new JSONObject(jsonResponse);
-
-                        // Verifica se a resposta contém a mensagem de sucesso
-                        if (jsonObject.has("mensagem") && jsonObject.getString("mensagem").contains("sucesso")) {
-
-                            // Desativação bem-sucedida - fazer logout e redirecionar
-                            Toast.makeText(ConfigActivity.this,
-                                    "Conta desativada com sucesso", Toast.LENGTH_LONG).show();
-
-                            // Realizar logout
-                            deslogarUsuario();
-
-                            // Redirecionar para tela de login
-                           redirecionarParaLogin();
-
-                        } else {
-                            // Resposta inesperada da API
-                            Toast.makeText(ConfigActivity.this,
-                                    "Resposta inesperada do servidor", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        Toast.makeText(ConfigActivity.this,
-                                "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
-                        Log.e("DESATIVAR_ERROR", "Erro: " + e.getMessage());
-                    }
-                } else {
-                    // Tratar erros específicos da API
-                    try {
-                        String errorBody = response.errorBody().string();
-                        JSONObject errorObject = new JSONObject(errorBody);
-
-                        if (response.code() == 400 && errorBody.contains("já está desativado")) {
-                            Toast.makeText(ConfigActivity.this,
-                                    "Sua conta já está desativada", Toast.LENGTH_LONG).show();
-                        } else if (response.code() == 404) {
-                            Toast.makeText(ConfigActivity.this,
-                                    "Usuário não encontrado", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(ConfigActivity.this,
-                                    "Erro ao desativar conta: " + response.code(), Toast.LENGTH_LONG).show();
-                        }
-                    } catch (Exception e) {
-                        Toast.makeText(ConfigActivity.this,
-                                "Erro ao desativar conta", Toast.LENGTH_SHORT).show();
-                        Log.e("DESATIVAR_ERROR", "Erro: " + e.getMessage());
-                    }
-                }
+                handleDesativacaoResponse(response);
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 progressDialog.dismiss();
-                Toast.makeText(ConfigActivity.this,
-                        "Falha na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
-                Log.e("API_ERROR", "Erro: " + t.getMessage());
+                showToast("Falha na conexão. Tente novamente.");
+                Log.e(TAG, "Erro na API: " + t.getMessage());
             }
         });
+    }
+
+    private void handleDesativacaoResponse(Response<ResponseBody> response) {
+        try {
+            if (response.isSuccessful()) {
+                handleSuccessfulDesativacao(response);
+            } else {
+                handleFailedDesativacao(response);
+            }
+        } catch (Exception e) {
+            showToast("Erro ao processar resposta");
+            Log.e(TAG, "Erro ao processar desativação", e);
+        }
+    }
+
+    private void handleSuccessfulDesativacao(Response<ResponseBody> response) throws Exception {
+        String jsonResponse = response.body().string();
+        JSONObject jsonObject = new JSONObject(jsonResponse);
+
+        if (jsonObject.has("mensagem") && jsonObject.getString("mensagem").contains("sucesso")) {
+            showToast("Conta desativada com sucesso");
+            deslogarUsuario();
+        } else {
+            showToast("Resposta inesperada do servidor");
+        }
+    }
+
+    private void handleFailedDesativacao(Response<ResponseBody> response) throws Exception {
+        String errorBody = response.errorBody().string();
+        JSONObject errorObject = new JSONObject(errorBody);
+
+        if (response.code() == 400 && errorBody.contains("já está desativado")) {
+            showToast("Sua conta já está desativada");
+        } else if (response.code() == 404) {
+            showToast("Usuário não encontrado");
+        } else {
+            showToast("Erro ao desativar conta: " + response.code());
+        }
     }
 }
