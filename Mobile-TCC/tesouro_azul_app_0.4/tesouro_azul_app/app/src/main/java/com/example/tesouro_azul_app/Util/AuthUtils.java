@@ -22,8 +22,6 @@ public class AuthUtils {
         prefs.edit().putString(KEY_JWT_TOKEN, token).apply();
     }
 
-
-
     // Recupera o token armazenado
     public static String getToken(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -52,4 +50,24 @@ public class AuthUtils {
         String payloadJson = new String(Base64.decode(parts[1], Base64.URL_SAFE));
         return new JSONObject(payloadJson);
     }
+
+    public static SuperClassUser.TokenInfo getUserInfoFromToken(Context context) {
+        String token = getToken(context);
+        if (token == null) return null;
+
+        try {
+            JSONObject payload = decodeJwtPayload(token);
+            if (payload != null) {
+                int userId = payload.getInt("nameid");  // Nome do campo pode variar conforme seu token
+                String email = payload.getString("email");
+                String role = payload.optString("role", "user");  // Se tiver roles
+
+                return new SuperClassUser.TokenInfo(userId, email, role);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

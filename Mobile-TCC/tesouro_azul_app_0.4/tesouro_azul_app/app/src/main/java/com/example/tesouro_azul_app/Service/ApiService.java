@@ -92,7 +92,7 @@ public interface ApiService {
     Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(@Body String nomeProdTxt);
 
 
-    @PATCH("api/Produtos/{id}")
+    @PATCH("api/Produtos/alterar-produto-por-campo/{id}")
     Call<SuperClassProd.ProdutoDto> alterarProduto(
             @Header("Authorization") String token,
             @Path("id") int id,

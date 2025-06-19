@@ -86,6 +86,10 @@ public class ConfigActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
+    int userId;
+    String email;
+    String role;
+
     TextView UserName,UserEmail;
 
     @Override
@@ -113,6 +117,14 @@ public class ConfigActivity extends AppCompatActivity {
         swicthTheme.setChecked(ThemeManager.getNightModePreference(this));
 
         token = obterTokenUsuario();
+
+        SuperClassUser.TokenInfo userInfo = AuthUtils.getUserInfoFromToken(this);
+
+        if (userInfo != null) {
+            userId = userInfo.getUserId();
+             email = userInfo.getEmail();
+             role = userInfo.getRole();
+        }
 
         // Carregar nome e email
         buscarNomeEmailUsuario();
@@ -252,6 +264,8 @@ public class ConfigActivity extends AppCompatActivity {
         }
     }
 
+
+
     private void handleSelectedImage(Uri imageUri) {
         try {
             Bitmap originalBitmap = BitmapFactory.decodeStream(
@@ -349,32 +363,10 @@ public class ConfigActivity extends AppCompatActivity {
         }, 1000); // Delay de 1 segundo para melhor UX
     }
 
-    //Busca o nome e o email
+    //Adciona os dados nos texts
     private void buscarNomeEmailUsuario() {
-        Call<SuperClassUser.Usuario> call = apiService.buscarUsuario(token);
-
-        call.enqueue(new Callback<SuperClassUser.Usuario>() {
-            @Override
-            public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response)
-            {
-                if (response.isSuccessful() && response.body() != null)
-                {
-                    String nome = response.body().getNomeUsuario();
-                    String email = response.body().getEmailUsuario();
-
-                    UserEmail.setText(email);
-                    UserName.setText(nome);
-
-                } else {
-                    Toast.makeText(ConfigActivity.this, "Erro ao carregar perfil: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SuperClassUser.Usuario> call, Throwable t) {
-                Toast.makeText(ConfigActivity.this, "Erro ao buscar nome: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        UserEmail.setText(email);
+        UserName.setText(role);
     }
 
     private void buscarImagemUsuario() {

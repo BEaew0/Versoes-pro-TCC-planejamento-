@@ -211,44 +211,31 @@ public class SuperClassUser {
             }
         }
 
-        public static class UsuarioTokenDto {
-            public int id;
-            public String nome;
-            public String email;
-            // public String exp; data de expiração, se houver
+    public static class TokenInfo {
+        private int userId;
+        private String email;
+        private String role;
 
-            // Você pode adicionar outros campos conforme o payload do seu JWT
-            public UsuarioTokenDto() {
-                this.id = id;
-                this.nome = nome;
-                this.email = email;
-            }
+        public TokenInfo(int userId, String email, String role) {
+            this.userId = userId;
+            this.email = email;
+            this.role = role;
+        }
 
-            public int getId() {
-                return id;
-            }
+        public int getUserId() {
+            return userId;
+        }
 
-            public void setId(int id) {
-                this.id = id;
-            }
+        public String getEmail() {
+            return email;
+        }
 
-            public String getNome() {
-                return nome;
-            }
-
-            public void setNome(String nome) {
-                this.nome = nome;
-            }
-
-            public String getEmail() {
-                return email;
-            }
-
-            public void setEmail(String email) {
-                this.email = email;
-            }
+        public String getRole() {
+            return role;
         }
     }
+
+}
 
 
 

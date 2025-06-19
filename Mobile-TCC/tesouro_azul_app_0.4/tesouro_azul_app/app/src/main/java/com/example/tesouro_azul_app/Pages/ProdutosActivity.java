@@ -1,7 +1,6 @@
 package com.example.tesouro_azul_app.Pages;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,7 +11,6 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +18,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +29,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.tesouro_azul_app.Class.ProdutoMock;
 import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Adapter.ProdutoAdapter;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
@@ -39,12 +38,9 @@ import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.example.tesouro_azul_app.Util.DatePickerUtil;
 
+import com.example.tesouro_azul_app.Util.ImageUtils;
 import com.google.android.material.imageview.ShapeableImageView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -59,15 +55,14 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProdutosActivity extends AppCompatActivity {
 
     private SuperClassProd.ProdutoDto produtoSelecionado = null;
 
     private static final int REQUEST_CODE_GALLERY = 1001;
-    private static final int PICK_IMAGE = 1;
+
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     private static String fotoProd;
 
@@ -90,6 +85,12 @@ public class ProdutosActivity extends AppCompatActivity {
     ShapeableImageView prodImage;
     ProgressBar progressBar;
     private ApiService apiService;
+
+    String token;
+
+    int userId;
+
+    String formatoEntrada = "dd/MM/yyyy HH:mm";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +120,8 @@ public class ProdutosActivity extends AppCompatActivity {
         // Configura Retrofit
         apiService = RetrofitClient.getApiService(getApplicationContext());
 
+        token = obterTokenUsuario();
+
         // Configura o LayoutManager (define como os itens são organizados)
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -138,7 +141,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
             // Se houver imagem, carrega (opcional)
             if (produto.getImgProduto() != null) {
-                Bitmap bitmap = getFoto(produto.getImgProduto());
+                Bitmap bitmap = ImageUtils.base64ToBitmap(produto.getImgProduto());
                 prodImage.setImageBitmap(bitmap);
             }
         });
@@ -146,8 +149,41 @@ public class ProdutosActivity extends AppCompatActivity {
         // Define o adapter no RecyclerView
         recyclerView.setAdapter(adapter);
 
+        SuperClassUser.TokenInfo userInfo = AuthUtils.getUserInfoFromToken(this);
+
+        if (userInfo != null) {
+            userId = userInfo.getUserId();
+            String email = userInfo.getEmail();
+            String role = userInfo.getRole();
+
+        }
+
         configurarBusca();
         carregarProdutos();
+
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri imagemUri = result.getData().getData();
+
+                        try {
+                            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imagemUri));
+                            prodImage.setImageBitmap(bitmap);
+
+                            String bx = ImageUtils.bitmapToBase64(bitmap);
+                            fotoProd = bx;
+
+                            Bitmap b = ImageUtils.base64ToBitmap(bx);
+                            prodImage.setImageBitmap(b);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                            Toast.makeText(ProdutosActivity.this, "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
+
 
         prodImage.setOnClickListener(new View.OnClickListener() {
           @Override
@@ -167,10 +203,9 @@ public class ProdutosActivity extends AppCompatActivity {
           }
       });
 
-
         btnExluir.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {/*deletarProduto()*/;}
+            public void onClick(View view) {/*deletarProduto();*/}
         });
 
         btnComprar.setOnClickListener(new View.OnClickListener() {
@@ -204,55 +239,6 @@ public class ProdutosActivity extends AppCompatActivity {
     }
 
 
-    //Mock:referece a objetos ou dados simulados
-    private void buscarPorNomeMock(String nome) {
-        // Simular tempo de carregamento da API
-        new Handler().postDelayed(() -> {
-            List<SuperClassProd.ProdutoDto> todosProdutos = ProdutoMock.gerarProdutosMockados();
-            List<SuperClassProd.ProdutoDto> produtosFiltrados = new ArrayList<>();
-
-            if (nome.isEmpty()) {
-                // Se não há termo de busca, mostrar todos
-                produtosFiltrados.addAll(todosProdutos);
-            } else {
-                // Filtrar produtos que contenham o termo de busca no nome
-                String termoBusca = nome.toLowerCase();
-                for (SuperClassProd.ProdutoDto produto : todosProdutos) {
-                    if (produto.getNomeProduto().toLowerCase().contains(termoBusca)) {
-                        produtosFiltrados.add(produto);
-                    }
-                }
-            }
-
-            // Atualizar UI na thread principal
-            runOnUiThread(() -> {
-                if (!produtosFiltrados.isEmpty()) {
-                    adapter.atualizarLista(produtosFiltrados);
-                } else {
-                    Toast.makeText(ProdutosActivity.this,
-                            "Nenhum produto encontrado com o nome: " + nome,
-                            Toast.LENGTH_SHORT).show();
-                    adapter.atualizarLista(new ArrayList<>());
-                }
-            });
-        }, 1000); // Simular 1 segundo de delay como uma chamada real de API
-    }
-
-    private void carregarProdutosMock() {
-        progressBar.setVisibility(View.VISIBLE);
-
-        // Simular tempo de carregamento da API
-        new Handler().postDelayed(() -> {
-            List<SuperClassProd.ProdutoDto> produtos = ProdutoMock.gerarProdutosMockados();
-
-            // Atualizar UI na thread principal
-            runOnUiThread(() -> {
-                progressBar.setVisibility(View.GONE);
-                adapter.atualizarLista(produtos);
-            });
-        }, 1500); // Simular 1.5 segundos de delay como uma chamada real de API
-    }
-
     private void configurarBusca() {
         SearchProd.addTextChangedListener(new TextWatcher() {
             @Override
@@ -280,12 +266,7 @@ public class ProdutosActivity extends AppCompatActivity {
     //Repor e rever
     private void buscarPorNomeApi1(String nome) {
 
-        String token = obterTokenUsuario();
-
-        String authHeader =  token;
-
-        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-        Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarProdutosPorNomeSimilar(authHeader, nome);
+        Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarProdutosPorNomeSimilar(token, nome);
 
         call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {
             @Override
@@ -317,48 +298,8 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
-    //Repor e rever
-    private void buscarPorNomeApi2(String nome) {
-
-        String token = obterTokenUsuario();
-
-        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-        Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarProdutosPorNomeSimilar(token, nome);
-
-        call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {
-            @Override
-            public void onResponse(Call<List<SuperClassProd.ProdutoDto>> call,
-                                   Response<List<SuperClassProd.ProdutoDto>> response) {
-
-                if (response.isSuccessful() && response.body() != null) {
-                    adapter.atualizarLista(response.body());
-
-                    if (response.body().isEmpty()) {
-                        Toast.makeText(ProdutosActivity.this,
-                                "Nenhum produto encontrado",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(ProdutosActivity.this,
-                            "Erro na busca: " + response.code(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<SuperClassProd.ProdutoDto>> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(ProdutosActivity.this,
-                        "Falha na conexão",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    //Repor
+    //Funcional
     private void carregarProdutos() {
-        String token = obterTokenUsuario();
-
         Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarTodosProdutos(token);
 
         call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {
@@ -420,13 +361,6 @@ public class ProdutosActivity extends AppCompatActivity {
         double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
         String lote = "LOTE-" + System.currentTimeMillis();
 
-        // 4. Obter token do usuário
-        String token = AuthUtils.getToken(this);
-        if (token == null || token.isEmpty()) {
-            Toast.makeText(this, "Usuário não autenticado", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         // 5. Criar DTOs para a venda (CORREÇÃO: usando getIdProduto() em vez de getIdUsuarioFk())
         SuperClassProd.ItemVendaDto itemVenda = new SuperClassProd.ItemVendaDto(
                 0,
@@ -447,9 +381,7 @@ public class ProdutosActivity extends AppCompatActivity {
                 itens
         );
 
-        // 6. Chamar API para realizar venda (CORREÇÃO: adicionado "Bearer " antes do token)
-        ApiService apiService = RetrofitClient.getApiService(this);
-        Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda("Bearer " + token, pedidoVenda);
+        Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda(token, pedidoVenda);
 
         call.enqueue(new Callback<SuperClassProd.PedidoVendaCompletoDto>() {
             @Override
@@ -540,15 +472,9 @@ public class ProdutosActivity extends AppCompatActivity {
                 itens
         );
 
-        // Obter token de autenticação
-        String token = AuthUtils.getToken(this);
-        if (token == null || token.isEmpty()) {
-            Toast.makeText(this, "Token de autenticação inválido", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         // Chamar API para realizar compra
-        Call<SuperClassProd.PedidoCompraCompletoDto> call = apiService.criarPedidoCompra("Bearer " + token, pedidoCompra);
+        Call<SuperClassProd.PedidoCompraCompletoDto> call = apiService.criarPedidoCompra(token, pedidoCompra);
 
         call.enqueue(new Callback<SuperClassProd.PedidoCompraCompletoDto>() {
             @Override
@@ -602,11 +528,6 @@ public class ProdutosActivity extends AppCompatActivity {
         }
     }
 
-    // Exemplo de uso:
-    String dataEntrada = "15/06/2023 14:30";
-    String formatoEntrada = "dd/MM/yyyy HH:mm";
-    String dataISO = formatarParaISO8601(dataEntrada, formatoEntrada);
-
     //Ainda esta sendo feita
     private void deletarProduto(int produtoId) {
             // Mostrar diálogo de confirmação
@@ -622,18 +543,11 @@ public class ProdutosActivity extends AppCompatActivity {
         }
 
         private void executarDeletarProduto(int produtoId) {
-            String token = obterTokenUsuario();
-            if (token == null) {
 
-                Toast.makeText(this, "Token inválido", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        Call<ResponseBody> call = apiService.deletarProduto(token, produtoId);
 
-            ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
-            Call<ResponseBody> call = apiService.deletarProduto(token, produtoId);
-
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
                     if (response.isSuccessful()) {
@@ -677,8 +591,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
 
     //Ainda esta sendo feita
-    /*
-    private void alterarProduto() {
+     private void alterarProduto() {
         // 1. Verificar se há um produto selecionado
         if (produtoSelecionado == null) {
             Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
@@ -716,18 +629,10 @@ public class ProdutosActivity extends AppCompatActivity {
                 novoValor
         );
 
-        // 6. Obter token e verificar autenticação
-        String token = obterTokenUsuario();
-        if (token == null) {
 
-            return;
-        }
-
-        // 7. Chamar a API para alterar o produto
-        ApiService apiService = RetrofitClient.getApiService(getApplicationContext());
         Call<SuperClassProd.ProdutoDto> call = apiService.alterarProduto(
                 token,
-                produtoSelecionado.getIdUsuarioFk(), // Supondo que este seja o ID do produto
+                userId, // Supondo que este seja o ID do usuario
                 camposProduto
         );
 
@@ -762,7 +667,7 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
-*/
+
     private void tratarErroAlteracao(Response<?> response) {
         try {
             String errorBody = response.errorBody() != null ?
@@ -827,10 +732,6 @@ public class ProdutosActivity extends AppCompatActivity {
                 tipoProduto, // tipoProduto
                 fotoProd // imgProduto
         );
-
-
-        // Recuperar token do usuário logado
-        String token = obterTokenUsuario(); // Essa função precisa retornar o token em formato "Bearer eyJ..."
 
         Call<Void> call = apiService.cadastrarProduto(token, produtoDto);
 
@@ -898,62 +799,8 @@ public class ProdutosActivity extends AppCompatActivity {
         }
     }
 
-    public String imagem_string(Bitmap prodFoto) {
-        ByteArrayOutputStream data = new ByteArrayOutputStream();
-
-        // Comprime o bitmap em formato JPEG com 100% de qualidade
-        prodFoto.compress(Bitmap.CompressFormat.JPEG, 100, data);
-
-        // Converte o bitmap em um array de bytes
-        byte[] b1 = data.toByteArray();
-
-        // Codifica os bytes em uma string Base64
-        return Base64.encodeToString(b1, Base64.DEFAULT);
-    }
-
-    public Bitmap getFoto(String s) {
-        // Decodifica a string Base64 de volta para um array de bytes
-        byte[] decodes = Base64.decode(s, Base64.DEFAULT);
-
-        // Converte o array de bytes para um objeto Bitmap
-        return BitmapFactory.decodeByteArray(decodes, 0, decodes.length);
-    }
-
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_IMAGE);
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Verifica se a imagem foi selecionada com sucesso
-        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri imagemUri = data.getData(); // Obtém o URI da imagem
-
-            try {
-                // Carrega a imagem a partir do URI (Uniform Resource Identifier,
-                // ou Identificador Uniforme de Recursos) é uma string (sequência de caracteres) que se refere a um recurso
-
-                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imagemUri));
-
-                prodImage.setImageBitmap(bitmap); // Define a imagem no ImageView
-
-                // Converte o bitmap para string Base64
-                String bx = imagem_string(bitmap);
-
-                // Armazena a string Base64 em uma variável
-                fotoProd = bx;
-
-                // Reconverte a Base64 para Bitmap (talvez para validar ou reutilizar)
-                Bitmap b = getFoto(bx);
-
-                // Atualiza novamente o ImageView com o bitmap reconvertido
-                prodImage.setImageBitmap(b);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace(); // Exibe erro caso o arquivo não seja encontrado
-            }
-        }
+        imagePickerLauncher.launch(intent);
     }
 }
