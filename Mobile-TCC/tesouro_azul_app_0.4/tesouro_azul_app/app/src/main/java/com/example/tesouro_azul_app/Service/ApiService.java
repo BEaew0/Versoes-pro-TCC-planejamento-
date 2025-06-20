@@ -51,8 +51,7 @@ public interface ApiService {
 
 
     @PATCH("/alterar-imagem")
-    Call<ResponseBody> atualizarImagem( String token,
-            @Body SuperClassProd.ImagemDto dto
+    Call<ResponseBody> atualizarImagem(@Header("Authorization") String token, @Body SuperClassProd.ImagemDto dto
     );
 
     // Deletar Usuario

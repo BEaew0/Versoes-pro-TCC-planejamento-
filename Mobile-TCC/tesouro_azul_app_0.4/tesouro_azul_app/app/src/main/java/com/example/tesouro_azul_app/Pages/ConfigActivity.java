@@ -22,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.LoginActivity;
 import com.example.tesouro_azul_app.Service.ApiService;
@@ -125,7 +126,7 @@ public class ConfigActivity extends AppCompatActivity {
 
     private void updateUserInfoViews() {
         UserEmail.setText(email);
-        UserName.setText(role);
+        UserName.setText(email);
     }
 
     private void setupThemeSwitch() {
@@ -142,12 +143,14 @@ public class ConfigActivity extends AppCompatActivity {
         updateThemeIcon(swicthTheme.isChecked());
     }
 
+    //Configura o envio do Icon
     private void setupGalleryLauncher() {
         try {
             galleryLauncher = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
-                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null)
+                        {
                             Uri imageUri = result.getData().getData();
                             handleSelectedImage(imageUri);
                         }
@@ -232,32 +235,40 @@ public class ConfigActivity extends AppCompatActivity {
     private void handleSelectedImage(Uri imageUri) {
         try {
             Bitmap originalBitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-            Bitmap resizedBitmap = ImageUtils.resizeBitmap(originalBitmap, 800);
-            fotox = ImageUtils.bitmapToBase64(resizedBitmap);
-            enviarImagem(fotox);
+
+            Bitmap resizedBitmap = ImageUtils.resizeBitmap(originalBitmap, 800);   // Reduz dimensão (Largura máx 800px)
+            Bitmap compressedBitmap = ImageUtils.compressBitmap(resizedBitmap);    // Reduz tamanho final (em KB)
+
+            atualizarImagemUsuario(compressedBitmap);  // Envia pro backend
+
         } catch (FileNotFoundException e) {
             showToast("Erro ao carregar imagem");
             Log.e(TAG, "Erro ao abrir imagem", e);
         }
     }
 
-    private void enviarImagem(String imagemBase64) {
+    private void atualizarImagemUsuario(Bitmap bitmap) {
+
+        String imagemBase64 = ImageUtils.bitmapToBase64(bitmap);
         SuperClassUser.ImagemDto imagemDto = new SuperClassUser.ImagemDto(imagemBase64);
-        Call<ResponseBody> call = apiService.atualizarImagem(token, imagemDto);
+
+        Call<ResponseBody> call = apiService.atualizarImagem( token, imagemDto);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    showToast("Imagem enviada com sucesso!");
+                    Toast.makeText(getApplicationContext(), "Imagem atualizada com sucesso!", Toast.LENGTH_SHORT).show();
+                    buscarImagemUsuario();
+
                 } else {
-                    showToast("Erro ao enviar imagem: " + response.code());
+                    Toast.makeText(getApplicationContext(), "Erro ao atualizar imagem: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                showToast("Falha na rede: " + t.getMessage());
+                Toast.makeText(getApplicationContext(), "Falha na requisição: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -321,7 +332,6 @@ public class ConfigActivity extends AppCompatActivity {
                         byte[] imageBytes = Base64.decode(imagemBase64, Base64.DEFAULT);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
 
-                        // Exemplo: mostrar a imagem num ImageView
                         userIcon.setImageBitmap(bitmap);
 
                     } catch (Exception e) {
@@ -337,56 +347,6 @@ public class ConfigActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Falha na requisição: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-
-    private void processImageResponse(String jsonResponse) {
-        try {
-            JSONObject jsonObject = new JSONObject(jsonResponse);
-
-            if (!jsonObject.has("imagemBase64")) {
-                showToast("Usuário não possui imagem");
-                return;
-            }
-
-            String imagemBase64 = jsonObject.getString("imagemBase64");
-            if (imagemBase64 == null || imagemBase64.isEmpty()) {
-                showToast("Imagem inválida ou vazia");
-                return;
-            }
-
-            bitmap = ImageUtils.base64ToBitmap(imagemBase64);
-            if (bitmap == null) {
-                showToast("Erro ao decodificar imagem");
-                return;
-            }
-
-            userIcon.setImageBitmap(bitmap);
-
-        } catch (JSONException e) {
-            showToast("Erro no formato da resposta");
-            Log.e(TAG, "JSON Error: " + e.getMessage(), e);
-        } catch (Exception e) {
-            showToast("Erro ao processar imagem");
-            Log.e(TAG, "Image processing error: " + e.getMessage(), e);
-        }
-    }
-
-    private void handleUnsuccessfulResponse(Response<ResponseBody> response) {
-        String errorMessage = "Erro na requisição";
-        try {
-            if (response.errorBody() != null) {
-                String errorBody = response.errorBody().string();
-                errorMessage += ": " + errorBody;
-                Log.e(TAG, "Erro na resposta: " + response.code() + " - " + errorBody);
-            } else {
-                errorMessage += " (Código: " + response.code() + ")";
-                Log.e(TAG, "Erro na resposta: " + response.code());
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Erro ao ler errorBody", e);
-        }
-        showToast(errorMessage);
     }
 
     private void showToast(String message) {

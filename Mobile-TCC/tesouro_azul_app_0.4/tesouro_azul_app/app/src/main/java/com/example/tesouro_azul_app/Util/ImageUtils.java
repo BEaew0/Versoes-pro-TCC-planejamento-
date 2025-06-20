@@ -38,4 +38,12 @@ public class ImageUtils {
 
         return Bitmap.createScaledBitmap(original, width, height, true);
     }
+
+    public static Bitmap compressBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);  // Ajustar qualidade
+        byte[] compressedData = out.toByteArray();
+        return BitmapFactory.decodeByteArray(compressedData, 0, compressedData.length);
+    }
+
 }
