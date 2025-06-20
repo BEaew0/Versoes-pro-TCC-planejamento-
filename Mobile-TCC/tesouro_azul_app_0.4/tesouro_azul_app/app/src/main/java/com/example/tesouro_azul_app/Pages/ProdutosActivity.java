@@ -127,6 +127,8 @@ public class ProdutosActivity extends AppCompatActivity {
 
         // Configurar listeners de clique
         configurarListeners();
+
+
     }
 
     /** Inicializa todas as views do layout */
@@ -168,10 +170,13 @@ public class ProdutosActivity extends AppCompatActivity {
             TipoProd.setText(produto.getTipoProduto());
 
             // Carrega imagem se existir
-            if (produto.getImgProduto() != null) {
+            if (produto.getImgProduto() != null && !produto.getImgProduto().isEmpty()) {
                 Bitmap bitmap = ImageUtils.base64ToBitmap(produto.getImgProduto());
                 prodImage.setImageBitmap(bitmap);
+            } else {
+                prodImage.setImageResource(R.drawable.placeholder);
             }
+
         });
 
         recyclerView.setAdapter(adapter);
@@ -250,7 +255,8 @@ public class ProdutosActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<SuperClassProd.ProdutoDto>> call,
                                    Response<List<SuperClassProd.ProdutoDto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null)
+                {
                     List<SuperClassProd.ProdutoDto> produtos = response.body();
                     adapter.atualizarLista(produtos);
                 } else {

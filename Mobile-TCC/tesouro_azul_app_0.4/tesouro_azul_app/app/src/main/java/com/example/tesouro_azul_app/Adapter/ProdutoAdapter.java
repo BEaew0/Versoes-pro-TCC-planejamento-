@@ -1,6 +1,8 @@
 package com.example.tesouro_azul_app.Adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,17 +61,28 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
     public void onBindViewHolder(@NonNull ProdutoViewHolder holder, int position) {
         SuperClassProd.ProdutoDto produto = produtos.get(position);
 
-        // Carregamento de imagem com Glide
-        Glide.with(context)
-                .load(produto.getImgProduto())
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.error_image)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
-                .into(holder.imgProduto);
+        String imgBase64 = produto.getImgProduto();
+        if (imgBase64 != null && !imgBase64.isEmpty()) {
+            try {
+                imgBase64 = imgBase64.replace("\n", "").replace("\r", "");
 
-        holder.txtNome.setText(produto.getNomeProduto());
+                byte[] imageBytes = android.util.Base64.decode(imgBase64, android.util.Base64.DEFAULT);
+                Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+                if (bitmap != null) {
+                    holder.imgProduto.setImageBitmap(bitmap);
+                } else {
+                    holder.imgProduto.setImageResource(R.drawable.error_image);
+                }
+            } catch (Exception e) {
+                Log.e("AdapterError", "Erro ao processar imagem: " + e.getMessage());
+                holder.imgProduto.setImageResource(R.drawable.error_image);
+            }
+        } else {
+            holder.imgProduto.setImageResource(R.drawable.placeholder);
+        }
+
+        holder.txtNome.setText(produto.getNomeProduto() != null ? produto.getNomeProduto() : "Nome não disponível");
         holder.txtCodigo.setText("Código: " + produto.getCodProduto());
         holder.txtValor.setText(String.format("R$ %.2f", produto.getValorProduto()));
         holder.txtTipo.setText("Categoria: " + produto.getTipoProduto());

@@ -10,14 +10,17 @@ public class ImageUtils {
 
     // Converte Bitmap para String Base64
     public static String bitmapToBase64(Bitmap bitmap) {
+        if (bitmap == null) return null;
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream); // 80% qualidade para reduzir tamanho
-        byte[] byteArray = outputStream.toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        byte[] imageBytes = outputStream.toByteArray();
+
+        return Base64.encodeToString(imageBytes, Base64.NO_WRAP);
     }
 
     // Converte Base64 para Bitmap
-    public static Bitmap base64ToBitmap(String base64Str) {
+    public static Bitmap base64ToBitmap(String base64Str) throws IllegalArgumentException {
         byte[] decodedBytes = Base64.decode(base64Str, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }

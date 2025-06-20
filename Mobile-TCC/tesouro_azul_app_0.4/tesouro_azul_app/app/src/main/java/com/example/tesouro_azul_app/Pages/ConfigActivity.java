@@ -67,6 +67,8 @@ public class ConfigActivity extends AppCompatActivity {
     private ShapeableImageView userIcon;
     private TextView UserName, UserEmail;
 
+    private Uri imagemSelecionadaUri;
+
     // Dados
     private String fotox;
     private Bitmap bitmap;
@@ -92,7 +94,6 @@ public class ConfigActivity extends AppCompatActivity {
         setupThemeSwitch();
         setupGalleryLauncher();
         setupClickListeners();
-
         buscarImagemUsuario();
     }
 
@@ -149,10 +150,11 @@ public class ConfigActivity extends AppCompatActivity {
             galleryLauncher = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
-                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null)
-                        {
-                            Uri imageUri = result.getData().getData();
-                            handleSelectedImage(imageUri);
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            imagemSelecionadaUri = result.getData().getData();
+                            if (imagemSelecionadaUri!= null) {
+                                handleSelectedImage(imagemSelecionadaUri);  // Aqui você processa a imagem
+                            }
                         }
                     });
         } catch (Exception e) {
@@ -160,6 +162,7 @@ public class ConfigActivity extends AppCompatActivity {
             Log.e(TAG, "Erro ao configurar galleryLauncher", e);
         }
     }
+
 
     private void setupClickListeners() {
         Xleave.setOnClickListener(view -> navigateToMainActivity());
@@ -236,33 +239,44 @@ public class ConfigActivity extends AppCompatActivity {
         try {
             Bitmap originalBitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
 
-            Bitmap resizedBitmap = ImageUtils.resizeBitmap(originalBitmap, 800);   // Reduz dimensão (Largura máx 800px)
-            Bitmap compressedBitmap = ImageUtils.compressBitmap(resizedBitmap);    // Reduz tamanho final (em KB)
+            if (originalBitmap == null) {
+                Log.e("UPLOAD_IMAGEM", "Bitmap original veio nulo!");
+                showToast("Erro ao carregar imagem.");
+                return;
+            }
 
-            atualizarImagemUsuario(compressedBitmap);  // Envia pro backend
 
+
+            atualizarImagemUsuario(originalBitmap);
         } catch (FileNotFoundException e) {
             showToast("Erro ao carregar imagem");
             Log.e(TAG, "Erro ao abrir imagem", e);
         }
     }
 
-    private void atualizarImagemUsuario(Bitmap bitmap) {
 
+    private void atualizarImagemUsuario(Bitmap bitmap) {
         String imagemBase64 = ImageUtils.bitmapToBase64(bitmap);
+
+        Log.d("UPLOAD_IMAGEM", "Base64 size: " + (imagemBase64 != null ? imagemBase64.length() : "null"));
+
+        if (imagemBase64 == null || imagemBase64.isEmpty()) {
+            Toast.makeText(this, "Imagem Base64 vazia! Abortando envio.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         SuperClassUser.ImagemDto imagemDto = new SuperClassUser.ImagemDto(imagemBase64);
 
-        Call<ResponseBody> call = apiService.atualizarImagem( token, imagemDto);
+        Call<ResponseBody> call = apiService.atualizarImagem(token, imagemDto);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(getApplicationContext(), "Imagem atualizada com sucesso!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Imagem enviada com sucesso!", Toast.LENGTH_SHORT).show();
                     buscarImagemUsuario();
-
                 } else {
-                    Toast.makeText(getApplicationContext(), "Erro ao atualizar imagem: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Erro ao enviar imagem: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -272,6 +286,7 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private String obterTokenUsuario() {
         String rawToken = AuthUtils.getToken(ConfigActivity.this);
