@@ -245,8 +245,6 @@ public class ConfigActivity extends AppCompatActivity {
                 return;
             }
 
-
-
             atualizarImagemUsuario(originalBitmap);
         } catch (FileNotFoundException e) {
             showToast("Erro ao carregar imagem");
@@ -258,10 +256,11 @@ public class ConfigActivity extends AppCompatActivity {
     private void atualizarImagemUsuario(Bitmap bitmap) {
         String imagemBase64 = ImageUtils.bitmapToBase64(bitmap);
 
-        Log.d("UPLOAD_IMAGEM", "Base64 size: " + (imagemBase64 != null ? imagemBase64.length() : "null"));
+        Log.d(TAG, "Convertendo imagem para Base64. Tamanho: " + (imagemBase64 != null ? imagemBase64.length() : "null"));
 
         if (imagemBase64 == null || imagemBase64.isEmpty()) {
-            Toast.makeText(this, "Imagem Base64 vazia! Abortando envio.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Imagem Base64 vazia! Abortando envio.");
+            Toast.makeText(this, "Imagem inválida. Tente novamente.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -269,19 +268,25 @@ public class ConfigActivity extends AppCompatActivity {
 
         Call<ResponseBody> call = apiService.atualizarImagem(token, imagemDto);
 
+        Log.d(TAG, "Iniciando envio da imagem para o servidor...");
+
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Resposta ao atualizar imagem: Código " + response.code());
+
                 if (response.isSuccessful()) {
-                    Toast.makeText(getApplicationContext(), "Imagem enviada com sucesso!", Toast.LENGTH_SHORT).show();
+                    showToast("Imagem enviada com sucesso!");
                     buscarImagemUsuario();
                 } else {
+                    Log.e(TAG, "Erro ao enviar imagem: Código " + response.code());
                     Toast.makeText(getApplicationContext(), "Erro ao enviar imagem: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e(TAG, "Falha na requisição de atualização de imagem", t);
                 Toast.makeText(getApplicationContext(), "Falha na requisição: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -330,39 +335,46 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     private void buscarImagemUsuario() {
+        Log.d(TAG, "Iniciando busca da imagem do usuário...");
+
         Call<ResponseBody> call = apiService.buscarImagemUsuario(token);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Resposta da API buscarImagemUsuario: " + response.code());
+
                 if (response.isSuccessful() && response.body() != null) {
                     try {
                         String responseString = response.body().string();
+                        Log.d(TAG, "Resposta JSON da imagem: " + responseString);
 
-                        // Agora você pode usar uma biblioteca JSON (ex: Gson) para extrair a imagem Base64
                         JSONObject jsonObject = new JSONObject(responseString);
                         String imagemBase64 = jsonObject.getString("imagemBase64");
 
-                        // Agora você pode converter de Base64 para Bitmap e exibir
                         byte[] imageBytes = Base64.decode(imagemBase64, Base64.DEFAULT);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
 
                         userIcon.setImageBitmap(bitmap);
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "Erro ao processar imagem do usuário", e);
+                        showToast("Erro ao carregar imagem do usuário.");
                     }
                 } else {
-                    Toast.makeText(getApplicationContext(), "Erro ao buscar imagem: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Erro ao buscar imagem: Código " + response.code());
+                    showToast("Erro ao buscar imagem: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Falha na requisição: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Falha na requisição buscarImagemUsuario", t);
+                showToast("Falha na conexão ao buscar imagem.");
             }
         });
     }
+
 
     private void showToast(String message) {
         Toast.makeText(ConfigActivity.this, message, Toast.LENGTH_SHORT).show();
@@ -396,19 +408,22 @@ public class ConfigActivity extends AppCompatActivity {
         ProgressDialog progressDialog = createProgressDialog("Desativando conta...");
         progressDialog.show();
 
+        Log.d(TAG, "Iniciando desativação de conta para o usuário: " + userId);
+
         Call<ResponseBody> call = apiService.desativarUsuario(token);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Resposta da API de desativação: Código " + response.code());
                 progressDialog.dismiss();
                 handleDesativacaoResponse(response);
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e(TAG, "Falha na API ao desativar conta", t);
                 progressDialog.dismiss();
                 showToast("Falha na conexão. Tente novamente.");
-                Log.e(TAG, "Erro na API: " + t.getMessage());
             }
         });
     }
@@ -416,15 +431,18 @@ public class ConfigActivity extends AppCompatActivity {
     private void handleDesativacaoResponse(Response<ResponseBody> response) {
         try {
             if (response.isSuccessful()) {
+                Log.d(TAG, "Desativação bem-sucedida. Processando resposta...");
                 handleSuccessfulDesativacao(response);
             } else {
+                Log.w(TAG, "Desativação falhou. Código: " + response.code());
                 handleFailedDesativacao(response);
             }
         } catch (Exception e) {
+            Log.e(TAG, "Erro ao processar resposta da desativação", e);
             showToast("Erro ao processar resposta");
-            Log.e(TAG, "Erro ao processar desativação", e);
         }
     }
+
 
     private void handleSuccessfulDesativacao(Response<ResponseBody> response) throws Exception {
         String jsonResponse = response.body().string();
