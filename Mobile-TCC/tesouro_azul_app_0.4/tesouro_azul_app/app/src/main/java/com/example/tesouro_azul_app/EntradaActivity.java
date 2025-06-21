@@ -3,24 +3,30 @@ package com.example.tesouro_azul_app;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tesouro_azul_app.Pages.MainActivity;
+import com.example.tesouro_azul_app.Util.DateUtils;
 import com.example.tesouro_azul_app.Util.ValidatorUtils;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.Util.DatePickerUtil;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import android.content.Context;
 
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.util.Patterns;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -31,6 +37,8 @@ import android.view.View;
 import android.widget.Button;
 
 import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -206,88 +214,188 @@ public class EntradaActivity extends AppCompatActivity
                 }
 
                 public void CriarUsuario() {
-                    String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
-                    ValidatorUtils validator = new ValidatorUtils(); // Se usar métodos estáticos, nem precisa instanciar
-
-
-                    // Validação dos campos (usando o método existente)
-                    if (!validarCadastro(btnRegister, EntradaActivity.this)) {
-                        return; // Se a validação falhar, interrompe a execução
-                    }
-
-                    // Identifica o tipo de documento
-                    String tipoDocumento = validator.identificarTipo(CPF_CNPJreg);
-
-                    String CPF_USUARIO = null;
-                    String CNPJ_USUARIO = "000";
-
-                    if ("CPF".equals(tipoDocumento)) {
-                        CPF_USUARIO = CPF_CNPJreg.replaceAll("\\D", ""); // Remove caracteres não numéricos
-                    } else if ("CNPJ".equals(tipoDocumento)) {
-                        CNPJ_USUARIO = CPF_CNPJreg.replaceAll("\\D", ""); // Remove caracteres não numéricos
-                    } else {
-                        Toast.makeText(EntradaActivity.this, "Documento inválido!", Toast.LENGTH_SHORT).show();
+                    // Verificação de nulos nos campos de texto
+                    if (txtCPF_CNPJ_Reg.getText() == null || txtEmail.getText() == null ||
+                            txtSenhaReg.getText() == null || txtNomeReg.getText() == null ||
+                            txtNascimento.getText() == null) {
+                        Toast.makeText(EntradaActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
+                    String CPF_CNPJreg = txtCPF_CNPJ_Reg.getText().toString().trim();
                     String EMAIL_USUARIO = txtEmail.getText().toString().trim();
                     String SENHA_USUARIO = txtSenhaReg.getText().toString().trim();
                     String NOME_USUARIO = txtNomeReg.getText().toString().trim();
                     String birthUser = txtNascimento.getText().toString().trim();
 
-                    // Formatar a data para o padrão esperado pela API (yyyy-MM-dd)
-                    SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy");
-                    SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd");
-                    String DATA_NASC_USUARIO = "";
-
-                    try {
-                        Date date = sdfInput.parse(birthUser);
-                        DATA_NASC_USUARIO = sdfOutput.format(date);
-                    } catch (ParseException e) {
-                        Toast.makeText(EntradaActivity.this, "Formato de data inválido!", Toast.LENGTH_SHORT).show();
+                    // Validação básica dos campos
+                    if (EMAIL_USUARIO.isEmpty() || SENHA_USUARIO.isEmpty() ||
+                            NOME_USUARIO.isEmpty() || birthUser.isEmpty() || CPF_CNPJreg.isEmpty()) {
+                        Toast.makeText(EntradaActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    // Cria o objeto CriarUsuarioDto
+                    // Validação de email
+                    if (!Patterns.EMAIL_ADDRESS.matcher(EMAIL_USUARIO).matches()) {
+                        Toast.makeText(EntradaActivity.this, "Email inválido", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Validação de documento
+                    String tipoDocumento = ValidatorUtils.identificarTipo(CPF_CNPJreg);
+                    String CPF_USUARIO = null;
+                    String CNPJ_USUARIO = null;
+
+                    if ("CPF".equals(tipoDocumento)) {
+                        if (!ValidatorUtils.validarCPF(CPF_CNPJreg)) {
+                            Toast.makeText(EntradaActivity.this, "CPF inválido", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        CPF_USUARIO = CPF_CNPJreg.replaceAll("\\D", "");
+                    } else if ("CNPJ".equals(tipoDocumento)) {
+                        if (!ValidatorUtils.validarCNPJ(CPF_CNPJreg)) {
+                            Toast.makeText(EntradaActivity.this, "CNPJ inválido", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        CNPJ_USUARIO = CPF_CNPJreg.replaceAll("\\D", "");
+                    } else {
+                        Toast.makeText(EntradaActivity.this, "Documento inválido", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Formatação da data
+                    SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                    sdfInput.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    String DATA_NASC_USUARIO;
+
+                    try {
+                        Date date = sdfInput.parse(birthUser);
+                        DATA_NASC_USUARIO = DateUtils.formatToISO8601(date);
+                    } catch (ParseException e) {
+                        Toast.makeText(EntradaActivity.this, "Data inválida. Use DD/MM/AAAA", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Cria o objeto CriarUsuarioDto com os nomes de campos exatos que a API espera
                     SuperClassUser.Usuario usuarioDto = new SuperClassUser.Usuario(
                             NOME_USUARIO,
                             EMAIL_USUARIO,
                             DATA_NASC_USUARIO,
                             CPF_USUARIO,
                             CNPJ_USUARIO,
-                            0,
-                            null,
+                            1,  // ID_ASSINATURA_FK padrão
+                            null, // FOTO_USUARIO (pode ser ajustado se tiver imagem)
                             SENHA_USUARIO
                     );
 
+                    // Chamada à API
                     Call<SuperClassUser.Usuario> call = apiService.criarUsuario(usuarioDto);
-
                     call.enqueue(new Callback<SuperClassUser.Usuario>() {
                         @Override
-                        public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response)
-                        {
-                            if (response.isSuccessful())
-                            {
-                                Toast.makeText(EntradaActivity.this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
+                        public void onResponse(Call<SuperClassUser.Usuario> call, Response<SuperClassUser.Usuario> response) {
+
+                            if (response.isSuccessful()) {
+                                Toast.makeText(EntradaActivity.this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
                                 startActivity(intent);
+                                finish(); // Fecha a activity atual
                             } else {
-                                try {
-                                    String errorBody = response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido";
-                                    Toast.makeText(EntradaActivity.this, "Erro no cadastro: " + errorBody, Toast.LENGTH_LONG).show();
-                                    Log.e("API Error", "Código: " + response.code() + ", Mensagem: " + errorBody);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                                tratarErroApi(response);
                             }
                         }
 
                         @Override
                         public void onFailure(Call<SuperClassUser.Usuario> call, Throwable t) {
-                            Toast.makeText(EntradaActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                            Toast.makeText(EntradaActivity.this, "Falha na conexão. Tente novamente.", Toast.LENGTH_SHORT).show();
                             Log.e("API Failure", "Erro: ", t);
                         }
                     });
+                }
+
+                private void tratarErroApi(Response<SuperClassUser.Usuario> response) {
+                    try {
+                        String errorMsg = "Erro no cadastro";
+                        String errorDetails = "";
+                        int errorCode = response.code();
+
+                        // Log detalhado do erro
+                        Log.e("API_ERROR", "Código: " + errorCode + ", Mensagem: " + response.message());
+
+                        // Tratamento específico para códigos de erro
+                        switch (errorCode) {
+                            case 400:
+                                errorMsg = "Dados inválidos enviados ao servidor";
+                                break;
+                            case 401:
+                                errorMsg = "Autenticação necessária";
+                                break;
+                            case 403:
+                                errorMsg = "Acesso não autorizado";
+                                break;
+                            case 404:
+                                errorMsg = "Recurso não encontrado";
+                                break;
+                            case 409:
+                                errorMsg = "Conflito - Email ou documento já cadastrado";
+                                break;
+                            case 500:
+                                errorMsg = "Erro interno no servidor";
+                                break;
+                        }
+
+                        // Extrair detalhes do corpo da resposta
+                        if (response.errorBody() != null) {
+                            try {
+                                String errorBody = response.errorBody().string();
+                                Log.e("API_ERROR_BODY", errorBody);
+
+                                // Tentar parsear como JSON
+                                try {
+                                    JsonObject jsonError = JsonParser.parseString(errorBody).getAsJsonObject();
+
+                                    if (jsonError.has("mensagem")) {
+                                        errorMsg = jsonError.get("mensagem").getAsString();
+                                    }
+                                    if (jsonError.has("errors")) {
+                                        errorDetails = jsonError.get("errors").toString();
+                                    }
+                                } catch (Exception e) {
+                                    // Se não for JSON, usar o corpo diretamente
+                                    if (!errorBody.isEmpty()) {
+                                        errorDetails = errorBody;
+                                    }
+                                }
+                            } catch (IOException e) {
+                                Log.e("API_ERROR", "Erro ao ler corpo de erro", e);
+                            }
+                        }
+
+                        // Mostrar mensagem detalhada
+                        final String finalErrorMsg = errorMsg + (!errorDetails.isEmpty() ? "\nDetalhes: " + errorDetails : "");
+                        String finalErrorMsg1 = errorMsg;
+                        runOnUiThread(() -> {
+                            Toast.makeText(EntradaActivity.this, finalErrorMsg, Toast.LENGTH_LONG).show();
+
+                            // Adicionar tratamento visual nos campos com erro
+                            if (finalErrorMsg1.contains("Email")) {
+                                txtEmail.setError(finalErrorMsg1);
+                                txtEmail.requestFocus();
+                            } else if (finalErrorMsg1.contains("CPF") || finalErrorMsg1.contains("CNPJ")) {
+                                txtCPF_CNPJ_Reg.setError(finalErrorMsg1);
+                                txtCPF_CNPJ_Reg.requestFocus();
+                            } else if (finalErrorMsg1.contains("Senha")) {
+                                txtSenhaReg.setError(finalErrorMsg1);
+                                txtSenhaReg.requestFocus();
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        Log.e("API_ERROR", "Erro inesperado ao processar erro", e);
+                        runOnUiThread(() ->
+                                Toast.makeText(EntradaActivity.this, "Erro inesperado: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                        );
+                    }
                 }
 
             });

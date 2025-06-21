@@ -323,7 +323,6 @@ public class ProdutosActivity extends AppCompatActivity {
     /** Carrega todos os produtos da API */
     private void carregarProdutos() {
         Log.d(TAG, "Carregando lista de produtos");
-        progressBar.setVisibility(View.VISIBLE);
 
         if (token == null) {
             Log.e(TAG, "Token não disponível para carregar produtos");
