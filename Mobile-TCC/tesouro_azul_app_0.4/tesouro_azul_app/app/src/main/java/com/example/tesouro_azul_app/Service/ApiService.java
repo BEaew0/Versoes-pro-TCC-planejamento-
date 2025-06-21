@@ -78,7 +78,7 @@ public interface ApiService {
     Call<Void> cadastrarProduto(@Header("Authorization") String token, @Body SuperClassProd.ProdutoDto produtoDto);
 
     @POST("buscar-produtos-por-nome-similar")
-    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(@Header("Authorization")String token,
+    Call<List<SuperClassProd.ProdutoDtoArray>> buscarProdutosPorNomeSimilar(@Header("Authorization")String token,
             @Body String nome
     );
 
@@ -89,11 +89,7 @@ public interface ApiService {
     );
 
     @GET("api/Produtos/buscar-todos-produtos-users")
-    Call<List<SuperClassProd.ProdutoDto>> buscarTodosProdutos(@Header("Authorization") String token);
-
-
-    @POST("/buscar-produtos-por-nome-similar")
-    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(@Body String nomeProdTxt);
+    Call<List<SuperClassProd.ProdutoDtoArray>> buscarTodosProdutos(@Header("Authorization") String token);
 
 
     @PATCH("api/Produtos/alterar-produto-por-campo/{id}")
@@ -108,8 +104,8 @@ public interface ApiService {
             @Path("id") int id,
             @Body ImagemDto imagemDto);
 
-    @DELETE("api/Produtos/{id}")
-    Call<ResponseBody> deletarProduto(@Header("Authorization") String token, @Path("id") int id);
+    @DELETE("deletar-produto-por-{id}")
+    Call<Void> deletarProduto(@Header("Authorization") String token, @Path("id") int id);
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////

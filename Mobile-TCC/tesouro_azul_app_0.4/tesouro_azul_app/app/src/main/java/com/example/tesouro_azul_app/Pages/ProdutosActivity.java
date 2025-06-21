@@ -21,7 +21,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -32,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Adapter.ProdutoAdapter;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
-import com.example.tesouro_azul_app.EntradaActivity;
 import com.example.tesouro_azul_app.R;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Service.ApiService;
@@ -63,7 +61,7 @@ public class ProdutosActivity extends AppCompatActivity {
     private static final String TAG = "ProdutosActivity";
 
     // Produto atualmente selecionado na lista
-    private SuperClassProd.ProdutoDto produtoSelecionado = null;
+    private SuperClassProd.ProdutoDtoArray produtoSelecionado = null;
 
     // Código para solicitação de permissão de galeria
     private static final int REQUEST_CODE_GALLERY = 1001;
@@ -77,7 +75,7 @@ public class ProdutosActivity extends AppCompatActivity {
     // Componentes de UI
     private RecyclerView recyclerView;
     private ProdutoAdapter adapter;
-    private List<SuperClassProd.ProdutoDto> listaProdutos = new ArrayList<>();
+    private List<SuperClassProd.ProdutoDtoArray> listaProdutos = new ArrayList<>();
 
     // Handler para implementar debounce na busca
     private Handler handler = new Handler();
@@ -99,6 +97,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
     // Dados de autenticação
     String token;
+    int idSelecionado ;
     int userId;
 
     // Formato de data
@@ -173,23 +172,21 @@ public class ProdutosActivity extends AppCompatActivity {
     /** Configura o RecyclerView e seu adapter */
     private void configurarRecyclerView() {
         try {
-            // Layout linear (lista vertical)
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            // Divisores entre itens
             recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-            // Adapter com listener de clique nos itens
             adapter = new ProdutoAdapter(listaProdutos, this, produto -> {
                 try {
-                    produtoSelecionado = produto; // Armazena o produto selecionado
+                    produtoSelecionado = produto; // Agora é do tipo ProdutoDtoArray
                     Log.d(TAG, "Produto selecionado: " + produto.getNomeProduto());
 
-                    // Preenche os campos com os dados do produto
+                    idSelecionado = produto.getIdProduto();
+                    Log.d(TAG, "ID do Produto selecionado: " + idSelecionado);
+
                     NomeProd.setText(produto.getNomeProduto());
                     ValorProd.setText(String.valueOf(produto.getValorProduto()));
                     TipoProd.setText(produto.getTipoProduto());
 
-                    // Carrega imagem se existir
                     if (produto.getImgProduto() != null && !produto.getImgProduto().isEmpty()) {
                         Bitmap bitmap = ImageUtils.base64ToBitmap(produto.getImgProduto());
                         prodImage.setImageBitmap(bitmap);
@@ -211,6 +208,59 @@ public class ProdutosActivity extends AppCompatActivity {
             Toast.makeText(this, "Erro ao configurar a lista de produtos", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+    /** Carrega todos os produtos da API */
+    private void carregarProdutos() {
+        Log.d(TAG, "Carregando lista de produtos");
+
+        if (token == null) {
+            Log.e(TAG, "Token não disponível para carregar produtos");
+            Toast.makeText(this, "Erro de autenticação", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+            return;
+        }
+
+        Call<List<SuperClassProd.ProdutoDtoArray>> call = apiService.buscarTodosProdutos(token);
+
+        call.enqueue(new Callback<List<SuperClassProd.ProdutoDtoArray>>() {
+            @Override
+            public void onResponse(Call<List<SuperClassProd.ProdutoDtoArray>> call,
+                                   Response<List<SuperClassProd.ProdutoDtoArray>> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<SuperClassProd.ProdutoDtoArray> produtos = response.body();
+                        Log.d(TAG, "Produtos carregados: " + produtos.size());
+                        adapter.atualizarLista(produtos);
+                    } else {
+                        String errorMsg = "Erro ao carregar produtos: " + response.code();
+                        if (response.errorBody() != null) {
+                            errorMsg += " - " + response.errorBody().string();
+                        }
+                        Log.e(TAG, errorMsg);
+                        Toast.makeText(ProdutosActivity.this,
+                                "Erro ao carregar produtos",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Erro ao processar lista de produtos", e);
+                    Toast.makeText(ProdutosActivity.this, "Erro ao processar produtos", Toast.LENGTH_SHORT).show();
+                } finally {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<SuperClassProd.ProdutoDtoArray>> call, Throwable t) {
+                Log.e(TAG, "Falha ao carregar produtos", t);
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(ProdutosActivity.this,
+                        "Falha na conexão. Verifique sua internet.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     /** Obtém informações do usuário a partir do token JWT */
     private void obterInfoUsuario() {
@@ -290,15 +340,15 @@ public class ProdutosActivity extends AppCompatActivity {
             return;
         }
 
-        Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarProdutosPorNomeSimilar(token, nome);
+        Call<List<SuperClassProd.ProdutoDtoArray>> call = apiService.buscarProdutosPorNomeSimilar(token, nome);
 
-        call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {
+        call.enqueue(new Callback<List<SuperClassProd.ProdutoDtoArray>>() {
             @Override
-            public void onResponse(Call<List<SuperClassProd.ProdutoDto>> call,
-                                   Response<List<SuperClassProd.ProdutoDto>> response) {
+            public void onResponse(Call<List<SuperClassProd.ProdutoDtoArray>> call,
+                                   Response<List<SuperClassProd.ProdutoDtoArray>> response) {
                 try {
                     if (response.isSuccessful() && response.body() != null) {
-                        List<SuperClassProd.ProdutoDto> produtos = response.body();
+                        List<SuperClassProd.ProdutoDtoArray> produtos = response.body();
                         Log.d(TAG, "Busca retornou " + produtos.size() + " produtos");
 
                         if (!produtos.isEmpty()) {
@@ -323,7 +373,7 @@ public class ProdutosActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<SuperClassProd.ProdutoDto>> call, Throwable t) {
+            public void onFailure(Call<List<SuperClassProd.ProdutoDtoArray>> call, Throwable t) {
                 Log.e(TAG, "Falha na busca por nome: " + nome, t);
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(ProdutosActivity.this, "Erro na conexão. Verifique sua internet.", Toast.LENGTH_SHORT).show();
@@ -331,56 +381,7 @@ public class ProdutosActivity extends AppCompatActivity {
         });
     }
 
-    /** Carrega todos os produtos da API */
-    private void carregarProdutos() {
-        Log.d(TAG, "Carregando lista de produtos");
 
-        if (token == null) {
-            Log.e(TAG, "Token não disponível para carregar produtos");
-            Toast.makeText(this, "Erro de autenticação", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
-            return;
-        }
-
-        Call<List<SuperClassProd.ProdutoDto>> call = apiService.buscarTodosProdutos(token);
-
-        call.enqueue(new Callback<List<SuperClassProd.ProdutoDto>>() {
-            @Override
-            public void onResponse(Call<List<SuperClassProd.ProdutoDto>> call,
-                                   Response<List<SuperClassProd.ProdutoDto>> response) {
-                try {
-                    if (response.isSuccessful() && response.body() != null) {
-                        List<SuperClassProd.ProdutoDto> produtos = response.body();
-                        Log.d(TAG, "Produtos carregados: " + produtos.size());
-                        adapter.atualizarLista(produtos);
-                    } else {
-                        String errorMsg = "Erro ao carregar produtos: " + response.code();
-                        if (response.errorBody() != null) {
-                            errorMsg += " - " + response.errorBody().string();
-                        }
-                        Log.e(TAG, errorMsg);
-                        Toast.makeText(ProdutosActivity.this,
-                                "Erro ao carregar produtos",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Erro ao processar lista de produtos", e);
-                    Toast.makeText(ProdutosActivity.this, "Erro ao processar produtos", Toast.LENGTH_SHORT).show();
-                } finally {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<SuperClassProd.ProdutoDto>> call, Throwable t) {
-                Log.e(TAG, "Falha ao carregar produtos", t);
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(ProdutosActivity.this,
-                        "Falha na conexão. Verifique sua internet.",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
     /** Configura o imagePicker para seleção de fotos */
     private void configurarImagePicker() {
@@ -456,7 +457,7 @@ public class ProdutosActivity extends AppCompatActivity {
     /** Configura listeners para os botões */
     private void configurarListeners() {
         try {
-            btnExluir.setOnClickListener(view -> {/*deletarProduto();*/});
+            btnExluir.setOnClickListener(view -> {deletarProduto(idSelecionado);});
             btnComprar.setOnClickListener(view -> realizarCompra());
             btnVenderProd.setOnClickListener(view -> realizarVenda());
             btnAdicionarProd.setOnClickListener(view -> criarProduto());
@@ -708,6 +709,47 @@ public class ProdutosActivity extends AppCompatActivity {
         }
     }
 
+    private void deletarProduto(int produtoId) {
+        Log.d(TAG, "Iniciando exclusão do produto ID: " + produtoId);
+
+        // Chamada para o endpoint de exclusão
+        Call<Void> call = apiService.deletarProduto(token, produtoId);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                try {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "Produto excluído com sucesso - ID: " + produtoId);
+                        Toast.makeText(ProdutosActivity.this,
+                                "Produto excluído com sucesso!",
+                                Toast.LENGTH_SHORT).show();
+                        carregarProdutos();  // Recarrega a lista de produtos após exclusão
+                    } else {
+                        Log.e(TAG, "Erro ao excluir produto: Código " + response.code());
+                        Toast.makeText(ProdutosActivity.this,
+                                "Erro ao excluir produto: " + response.code(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Erro ao processar exclusão de produto", e);
+                    Toast.makeText(ProdutosActivity.this,
+                            "Erro ao processar exclusão",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Log.e(TAG, "Falha na requisição de exclusão", t);
+                Toast.makeText(ProdutosActivity.this,
+                        "Falha na conexão. Verifique sua internet.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
     /** Cria um novo produto */
     private void criarProduto() {
         Log.d(TAG, "Iniciando criação de produto");
@@ -750,12 +792,10 @@ public class ProdutosActivity extends AppCompatActivity {
 
             // Chamada à API
             Call<Void> call = apiService.cadastrarProduto(token, produtoDto);
-            progressBar.setVisibility(View.VISIBLE);
 
             call.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                    progressBar.setVisibility(View.GONE);
                     try {
                         if (response.isSuccessful()) {
                             Log.d(TAG, "Produto criado com sucesso: " + nomeProduto);
@@ -779,7 +819,6 @@ public class ProdutosActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                    progressBar.setVisibility(View.GONE);
                     Log.e(TAG, "Falha ao criar produto", t);
                     Toast.makeText(ProdutosActivity.this,
                             "Falha na conexão. Verifique sua internet.",
@@ -787,7 +826,6 @@ public class ProdutosActivity extends AppCompatActivity {
                 }
             });
         } catch (Exception e) {
-            progressBar.setVisibility(View.GONE);
             Log.e(TAG, "Erro durante criação de produto", e);
             Toast.makeText(this, "Erro ao criar produto", Toast.LENGTH_SHORT).show();
         }

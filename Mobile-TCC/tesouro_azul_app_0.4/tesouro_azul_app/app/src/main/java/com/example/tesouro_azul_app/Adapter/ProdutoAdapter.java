@@ -26,15 +26,15 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
 
     private static final String TAG = "ProdutoAdapter";
 
-    private List<SuperClassProd.ProdutoDto> produtos;
+    private List<SuperClassProd.ProdutoDtoArray> produtos;
     private Context context;
     private OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(SuperClassProd.ProdutoDto produto);
+        void onItemClick(SuperClassProd.ProdutoDtoArray produto);
     }
 
-    public ProdutoAdapter(List<SuperClassProd.ProdutoDto> produtos, Context context, OnItemClickListener listener) {
+    public ProdutoAdapter(List<SuperClassProd.ProdutoDtoArray> produtos, Context context, OnItemClickListener listener) {
         this.produtos = produtos != null ? produtos : new ArrayList<>();
         this.context = context;
         this.listener = listener;
@@ -57,28 +57,27 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
     @NonNull
     @Override
     public ProdutoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        try {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_produto, parent, false);
-            return new ProdutoViewHolder(view);
-        } catch (Exception e) {
-            Log.e(TAG, "Erro ao inflar o layout do item: ", e);
-            throw new RuntimeException("Erro ao criar ViewHolder", e);
-        }
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_produto, parent, false);
+        return new ProdutoViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ProdutoViewHolder holder, int position) {
-        if (produtos == null || produtos.isEmpty()) {
-            Log.w(TAG, "Lista de produtos está vazia ou nula no onBindViewHolder");
-            return;
-        }
+        SuperClassProd.ProdutoDtoArray produto = produtos.get(position);
 
-        SuperClassProd.ProdutoDto produto = produtos.get(position);
-        if (produto == null) {
-            Log.w(TAG, "Produto nulo na posição: " + position);
-            return;
-        }
+        // Nome
+        holder.txtNome.setText(produto.getNomeProduto() != null ? produto.getNomeProduto() : "Nome indisponível");
 
+        // Código
+        holder.txtCodigo.setText("Código: " + produto.getCodProduto());
+
+        // Valor
+        holder.txtValor.setText(String.format("R$ %.2f", produto.getValorProduto()));
+
+        // Tipo
+        holder.txtTipo.setText("Categoria: " + (produto.getTipoProduto() != null ? produto.getTipoProduto() : "Desconhecida"));
+
+        // Imagem Base64
         String imgBase64 = produto.getImgProduto();
         if (imgBase64 != null && !imgBase64.isEmpty()) {
             try {
@@ -94,52 +93,20 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .into(holder.imgProduto);
                 } else {
-                    Log.e(TAG, "Bitmap decodificado nulo na posição: " + position);
-                    Glide.with(context)
-                            .load(R.drawable.error_image)
-                            .into(holder.imgProduto);
+                    Glide.with(context).load(R.drawable.error_image).into(holder.imgProduto);
                 }
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Erro ao decodificar imagem Base64 na posição " + position, e);
-                Glide.with(context)
-                        .load(R.drawable.error_image)
-                        .into(holder.imgProduto);
             } catch (Exception e) {
-                Log.e(TAG, "Erro inesperado ao carregar imagem na posição " + position, e);
-                Glide.with(context)
-                        .load(R.drawable.error_image)
-                        .into(holder.imgProduto);
+                Log.e(TAG, "Erro ao decodificar imagem Base64 na posição " + position, e);
+                Glide.with(context).load(R.drawable.error_image).into(holder.imgProduto);
             }
         } else {
-            // Se a imagem vier nula ou vazia
-            Glide.with(context)
-                    .load(R.drawable.placeholder)
-                    .into(holder.imgProduto);
+            Glide.with(context).load(R.drawable.placeholder).into(holder.imgProduto);
         }
-
-        // Nome
-        if (produto.getNomeProduto() != null) {
-            holder.txtNome.setText(produto.getNomeProduto());
-        } else {
-            holder.txtNome.setText("Nome indisponível");
-            Log.w(TAG, "Nome do produto é nulo na posição: " + position);
-        }
-
-        // Código
-        holder.txtCodigo.setText("Código: " + produto.getCodProduto());
-
-        // Valor
-        holder.txtValor.setText(String.format("R$ %.2f", produto.getValorProduto()));
-
-        // Tipo
-        holder.txtTipo.setText("Categoria: " + (produto.getTipoProduto() != null ? produto.getTipoProduto() : "Desconhecida"));
 
         // Clique no item
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(produto);
-            } else {
-                Log.w(TAG, "Listener de clique está nulo.");
             }
         });
     }
@@ -149,9 +116,8 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
         return produtos != null ? produtos.size() : 0;
     }
 
-    public void atualizarLista(List<SuperClassProd.ProdutoDto> novaLista) {
+    public void atualizarLista(List<SuperClassProd.ProdutoDtoArray> novaLista) {
         if (novaLista == null) {
-            Log.w(TAG, "Tentativa de atualizar o adapter com uma lista nula.");
             this.produtos = new ArrayList<>();
         } else {
             this.produtos = novaLista;

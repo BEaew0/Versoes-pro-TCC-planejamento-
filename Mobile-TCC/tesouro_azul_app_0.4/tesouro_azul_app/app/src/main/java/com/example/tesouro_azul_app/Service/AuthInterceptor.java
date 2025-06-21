@@ -1,9 +1,10 @@
 package com.example.tesouro_azul_app.Service;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,19 +17,16 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-//Adiciona automaticamente o token JWT às requisições.
 public class AuthInterceptor implements Interceptor {
     private SharedPreferences sharedPreferences;
     private static final String TAG = "AuthInterceptor";
     private final Context context;
 
-    public AuthInterceptor(Context context)
-    {
+    public AuthInterceptor(Context context) {
         this.context = context;
         sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
     }
 
-    // Versão melhorada com tratamento de mais códigos de erro
     @NonNull
     @Override
     public Response intercept(Chain chain) throws IOException {
@@ -47,38 +45,42 @@ public class AuthInterceptor implements Interceptor {
 
         switch (response.code()) {
             case 401: // Unauthorized
-                handleUnauthorized(context);
+                handleUnauthorized();
                 throw new IOException("Token de autenticação expirado");
 
             case 403: // Forbidden
-                // Tratar acesso negado
-                Toast.makeText(context, "Acesso negado", Toast.LENGTH_LONG).show();
+                showToast("Acesso negado");
                 break;
+
             case 500: // Server Error
-                // Tratar erro do servidor
-                Toast.makeText(context, "Merda do miguel.", Toast.LENGTH_LONG).show();
+                showToast("Erro interno no servidor");
                 break;
-            // outros casos...
+
+            // Outros casos de erro se quiser...
         }
+
         return response;
     }
 
-    private void handleUnauthorized(Context context) {
-        // Extrair para método separado para reutilização
+    private void handleUnauthorized() {
+        // Limpa o token
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove("jwt_token");
         editor.apply();
 
-        if (context instanceof Activity) {
+        // Toast + Redirecionamento para tela de login
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Toast.makeText(context, "Sessão expirada. Faça login novamente.", Toast.LENGTH_LONG).show();
 
-            ((Activity) context).runOnUiThread(() -> {
-                Toast.makeText(context, "Sessão expirada. Faça login novamente.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(context, EntradaActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                context.startActivity(intent);
-                ((Activity) context).finish();
-            });
-        }
+            Intent intent = new Intent(context, EntradaActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            context.startActivity(intent);
+        });
+    }
+
+    private void showToast(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+        });
     }
 }
-

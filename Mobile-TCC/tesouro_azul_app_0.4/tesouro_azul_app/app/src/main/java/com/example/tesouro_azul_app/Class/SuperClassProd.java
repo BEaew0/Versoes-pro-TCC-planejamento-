@@ -80,6 +80,98 @@ public class SuperClassProd {
 
         // ... outros getters e setters
     }
+
+    public static class ProdutoDtoArray {
+
+        @SerializedName("iD_PRODUTO")
+        private int idProduto;
+
+        @SerializedName("iD_USUARIO_FK")
+        private int idUsuarioFk;
+
+        @SerializedName("coD_PRODUTO")
+        private String codProduto;
+
+        @SerializedName("nomE_PRODUTO")
+        private String nomeProduto;
+
+        @SerializedName("valoR_PRODUTO")
+        private double valorProduto;
+
+        @SerializedName("tipO_PRODUTO")
+        private String tipoProduto;
+
+        @SerializedName("imG_PRODUTO")
+        private String imgProduto;
+
+        public ProdutoDtoArray(int idProduto, int idUsuarioFk, String codProduto, String nomeProduto, double valorProduto, String tipoProduto, String imgProduto) {
+            this.idProduto = idProduto;
+            this.idUsuarioFk = idUsuarioFk;
+            this.codProduto = codProduto;
+            this.nomeProduto = nomeProduto;
+            this.valorProduto = valorProduto;
+            this.tipoProduto = tipoProduto;
+            this.imgProduto = imgProduto;
+        }
+
+        public int getIdProduto() {
+            return idProduto;
+        }
+
+        public void setIdProduto(int idProduto) {
+            this.idProduto = idProduto;
+        }
+
+        public int getIdUsuarioFk() {
+            return idUsuarioFk;
+        }
+
+        public void setIdUsuarioFk(int idUsuarioFk) {
+            this.idUsuarioFk = idUsuarioFk;
+        }
+
+        public String getCodProduto() {
+            return codProduto;
+        }
+
+        public void setCodProduto(String codProduto) {
+            this.codProduto = codProduto;
+        }
+
+        public String getNomeProduto() {
+            return nomeProduto;
+        }
+
+        public void setNomeProduto(String nomeProduto) {
+            this.nomeProduto = nomeProduto;
+        }
+
+        public double getValorProduto() {
+            return valorProduto;
+        }
+
+        public void setValorProduto(double valorProduto) {
+            this.valorProduto = valorProduto;
+        }
+
+        public String getTipoProduto() {
+            return tipoProduto;
+        }
+
+        public void setTipoProduto(String tipoProduto) {
+            this.tipoProduto = tipoProduto;
+        }
+
+        public String getImgProduto() {
+            return imgProduto;
+        }
+
+        public void setImgProduto(String imgProduto) {
+            this.imgProduto = imgProduto;
+        }
+
+        // ... outros getters e setters
+    }
     public static class PedidoCompraCompletoDto {
         @SerializedName("pedido")
         public PedidoDto pedido;
