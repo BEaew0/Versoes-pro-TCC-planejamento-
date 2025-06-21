@@ -22,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tesouro_azul_app.Class.ImagemDto;
 import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
 import com.example.tesouro_azul_app.LoginActivity;
@@ -264,7 +265,7 @@ public class ConfigActivity extends AppCompatActivity {
             return;
         }
 
-        SuperClassUser.ImagemDto imagemDto = new SuperClassUser.ImagemDto(imagemBase64);
+        ImagemDto imagemDto = new ImagemDto(imagemBase64);
 
         Call<ResponseBody> call = apiService.atualizarImagem(token, imagemDto);
 

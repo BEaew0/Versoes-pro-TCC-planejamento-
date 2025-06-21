@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Adapter.ProdutoAdapter;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
+import com.example.tesouro_azul_app.EntradaActivity;
 import com.example.tesouro_azul_app.R;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Service.ApiService;
@@ -237,11 +238,13 @@ public class ProdutosActivity extends AppCompatActivity {
         try {
             SearchProd.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // Não precisa fazer nada aqui
+                }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    // Cancela busca anterior se ainda pendente
+                    // Cancela qualquer busca anterior agendada (debounce)
                     if (runnable != null) {
                         handler.removeCallbacks(runnable);
                     }
@@ -252,20 +255,30 @@ public class ProdutosActivity extends AppCompatActivity {
                     try {
                         String termoBusca = s.toString().trim();
                         Log.d(TAG, "Texto alterado na busca: " + termoBusca);
-                        // Agenda nova busca após delay (debounce)
-                        runnable = () -> buscarPorNomeApi1(termoBusca);
-                        handler.postDelayed(runnable, DELAY_MILLIS);
+
+                        if (termoBusca.isEmpty()) {
+                            // Se o campo estiver vazio, carrega todos os produtos
+                            carregarProdutos();
+                        } else {
+                            // Agenda a nova busca com um pequeno delay (debounce)
+                            runnable = () -> buscarPorNomeApi1(termoBusca);
+                            handler.postDelayed(runnable, DELAY_MILLIS);
+                        }
+
                     } catch (Exception e) {
                         Log.e(TAG, "Erro durante afterTextChanged", e);
                     }
                 }
             });
+
             Log.d(TAG, "Busca configurada com sucesso");
+
         } catch (Exception e) {
             Log.e(TAG, "Erro ao configurar busca", e);
             Toast.makeText(this, "Erro ao configurar busca", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     /** Busca produtos por nome na API */
     private void buscarPorNomeApi1(String nome) {
@@ -306,8 +319,6 @@ public class ProdutosActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     Log.e(TAG, "Erro ao processar resposta da busca", e);
                     Toast.makeText(ProdutosActivity.this, "Erro ao processar resultados", Toast.LENGTH_SHORT).show();
-                } finally {
-                    progressBar.setVisibility(View.GONE);
                 }
             }
 

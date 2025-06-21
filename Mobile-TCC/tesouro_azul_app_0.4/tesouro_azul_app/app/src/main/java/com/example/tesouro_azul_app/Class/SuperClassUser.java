@@ -141,23 +141,6 @@ public class SuperClassUser {
             }
         }
 
-        public static class ImagemDto extends SuperClassProd.ImagemDto {
-
-            @SerializedName("imagemBase64")
-            private String imagemBase64;
-
-            public ImagemDto(String imagemBase64) {
-                this.imagemBase64 = imagemBase64;
-            }
-
-            public String getImagemBase64() {
-                return imagemBase64;
-            }
-
-            public void setImagemBase64(String imagemBase64) {
-                this.imagemBase64 = imagemBase64;
-            }
-        }
 
 
         //Para requisições de login

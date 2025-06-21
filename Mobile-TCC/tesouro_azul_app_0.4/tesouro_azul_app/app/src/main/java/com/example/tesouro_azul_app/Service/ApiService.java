@@ -1,5 +1,6 @@
 package com.example.tesouro_azul_app.Service;
 
+import com.example.tesouro_azul_app.Class.ImagemDto;
 import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.Class.SuperClassUser;
 
@@ -50,8 +51,10 @@ public interface ApiService {
         Call<ResponseBody> buscarImagemUsuario(@Header("Authorization") String token);
 
 
-    @PATCH("/alterar-imagem")
-    Call<ResponseBody> atualizarImagem(@Header("Authorization") String token, @Body SuperClassProd.ImagemDto dto
+    @PATCH("alterar-imagem")
+    Call<ResponseBody> atualizarImagem(
+            @Header("Authorization") String token,
+            @Body ImagemDto dto
     );
 
     // Deletar Usuario
@@ -72,10 +75,10 @@ public interface ApiService {
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
     @POST("cadastrar-produto")
-    Call<Void> cadastrarProduto( String token, @Body SuperClassProd.ProdutoDto produtoDto);
+    Call<Void> cadastrarProduto(@Header("Authorization") String token, @Body SuperClassProd.ProdutoDto produtoDto);
 
-    @POST("api/Produtos/buscar-produtos-por-nome-similar")
-    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(String token,
+    @POST("buscar-produtos-por-nome-similar")
+    Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(@Header("Authorization")String token,
             @Body String nome
     );
 
@@ -86,7 +89,8 @@ public interface ApiService {
     );
 
     @GET("api/Produtos/buscar-todos-produtos-users")
-    Call<List<SuperClassProd.ProdutoDto>> buscarTodosProdutos(String token);
+    Call<List<SuperClassProd.ProdutoDto>> buscarTodosProdutos(@Header("Authorization") String token);
+
 
     @POST("/buscar-produtos-por-nome-similar")
     Call<List<SuperClassProd.ProdutoDto>> buscarProdutosPorNomeSimilar(@Body String nomeProdTxt);
@@ -102,7 +106,7 @@ public interface ApiService {
     Call<SuperClassProd.ProdutoDto> alterarImagemProduto(
             @Header("Authorization") String token,
             @Path("id") int id,
-            @Body SuperClassProd.ImagemDto imagemDto);
+            @Body ImagemDto imagemDto);
 
     @DELETE("api/Produtos/{id}")
     Call<ResponseBody> deletarProduto(@Header("Authorization") String token, @Path("id") int id);
