@@ -268,13 +268,7 @@ public class EntradaActivity extends AppCompatActivity
                     sdfInput.setTimeZone(TimeZone.getTimeZone("UTC"));
                     String DATA_NASC_USUARIO;
 
-                    try {
-                        Date date = sdfInput.parse(birthUser);
-                        DATA_NASC_USUARIO = DateUtils.formatToISO8601(date);
-                    } catch (ParseException e) {
-                        Toast.makeText(EntradaActivity.this, "Data inválida. Use DD/MM/AAAA", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                    DATA_NASC_USUARIO = DateUtils.converterParaISO(birthUser);
 
                     // Cria o objeto CriarUsuarioDto com os nomes de campos exatos que a API espera
                     SuperClassUser.Usuario usuarioDto = new SuperClassUser.Usuario(
