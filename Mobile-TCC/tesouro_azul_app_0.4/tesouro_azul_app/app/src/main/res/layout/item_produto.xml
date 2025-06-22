@@ -59,6 +59,14 @@
                 android:textSize="14sp"
                 android:layout_marginTop="4dp"
                 android:text="Nada"/>
+
+            <TextView
+                android:id="@+id/txtQuant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:text="Nada"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

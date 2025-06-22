@@ -177,21 +177,21 @@ public class SuperClassProd {
     public static class PedidoDto {
 
         @SerializedName("iD_FORNECEDOR")
-        public Integer idFornecedor;
+        public String idFornecedor;
 
         @SerializedName("valoR_VALOR")
         public double valorPedido;
 
-        public PedidoDto(Integer idFornecedor, double valorPedido) {
+        public PedidoDto(String idFornecedor, double valorPedido) {
             this.idFornecedor = idFornecedor;
             this.valorPedido = valorPedido;
         }
 
-        public Integer getIdFornecedor() {
+        public String getIdFornecedor() {
             return idFornecedor;
         }
 
-        public void setIdFornecedor(Integer idFornecedor) {
+        public void setIdFornecedor(String idFornecedor) {
             this.idFornecedor = idFornecedor;
         }
 
@@ -252,22 +252,23 @@ public class SuperClassProd {
     }
 
     public static class PedidoVendaCompletoDto {
+
         @SerializedName("pedido")
-        public PedidoDto pedido;
+        private VendaDto pedido;
 
         @SerializedName("item")
-        public List<ItemVendaDto> item;
+        private List<ItemVendaDto> item;
 
-        public PedidoVendaCompletoDto(PedidoDto pedido, List<ItemVendaDto> itens) {
+        public PedidoVendaCompletoDto(VendaDto pedido, List<ItemVendaDto> item) {
             this.pedido = pedido;
-            this.item = itens;
+            this.item = item;
         }
 
-        public PedidoDto getPedido() {
+        public VendaDto getPedido() {
             return pedido;
         }
 
-        public void setPedido(PedidoDto pedido) {
+        public void setPedido(VendaDto pedido) {
             this.pedido = pedido;
         }
 
@@ -275,126 +276,111 @@ public class SuperClassProd {
             return item;
         }
 
-        public void setItem() {
-            setItem(null);
-        }
-
         public void setItem(List<ItemVendaDto> item) {
             this.item = item;
         }
     }
-    public static class PedidoVendaResponse {
-        @SerializedName("PedidoVenda")
-        private PedidoVendaCompletoDto pedidoVenda;
 
-        @SerializedName("ItensVenda")
-        private List<ItemVendaDto> itensVenda;
+        // DTO interno - Pedido (PedidoDto no backend)
+        public static class VendaDto {
 
-        // Construtor
-        public PedidoVendaResponse(PedidoVendaCompletoDto pedidoVenda, List<ItemVendaDto> itensVenda) {
-            this.pedidoVenda = pedidoVenda;
-            this.itensVenda = itensVenda;
+            @SerializedName("valor_Pedido_Venda")  // JSON correto que a API espera
+            private double valorPedidoVenda;
+
+            public VendaDto(double valorPedidoVenda) {
+                this.valorPedidoVenda = valorPedidoVenda;
+            }
+
+            public double getValorPedidoVenda() {
+                return valorPedidoVenda;
+            }
+
+            public void setValorPedidoVenda(double valorPedidoVenda) {
+                this.valorPedidoVenda = valorPedidoVenda;
+            }
         }
 
-        // Getters e Setters
-        public PedidoVendaCompletoDto getPedidoVenda() {
-            return pedidoVenda;
+        // DTO interno - Itens (ItemVendaDto no backend)
+        public static class ItemVendaDto {
+
+            @SerializedName("id_Produto_FK")
+            private int idProdutoFk;
+
+            @SerializedName("lote_Venda")
+            private String loteVenda;
+
+            @SerializedName("qts_Item_Venda")
+            private Double qtsItemVenda;
+
+            @SerializedName("n_Item_Venda")
+            private int nItemVenda;
+
+            @SerializedName("desconto_Item_Venda")
+            private Double descontoItemVenda;
+
+            @SerializedName("valor_Total_Item_Venda")
+            private Double valorTotalItemVenda;
+
+            public ItemVendaDto(int idProdutoFk, String loteVenda, Double qtsItemVenda, int nItemVenda,
+                                Double descontoItemVenda, Double valorTotalItemVenda) {
+                this.idProdutoFk = idProdutoFk;
+                this.loteVenda = loteVenda;
+                this.qtsItemVenda = qtsItemVenda;
+                this.nItemVenda = nItemVenda;
+                this.descontoItemVenda = descontoItemVenda;
+                this.valorTotalItemVenda = valorTotalItemVenda;
+            }
+
+            public int getIdProdutoFk() {
+                return idProdutoFk;
+            }
+
+            public void setIdProdutoFk(int idProdutoFk) {
+                this.idProdutoFk = idProdutoFk;
+            }
+
+            public String getLoteVenda() {
+                return loteVenda;
+            }
+
+            public void setLoteVenda(String loteVenda) {
+                this.loteVenda = loteVenda;
+            }
+
+            public Double getQtsItemVenda() {
+                return qtsItemVenda;
+            }
+
+            public void setQtsItemVenda(Double qtsItemVenda) {
+                this.qtsItemVenda = qtsItemVenda;
+            }
+
+            public int getNItemVenda() {
+                return nItemVenda;
+            }
+
+            public void setNItemVenda(int nItemVenda) {
+                this.nItemVenda = nItemVenda;
+            }
+
+            public Double getDescontoItemVenda() {
+                return descontoItemVenda;
+            }
+
+            public void setDescontoItemVenda(Double descontoItemVenda) {
+                this.descontoItemVenda = descontoItemVenda;
+            }
+
+            public Double getValorTotalItemVenda() {
+                return valorTotalItemVenda;
+            }
+
+            public void setValorTotalItemVenda(Double valorTotalItemVenda) {
+                this.valorTotalItemVenda = valorTotalItemVenda;
+            }
         }
 
-        public void setPedidoVenda(PedidoVendaCompletoDto pedidoVenda) {
-            this.pedidoVenda = pedidoVenda;
-        }
 
-        public List<ItemVendaDto> getItensVenda() {
-            return itensVenda;
-        }
-
-        public void setItensVenda(List<ItemVendaDto> itensVenda) {
-            this.itensVenda = itensVenda;
-        }
-    }
-
-    public static class ItemVendaDto {
-
-        @SerializedName("iD_PRODUTO_FK")
-        public int idProdutoFk;
-
-        @SerializedName("lotE_VENDA")
-        public String loteVenda;
-
-        @SerializedName("qtS_ITEM_VENDA")
-        public Double qtsItemVenda;
-
-        @SerializedName("n_ITEM_VENDA")
-        public int nItemVenda;
-
-        @SerializedName("descontO_ITEM_VENDA")
-        public Double descontoItemVenda;
-
-        @SerializedName("valoR_TOTAL_ITEM_VENDA")
-        public Double valorTotalItemVenda;
-
-        public ItemVendaDto(int idProdutoFk, String loteVenda, Double qtsItemVenda, int nItemVenda,
-                            Double descontoItemVenda, Double valorTotalItemVenda) {
-            this.idProdutoFk = idProdutoFk;
-            this.loteVenda = loteVenda;
-            this.qtsItemVenda = qtsItemVenda;
-            this.nItemVenda = nItemVenda;
-            this.descontoItemVenda = descontoItemVenda;
-            this.valorTotalItemVenda = valorTotalItemVenda;
-        }
-
-        public ItemVendaDto(int idProdutoFk, String lote, int quantidade, int nItemVenda, double descontoItemVenda, double valorTotal) {
-        }
-
-        public int getIdProdutoFk() {
-            return idProdutoFk;
-        }
-
-        public void setIdProdutoFk(int idProdutoFk) {
-            this.idProdutoFk = idProdutoFk;
-        }
-
-        public String getLoteVenda() {
-            return loteVenda;
-        }
-
-        public void setLoteVenda(String loteVenda) {
-            this.loteVenda = loteVenda;
-        }
-
-        public Double getQtsItemVenda() {
-            return qtsItemVenda;
-        }
-
-        public void setQtsItemVenda(Double qtsItemVenda) {
-            this.qtsItemVenda = qtsItemVenda;
-        }
-
-        public int getnItemVenda() {
-            return nItemVenda;
-        }
-
-        public void setnItemVenda(int nItemVenda) {
-            this.nItemVenda = nItemVenda;
-        }
-
-        public Double getDescontoItemVenda() {
-            return descontoItemVenda;
-        }
-
-        public void setDescontoItemVenda(Double descontoItemVenda) {
-            this.descontoItemVenda = descontoItemVenda;
-        }
-
-        public Double getValorTotalItemVenda() {
-            return valorTotalItemVenda;
-        }
-
-        public void setValorTotalItemVenda(Double valorTotalItemVenda) {
-            this.valorTotalItemVenda = valorTotalItemVenda;
-        }
-    }
 
 
     public static class CamposProdutoDto {

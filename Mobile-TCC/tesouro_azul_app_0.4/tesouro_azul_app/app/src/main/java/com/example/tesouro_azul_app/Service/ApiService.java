@@ -110,8 +110,8 @@ public interface ApiService {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Pedidos de Compra Endpoints
-    @POST("criar-pedido-compra")
-    Call<ResponseBody> criarPedidoCompra(
+    @POST("api/PedidoCompra/criar-pedido-compra")
+    Call<SuperClassProd.PedidoCompraCompletoDto> criarPedidoCompra(
             @Header("Authorization") String token,
             @Body SuperClassProd.PedidoCompraCompletoDto pedidoDto
     );
@@ -156,7 +156,7 @@ public interface ApiService {
 
 
     // Endpoint para criar um pedido de venda completo
-    @POST("criar-pedido-venda")
+    @POST("api/PedidoVenda/criar-pedido-venda")
     Call<SuperClassProd.PedidoVendaCompletoDto> criarPedidoVenda(
             @Header("Authorization") String token,
             @Body SuperClassProd.PedidoVendaCompletoDto pedidoVenda

@@ -458,7 +458,7 @@ public class ProdutosActivity extends AppCompatActivity {
     private void configurarListeners() {
         try {
             btnExluir.setOnClickListener(view -> {deletarProduto(idSelecionado);});
-            btnComprar.setOnClickListener(view -> criarPedidoDeCompra());
+            btnComprar.setOnClickListener(view -> realizarCompra());
             btnVenderProd.setOnClickListener(view -> realizarVenda());
             btnAdicionarProd.setOnClickListener(view -> criarProduto());
             btnAlterarProd.setOnClickListener(view -> {/*alterarProduto();*/});
@@ -479,6 +479,268 @@ public class ProdutosActivity extends AppCompatActivity {
         }
     }
 
+    /** Realiza uma venda do produto selecionado */
+    private void realizarVenda() {
+        Log.d(TAG, "Iniciando processo de venda");
+
+        try {
+            // Validações
+            if (produtoSelecionado == null) {
+                Log.w(TAG, "Tentativa de venda sem produto selecionado");
+                Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String quantidadeStr = QuantProd.getText().toString().trim();
+
+            double quantidade;
+            try {
+                quantidade = Integer.parseInt(quantidadeStr);
+                if (quantidade <= 0) {
+                    Log.w(TAG, "Tentativa de venda com quantidade inválida: " + quantidade);
+                    Toast.makeText(this, "Quantidade deve ser maior que zero", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Quantidade inválida para venda: " + quantidadeStr, e);
+                Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Cálculos
+            double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
+            String lote = "LOTE-" + System.currentTimeMillis();
+            Log.d(TAG, "Preparando venda - Produto: " + produtoSelecionado.getNomeProduto() +
+                    ", Quantidade: " + quantidade + ", Valor Total: " + valorTotal);
+
+            // Cria DTOs para a venda
+            SuperClassProd.ItemVendaDto itemVenda = new SuperClassProd.ItemVendaDto(
+                    idSelecionado, lote, quantidade, 0, 0.00, valorTotal);
+
+            List<SuperClassProd.ItemVendaDto> itens = new ArrayList<>();
+            itens.add(itemVenda);
+
+            SuperClassProd.VendaDto pedido = new SuperClassProd.VendaDto(valorTotal);
+            SuperClassProd.PedidoVendaCompletoDto pedidoVenda = new SuperClassProd.PedidoVendaCompletoDto(pedido, itens);
+
+            // Chamada à API
+            Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda(token, pedidoVenda);
+            progressBar.setVisibility(View.VISIBLE);
+
+            call.enqueue(new Callback<SuperClassProd.PedidoVendaCompletoDto>() {
+                @Override
+                public void onResponse(Call<SuperClassProd.PedidoVendaCompletoDto> call,
+                                       Response<SuperClassProd.PedidoVendaCompletoDto> response) {
+                    progressBar.setVisibility(View.GONE);
+                    try {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Toast.makeText(ProdutosActivity.this,
+                                    "Venda realizada com sucesso!",
+                                    Toast.LENGTH_LONG).show();
+                            limparCampos();
+                            produtoSelecionado = null;
+                            carregarProdutos();
+                        } else {
+                            String errorMsg = "Erro na venda: " + response.code();
+                            if (response.errorBody() != null) {
+                                errorMsg += " - " + response.errorBody().string();
+                            }
+                            Log.e(TAG, errorMsg);
+                            Toast.makeText(ProdutosActivity.this,
+                                    "Erro ao realizar venda: " + (response.code() == 400 ? "Dados inválidos" : "Erro no servidor"),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao processar resposta da venda", e);
+                        Toast.makeText(ProdutosActivity.this,
+                                "Erro ao processar venda",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<SuperClassProd.PedidoVendaCompletoDto> call, Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+                    Log.e(TAG, "Falha ao realizar venda", t);
+                    Toast.makeText(ProdutosActivity.this,
+                            "Falha na conexão. Verifique sua internet.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            progressBar.setVisibility(View.GONE);
+            Log.e(TAG, "Erro durante o processo de venda", e);
+            Toast.makeText(this, "Erro ao processar venda", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /** Formata data para ISO 8601 */
+    public String formatarData(Date data) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return sdf.format(data);
+        } catch (Exception e) {
+            Log.e(TAG, "Erro ao formatar data", e);
+            return null;
+        }
+    }
+
+    /** Realiza uma compra do produto selecionado */
+    private void realizarCompra() {
+        Log.d(TAG, "Iniciando processo de compra");
+
+        try {
+            // Validações
+            if (produtoSelecionado == null) {
+                Log.w(TAG, "Tentativa de compra sem produto selecionado");
+                Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String quantidadeStr = QuantProd.getText().toString().trim();
+            int quantidade;
+            try {
+                quantidade = Integer.parseInt(quantidadeStr);
+                if (quantidade == 0) {
+                    quantidade = 1;
+                }
+                Log.d(TAG, "Quantidade para compra: " + quantidade);
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Quantidade inválida para compra: " + quantidadeStr, e);
+                Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Validação da data
+            String validadetxt = ValProd.getText().toString();
+            String validade = formatarParaISO8601(validadetxt, formatoEntrada);
+
+            // Cálculos
+            double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
+            String lote = "LOTE-" + System.currentTimeMillis();
+            Log.d(TAG, "Preparando compra - Produto: " + produtoSelecionado.getNomeProduto() +
+                    ", Quantidade: " + quantidade + ", Valor Total: " + valorTotal +
+                    ", Validade: " + validade);
+
+            // Cria DTOs para a compra
+            SuperClassProd.ItemCompraDto itemCompra = new SuperClassProd.ItemCompraDto(
+                    idSelecionado, 0, validade, lote, quantidade, 1, valorTotal);
+
+            List<SuperClassProd.ItemCompraDto> itens = new ArrayList<>();
+            itens.add(itemCompra);
+
+            SuperClassProd.PedidoDto pedido = new SuperClassProd.PedidoDto(null,valorTotal);
+            SuperClassProd.PedidoCompraCompletoDto pedidoCompra = new SuperClassProd.PedidoCompraCompletoDto(pedido, itens);
+
+            // Chamada à API
+            Call<SuperClassProd.PedidoCompraCompletoDto> call = apiService.criarPedidoCompra(token, pedidoCompra);
+            progressBar.setVisibility(View.VISIBLE);
+
+            call.enqueue(new Callback<SuperClassProd.PedidoCompraCompletoDto>() {
+                @Override
+                public void onResponse(Call<SuperClassProd.PedidoCompraCompletoDto> call,
+                                       Response<SuperClassProd.PedidoCompraCompletoDto> response) {
+                    progressBar.setVisibility(View.GONE);
+                    try {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Toast.makeText(ProdutosActivity.this,
+                                    "Compra realizada com sucesso!",
+                                    Toast.LENGTH_LONG).show();
+                            limparCampos();
+                            produtoSelecionado = null;
+                            carregarProdutos();
+                        } else {
+                            String errorMsg = "Erro na compra: " + response.code();
+                            if (response.errorBody() != null) {
+                                errorMsg += " - " + response.errorBody().string();
+                            }
+                            Log.e(TAG, errorMsg);
+                            Toast.makeText(ProdutosActivity.this,
+                                    "Erro ao realizar compra: " + (response.code() == 400 ? "Dados inválidos" : "Erro no servidor"),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao processar resposta da compra", e);
+                        Toast.makeText(ProdutosActivity.this,
+                                "Erro ao processar compra",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<SuperClassProd.PedidoCompraCompletoDto> call, Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+                    Log.e(TAG, "Falha ao realizar compra", t);
+                    Toast.makeText(ProdutosActivity.this,
+                            "Erro na conexão. Tente novamente.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            progressBar.setVisibility(View.GONE);
+            Log.e(TAG, "Erro durante o processo de compra", e);
+            Toast.makeText(this, "Erro ao processar compra", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /** Converte data para formato ISO 8601 */
+    public String formatarParaISO8601(String dataOriginal, String formatoOriginal) {
+        try {
+            SimpleDateFormat parser = new SimpleDateFormat(formatoOriginal, Locale.getDefault());
+            Date date = parser.parse(dataOriginal);
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return formatter.format(date);
+        } catch (Exception e) {
+            Log.e(TAG, "Erro ao formatar data: " + dataOriginal, e);
+            return null;
+        }
+    }
+
+    private void deletarProduto(int produtoId) {
+        Log.d(TAG, "Iniciando exclusão do produto ID: " + produtoId);
+
+        // Chamada para o endpoint de exclusão
+        Call<Void> call = apiService.deletarProduto(token, produtoId);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                try {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "Produto excluído com sucesso - ID: " + produtoId);
+                        Toast.makeText(ProdutosActivity.this,
+                                "Produto excluído com sucesso!",
+                                Toast.LENGTH_SHORT).show();
+                        carregarProdutos();  // Recarrega a lista de produtos após exclusão
+                    } else {
+                        Log.e(TAG, "Erro ao excluir produto: Código " + response.code());
+                        Toast.makeText(ProdutosActivity.this,
+                                "Erro ao excluir produto: " + response.code(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Erro ao processar exclusão de produto", e);
+                    Toast.makeText(ProdutosActivity.this,
+                            "Erro ao processar exclusão",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Log.e(TAG, "Falha na requisição de exclusão", t);
+                Toast.makeText(ProdutosActivity.this,
+                        "Falha na conexão. Verifique sua internet.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    /** Cria um novo produto */
     private void criarProduto() {
         Log.d(TAG, "Iniciando criação de produto");
 
@@ -558,292 +820,6 @@ public class ProdutosActivity extends AppCompatActivity {
             Toast.makeText(this, "Erro ao criar produto", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-    /** Realiza uma venda do produto selecionado */
-    private void realizarVenda() {
-        Log.d(TAG, "Iniciando processo de venda");
-
-        try {
-            // Validações
-            if (produtoSelecionado == null) {
-                Log.w(TAG, "Tentativa de venda sem produto selecionado");
-                Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String quantidadeStr = QuantProd.getText().toString().trim();
-            if (quantidadeStr.isEmpty()) {
-                Log.w(TAG, "Tentativa de venda sem quantidade informada");
-                Toast.makeText(this, "Informe a quantidade", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            int quantidade;
-            try {
-                quantidade = Integer.parseInt(quantidadeStr);
-                if (quantidade <= 0) {
-                    Log.w(TAG, "Tentativa de venda com quantidade inválida: " + quantidade);
-                    Toast.makeText(this, "Quantidade deve ser maior que zero", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                Log.e(TAG, "Quantidade inválida para venda: " + quantidadeStr, e);
-                Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Cálculos
-            double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
-            String lote = "LOTE-" + System.currentTimeMillis();
-            Log.d(TAG, "Preparando venda - Produto: " + produtoSelecionado.getNomeProduto() +
-                    ", Quantidade: " + quantidade + ", Valor Total: " + valorTotal);
-
-            // Cria DTOs para a venda
-            SuperClassProd.ItemVendaDto itemVenda = new SuperClassProd.ItemVendaDto(
-                    0, lote, quantidade, 1, 0.00, valorTotal);
-
-            List<SuperClassProd.ItemVendaDto> itens = new ArrayList<>();
-            itens.add(itemVenda);
-
-            SuperClassProd.PedidoDto pedido = new SuperClassProd.PedidoDto(0,valorTotal);
-            SuperClassProd.PedidoVendaCompletoDto pedidoVenda = new SuperClassProd.PedidoVendaCompletoDto(pedido, itens);
-
-            // Chamada à API
-            Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda(token, pedidoVenda);
-            progressBar.setVisibility(View.VISIBLE);
-
-            call.enqueue(new Callback<SuperClassProd.PedidoVendaCompletoDto>() {
-                @Override
-                public void onResponse(Call<SuperClassProd.PedidoVendaCompletoDto> call,
-                                       Response<SuperClassProd.PedidoVendaCompletoDto> response) {
-                    progressBar.setVisibility(View.GONE);
-                    try {
-                        if (response.isSuccessful() && response.body() != null) {
-                            Toast.makeText(ProdutosActivity.this,
-                                    "Venda realizada com sucesso!",
-                                    Toast.LENGTH_LONG).show();
-                            limparCampos();
-                            produtoSelecionado = null;
-                            carregarProdutos();
-                        } else {
-                            String errorMsg = "Erro na venda: " + response.code();
-                            if (response.errorBody() != null) {
-                                errorMsg += " - " + response.errorBody().string();
-                            }
-                            Log.e(TAG, errorMsg);
-                            Toast.makeText(ProdutosActivity.this,
-                                    "Erro ao realizar venda: " + (response.code() == 400 ? "Dados inválidos" : "Erro no servidor"),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Erro ao processar resposta da venda", e);
-                        Toast.makeText(ProdutosActivity.this,
-                                "Erro ao processar venda",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<SuperClassProd.PedidoVendaCompletoDto> call, Throwable t) {
-                    progressBar.setVisibility(View.GONE);
-                    Log.e(TAG, "Falha ao realizar venda", t);
-                    Toast.makeText(ProdutosActivity.this,
-                            "Falha na conexão. Verifique sua internet.",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-        } catch (Exception e) {
-            progressBar.setVisibility(View.GONE);
-            Log.e(TAG, "Erro durante o processo de venda", e);
-            Toast.makeText(this, "Erro ao processar venda", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /** Formata data para ISO 8601 */
-    public String formatarData(Date data) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return sdf.format(data);
-        } catch (Exception e) {
-            Log.e(TAG, "Erro ao formatar data", e);
-            return null;
-        }
-    }
-
-
-    /** Converte data para formato ISO 8601 */
-    public String formatarParaISO8601(String dataOriginal, String formatoOriginal) {
-        try {
-            SimpleDateFormat parser = new SimpleDateFormat(formatoOriginal, Locale.getDefault());
-            Date date = parser.parse(dataOriginal);
-
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-            formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return formatter.format(date);
-        } catch (Exception e) {
-            Log.e(TAG, "Erro ao formatar data: " + dataOriginal, e);
-            return null;
-        }
-    }
-
-    private void deletarProduto(int produtoId) {
-        Log.d(TAG, "Iniciando exclusão do produto ID: " + produtoId);
-
-        // Chamada para o endpoint de exclusão
-        Call<Void> call = apiService.deletarProduto(token, produtoId);
-
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                try {
-                    if (response.isSuccessful()) {
-                        Log.d(TAG, "Produto excluído com sucesso - ID: " + produtoId);
-                        Toast.makeText(ProdutosActivity.this,
-                                "Produto excluído com sucesso!",
-                                Toast.LENGTH_SHORT).show();
-                        carregarProdutos();  // Recarrega a lista de produtos após exclusão
-                    } else {
-                        Log.e(TAG, "Erro ao excluir produto: Código " + response.code());
-                        Toast.makeText(ProdutosActivity.this,
-                                "Erro ao excluir produto: " + response.code(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Erro ao processar exclusão de produto", e);
-                    Toast.makeText(ProdutosActivity.this,
-                            "Erro ao processar exclusão",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                Log.e(TAG, "Falha na requisição de exclusão", t);
-                Toast.makeText(ProdutosActivity.this,
-                        "Falha na conexão. Verifique sua internet.",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
-    /** Cria um novo produto */
-    private void criarPedidoDeCompra() {
-        Log.d(TAG, "Iniciando processo de compra");
-
-        try {
-            // Validação: Produto selecionado
-            if (produtoSelecionado == null) {
-                Log.w(TAG, "Nenhum produto selecionado para compra");
-                Toast.makeText(this, "Selecione um produto primeiro", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Validação: Quantidade
-            String quantidadeStr = QuantProd.getText().toString().trim();
-            int quantidade;
-            try {
-                quantidade = Integer.parseInt(quantidadeStr);
-                if (quantidade <= 0) {
-                    Log.w(TAG, "Quantidade inválida informada: " + quantidadeStr);
-                    Toast.makeText(this, "Quantidade deve ser maior que zero", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                Log.e(TAG, "Erro ao converter quantidade: " + quantidadeStr, e);
-                Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Validação: Data de validade
-            String validadeTxt = ValProd.getText().toString().trim();
-            String validadeISO = formatarParaISO8601(validadeTxt, formatoEntrada);
-            if (validadeISO == null) {
-                Log.e(TAG, "Data de validade inválida: " + validadeTxt);
-                Toast.makeText(this, "Data de validade inválida", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Cálculo: Valor Total
-            double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
-            String lote = "LOTE-" + System.currentTimeMillis();
-
-            Log.d(TAG, "Dados do pedido: Produto=" + produtoSelecionado.getNomeProduto() +
-                    ", Quantidade=" + quantidade + ", Valor Total=" + valorTotal +
-                    ", Validade=" + validadeISO + ", Lote=" + lote);
-
-            // Monta DTO de Item
-            SuperClassProd.ItemCompraDto itemCompra = new SuperClassProd.ItemCompraDto(
-                    produtoSelecionado.getIdProduto(),  // ID Produto
-                    0,                                  // ID Pedido (será gerado no backend)
-                    validadeISO,                        // Data Validade ISO
-                    lote,                               // Lote
-                    quantidade,                         // Quantidade
-                    1,                                   // Número do Item (exemplo)
-                    valorTotal                          // Valor Total do Item
-            );
-
-            // Lista de Itens
-            List<SuperClassProd.ItemCompraDto> itens = new ArrayList<>();
-            itens.add(itemCompra);
-
-            // DTO do Pedido
-            SuperClassProd.PedidoDto pedido = new SuperClassProd.PedidoDto(0,valorTotal);
-
-            // Objeto final a ser enviado
-            SuperClassProd.PedidoCompraCompletoDto pedidoCompra = new SuperClassProd.PedidoCompraCompletoDto(pedido, itens);
-
-            Log.d(TAG, "Enviando pedido de compra para API");
-
-            progressBar.setVisibility(View.VISIBLE);
-
-            // Chamada API - Melhor usar ResponseBody para evitar problemas de deserialização
-            Call<ResponseBody> call = apiService.criarPedidoCompra(token, pedidoCompra);
-
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    progressBar.setVisibility(View.GONE);
-                    try {
-                        if (response.isSuccessful()) {
-                            String respostaApi = response.body() != null ? response.body().string() : "Sem corpo de resposta";
-                            Log.i(TAG, "Pedido criado com sucesso. Resposta: " + respostaApi);
-                            Toast.makeText(ProdutosActivity.this, "Pedido criado com sucesso!", Toast.LENGTH_SHORT).show();
-                            limparCampos();
-                            produtoSelecionado = null;
-                            carregarProdutos();
-                        } else {
-                            String erro = "Erro ao criar pedido. Código: " + response.code();
-                            if (response.errorBody() != null) {
-                                erro += " - " + response.errorBody().string();
-                            }
-                            Log.e(TAG, erro);
-                            Toast.makeText(ProdutosActivity.this, "Erro ao criar pedido. Código: " + response.code(), Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Erro ao processar resposta da API", e);
-                        Toast.makeText(ProdutosActivity.this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    progressBar.setVisibility(View.GONE);
-                    Log.e(TAG, "Falha na comunicação com a API", t);
-                    Toast.makeText(ProdutosActivity.this, "Falha na conexão. Verifique sua internet.", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        } catch (Exception e) {
-            progressBar.setVisibility(View.GONE);
-            Log.e(TAG, "Erro inesperado durante o processo de compra", e);
-            Toast.makeText(this, "Erro inesperado ao criar pedido", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
 
     /** Obtém o token do usuário com prefixo Bearer */
     private String obterTokenUsuario() {

@@ -42,7 +42,7 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
 
     public static class ProdutoViewHolder extends RecyclerView.ViewHolder {
         ImageView imgProduto;
-        TextView txtNome, txtCodigo, txtValor, txtTipo;
+        TextView txtNome, txtCodigo, txtValor, txtTipo,txtQuant;
 
         public ProdutoViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -51,6 +51,7 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
             txtCodigo = itemView.findViewById(R.id.txtCodigo);
             txtValor = itemView.findViewById(R.id.txtValor);
             txtTipo = itemView.findViewById(R.id.txtTipo);
+            txtQuant = itemView.findViewById(R.id.txtQuant);
         }
     }
 
@@ -76,6 +77,8 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
 
         // Tipo
         holder.txtTipo.setText("Categoria: " + (produto.getTipoProduto() != null ? produto.getTipoProduto() : "Desconhecida"));
+
+        holder.txtQuant.setText("Quantidade:");
 
         // Imagem Base64
         String imgBase64 = produto.getImgProduto();
