@@ -172,66 +172,82 @@ public class SuperClassProd {
 
         // ... outros getters e setters
     }
+
+
+    public static class PedidoDto {
+
+        @SerializedName("iD_FORNECEDOR")
+        public Integer idFornecedor;
+
+        @SerializedName("valoR_VALOR")
+        public double valorPedido;
+
+        public PedidoDto(Integer idFornecedor, double valorPedido) {
+            this.idFornecedor = idFornecedor;
+            this.valorPedido = valorPedido;
+        }
+
+        public Integer getIdFornecedor() {
+            return idFornecedor;
+        }
+
+        public void setIdFornecedor(Integer idFornecedor) {
+            this.idFornecedor = idFornecedor;
+        }
+
+        public double getValorPedido() {
+            return valorPedido;
+        }
+
+        public void setValorPedido(double valorPedido) {
+            this.valorPedido = valorPedido;
+        }
+    }
+    public static class ItemCompraDto {
+
+        @SerializedName("iD_PRODUTO_FK")
+        public int idProdutoFk;
+
+        @SerializedName("iD_PEDIDO_FK")
+        public int idPedidoFk;  // Pode ser 0, pois a API ignora esse campo
+
+        @SerializedName("vaL_ITEM_COMPRA")
+        public String valItemCompra;  // Data em formato ISO
+
+        @SerializedName("lotE_COMPRA")
+        public String loteCompra;
+
+        @SerializedName("quantidadE_ITEM_COMPRA")
+        public int quantidadeItemCompra;
+
+        @SerializedName("n_ITEM_COMPRA")
+        public int nItemCompra;
+
+        @SerializedName("valoR_TOTAL_ITEM_COMPRA")
+        public double valorTotalItemCompra;
+
+        public ItemCompraDto(int idProdutoFk, int idPedidoFk, String valItemCompra, String loteCompra,
+                             int quantidadeItemCompra, int nItemCompra, double valorTotalItemCompra) {
+            this.idProdutoFk = idProdutoFk;
+            this.idPedidoFk = idPedidoFk;
+            this.valItemCompra = valItemCompra;
+            this.loteCompra = loteCompra;
+            this.quantidadeItemCompra = quantidadeItemCompra;
+            this.nItemCompra = nItemCompra;
+            this.valorTotalItemCompra = valorTotalItemCompra;
+        }
+    }
     public static class PedidoCompraCompletoDto {
+
         @SerializedName("pedido")
         public PedidoDto pedido;
 
         @SerializedName("item")
         public List<ItemCompraDto> item;
 
-        public PedidoCompraCompletoDto(PedidoDto pedido, List<ItemCompraDto> itens) {
+        public PedidoCompraCompletoDto(PedidoDto pedido, List<ItemCompraDto> item) {
             this.pedido = pedido;
-            this.item = itens;
-        }
-
-        public PedidoDto getPedido() {
-            return pedido;
-        }
-
-        public void setPedido(PedidoDto pedido) {
-            this.pedido = pedido;
-        }
-
-        public List<ItemCompraDto> getItem() {
-            return item;
-        }
-
-        public void setItem() {
-            setItem(null);
-        }
-
-        public void setItem(List<ItemCompraDto> item) {
             this.item = item;
-        }
-    }
-    public static class PedidoCompraResponse {
-        @SerializedName("Pedido")
-        private PedidoCompraCompletoDto pedidoCompra;
-
-        @SerializedName("Itens")
-        private List<ItemCompraDto> itensCompra;
-
-        // Construtor
-        public PedidoCompraResponse(PedidoCompraCompletoDto pedidoCompra, List<ItemCompraDto> itensCompra) {
-            this.pedidoCompra = pedidoCompra;
-            this.itensCompra = itensCompra;
-        }
-
-        // Getters e Setters
-        public PedidoCompraCompletoDto getPedidoCompra() {
-            return pedidoCompra;
-        }
-
-        public void setPedidoCompra(PedidoCompraCompletoDto pedidoCompra) {
-            this.pedidoCompra = pedidoCompra;
-        }
-
-        public List<ItemCompraDto> getItensCompra() {
-            return itensCompra;
-        }
-
-        public void setItensCompra(List<ItemCompraDto> itensCompra) {
-            this.itensCompra = itensCompra;
         }
     }
 
@@ -295,24 +311,6 @@ public class SuperClassProd {
 
         public void setItensVenda(List<ItemVendaDto> itensVenda) {
             this.itensVenda = itensVenda;
-        }
-    }
-
-    public static class PedidoDto {
-
-        @SerializedName("valoR_PEDIDO_VENDA")
-        public Double valorPedidoVenda;
-
-        public PedidoDto(Double valorPedidoVenda) {
-            this.valorPedidoVenda = valorPedidoVenda;
-        }
-
-        public Double getValorPedidoVenda() {
-            return valorPedidoVenda;
-        }
-
-        public void setValorPedidoVenda(Double valorPedidoVenda) {
-            this.valorPedidoVenda = valorPedidoVenda;
         }
     }
 
@@ -398,99 +396,6 @@ public class SuperClassProd {
         }
     }
 
-    public static class ItemCompraDto {
-
-        @SerializedName("iD_PRODUTO_FK")
-        private int idProdutoFk;
-
-        @SerializedName("iD_PEDIDO_FK")
-        private int idPedidoFk;
-
-        @SerializedName("vaL_ITEM_COMPRA")
-        private String valItemCompra;
-
-        @SerializedName("lotE_COMPRA")
-        private String loteCompra;
-
-        @SerializedName("quantidadE_ITEM_COMPRA")
-        private int quantidadeItemCompra;
-
-        @SerializedName("n_ITEM_COMPRA")
-        private int nItemCompra;
-
-        @SerializedName("valoR_TOTAL_ITEM_COMPRA")
-        private double valorTotalItemCompra;
-
-        // Construtor
-        public ItemCompraDto(int idProdutoFk, int idPedidoFk, String valItemCompra,
-                             String loteCompra, int quantidadeItemCompra,
-                             int nItemCompra, double valorTotalItemCompra) {
-            this.idProdutoFk = idProdutoFk;
-            this.idPedidoFk = idPedidoFk;
-            this.valItemCompra = valItemCompra;
-            this.loteCompra = loteCompra;
-            this.quantidadeItemCompra = quantidadeItemCompra;
-            this.nItemCompra = nItemCompra;
-            this.valorTotalItemCompra = valorTotalItemCompra;
-        }
-
-        // Getters e Setters
-        public int getIdProdutoFk() {
-            return idProdutoFk;
-        }
-
-        public void setIdProdutoFk(int idProdutoFk) {
-            this.idProdutoFk = idProdutoFk;
-        }
-
-        public int getIdPedidoFk() {
-            return idPedidoFk;
-        }
-
-        public void setIdPedidoFk(int idPedidoFk) {
-            this.idPedidoFk = idPedidoFk;
-        }
-
-        public String getValItemCompra() {
-            return valItemCompra;
-        }
-
-        public void setValItemCompra(String valItemCompra) {
-            this.valItemCompra = valItemCompra;
-        }
-
-        public String getLoteCompra() {
-            return loteCompra;
-        }
-
-        public void setLoteCompra(String loteCompra) {
-            this.loteCompra = loteCompra;
-        }
-
-        public int getQuantidadeItemCompra() {
-            return quantidadeItemCompra;
-        }
-
-        public void setQuantidadeItemCompra(int quantidadeItemCompra) {
-            this.quantidadeItemCompra = quantidadeItemCompra;
-        }
-
-        public int getnItemCompra() {
-            return nItemCompra;
-        }
-
-        public void setnItemCompra(int nItemCompra) {
-            this.nItemCompra = nItemCompra;
-        }
-
-        public double getValorTotalItemCompra() {
-            return valorTotalItemCompra;
-        }
-
-        public void setValorTotalItemCompra(double valorTotalItemCompra) {
-            this.valorTotalItemCompra = valorTotalItemCompra;
-        }
-    }
 
     public static class CamposProdutoDto {
 

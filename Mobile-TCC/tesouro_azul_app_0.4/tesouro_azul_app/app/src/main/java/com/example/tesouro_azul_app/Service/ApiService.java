@@ -110,8 +110,11 @@ public interface ApiService {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Pedidos de Compra Endpoints
-    @POST("api/PedidoCompra/criar-pedido-compra")
-    Call<SuperClassProd.PedidoCompraCompletoDto> criarPedidoCompra(@Header("Authorization") String token, @Body SuperClassProd.PedidoCompraCompletoDto dto);
+    @POST("criar-pedido-compra")
+    Call<ResponseBody> criarPedidoCompra(
+            @Header("Authorization") String token,
+            @Body SuperClassProd.PedidoCompraCompletoDto pedidoDto
+    );
 
     @POST("api/PedidoCompra/inserir-itens-em-pedido")
     Call<List<SuperClassProd.ItemCompraDto>> inserirItemCompra(@Header("Authorization") String token, @Body List<SuperClassProd.ItemCompraDto> dto);
