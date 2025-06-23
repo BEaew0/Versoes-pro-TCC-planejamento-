@@ -83,6 +83,8 @@ public class SuperClassProd {
 
     public static class ProdutoDtoArray {
 
+        public int qtdTotalEstoque; // Quantidade de estoque vinda da API
+
         @SerializedName("iD_PRODUTO")
         private int idProduto;
 
@@ -112,6 +114,15 @@ public class SuperClassProd {
             this.valorProduto = valorProduto;
             this.tipoProduto = tipoProduto;
             this.imgProduto = imgProduto;
+        }
+
+        // Getter e Setter
+        public int getQtdTotalEstoque() {
+            return qtdTotalEstoque;
+        }
+
+        public void setQtdTotalEstoque(int qtdTotalEstoque) {
+            this.qtdTotalEstoque = qtdTotalEstoque;
         }
 
         public int getIdProduto() {
@@ -380,9 +391,6 @@ public class SuperClassProd {
             }
         }
 
-
-
-
     public static class CamposProdutoDto {
 
         @SerializedName("campo")
@@ -413,6 +421,10 @@ public class SuperClassProd {
         }
     }
 
+    public static class EstoqueProdutoDto {
+        @SerializedName("qTD_TOTAL_ESTOQUE")
+        public int qtdTotalEstoque;
+    }
 }
 
 

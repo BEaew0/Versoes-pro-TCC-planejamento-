@@ -172,52 +172,69 @@ public class ProdutosActivity extends AppCompatActivity {
     /** Configura o RecyclerView e seu adapter */
     private void configurarRecyclerView() {
         try {
+            // Layout linear (vertical)
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+            // Divisores entre os itens
             recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
+            // Criando o Adapter passando:
+            // - a lista de produtos
+            // - o contexto (this)
+            // - o listener de clique em item
+            // - o token JWT (supondo que você já tenha a variável "token" na Activity)
             adapter = new ProdutoAdapter(listaProdutos, this, produto -> {
                 try {
-                    produtoSelecionado = produto; // Agora é do tipo ProdutoDtoArray
-                    Log.d(TAG, "Produto selecionado: " + produto.getNomeProduto());
-
+                    // Produto selecionado
+                    produtoSelecionado = produto;
                     idSelecionado = produto.getIdProduto();
+
+                    Log.d(TAG, "Produto selecionado: " + produto.getNomeProduto());
                     Log.d(TAG, "ID do Produto selecionado: " + idSelecionado);
 
+                    // Preenche campos da tela
                     NomeProd.setText(produto.getNomeProduto());
                     ValorProd.setText(String.valueOf(produto.getValorProduto()));
                     TipoProd.setText(produto.getTipoProduto());
 
+                    // Carregar imagem Base64, se tiver
                     if (produto.getImgProduto() != null && !produto.getImgProduto().isEmpty()) {
                         Bitmap bitmap = ImageUtils.base64ToBitmap(produto.getImgProduto());
-                        prodImage.setImageBitmap(bitmap);
-                        Log.d(TAG, "Imagem do produto carregada");
+                        if (bitmap != null) {
+                            prodImage.setImageBitmap(bitmap);
+                            Log.d(TAG, "Imagem do produto carregada com sucesso");
+                        } else {
+                            prodImage.setImageResource(R.drawable.placeholder);
+                            Log.w(TAG, "Imagem Base64 inválida, carregando placeholder");
+                        }
                     } else {
+                        // Se não tiver imagem, mostrar placeholder
                         prodImage.setImageResource(R.drawable.placeholder);
-                        Log.d(TAG, "Imagem padrão carregada (sem imagem do produto)");
+                        Log.d(TAG, "Imagem padrão carregada (produto sem imagem)");
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Erro ao selecionar produto", e);
-                    Toast.makeText(ProdutosActivity.this, "Erro ao carregar produto", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProdutosActivity.this, "Erro ao carregar dados do produto", Toast.LENGTH_SHORT).show();
                 }
-            });
+            }, token);
 
+            // Define o adapter no RecyclerView
             recyclerView.setAdapter(adapter);
             Log.d(TAG, "RecyclerView configurado com sucesso");
+
         } catch (Exception e) {
             Log.e(TAG, "Erro ao configurar RecyclerView", e);
-            Toast.makeText(this, "Erro ao configurar a lista de produtos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Erro ao configurar lista de produtos", Toast.LENGTH_SHORT).show();
         }
     }
 
 
-    /** Carrega todos os produtos da API */
     private void carregarProdutos() {
         Log.d(TAG, "Carregando lista de produtos");
 
         if (token == null) {
             Log.e(TAG, "Token não disponível para carregar produtos");
             Toast.makeText(this, "Erro de autenticação", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
             return;
         }
 
@@ -238,29 +255,30 @@ public class ProdutosActivity extends AppCompatActivity {
                             errorMsg += " - " + response.errorBody().string();
                         }
                         Log.e(TAG, errorMsg);
-                        Toast.makeText(ProdutosActivity.this,
-                                "Erro ao carregar produtos",
-                                Toast.LENGTH_SHORT).show();
+
+                        if (response.code() == 401) {
+                            Toast.makeText(ProdutosActivity.this,
+                                    "Sessão expirada. Faça login novamente.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(ProdutosActivity.this,
+                                    "Erro ao carregar produtos", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Erro ao processar lista de produtos", e);
                     Toast.makeText(ProdutosActivity.this, "Erro ao processar produtos", Toast.LENGTH_SHORT).show();
-                } finally {
-                    progressBar.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onFailure(Call<List<SuperClassProd.ProdutoDtoArray>> call, Throwable t) {
                 Log.e(TAG, "Falha ao carregar produtos", t);
-                progressBar.setVisibility(View.GONE);
                 Toast.makeText(ProdutosActivity.this,
                         "Falha na conexão. Verifique sua internet.",
                         Toast.LENGTH_SHORT).show();
             }
         });
     }
-
 
     /** Obtém informações do usuário a partir do token JWT */
     private void obterInfoUsuario() {
@@ -461,7 +479,7 @@ public class ProdutosActivity extends AppCompatActivity {
             btnComprar.setOnClickListener(view -> realizarCompra());
             btnVenderProd.setOnClickListener(view -> realizarVenda());
             btnAdicionarProd.setOnClickListener(view -> criarProduto());
-            btnAlterarProd.setOnClickListener(view -> {/*alterarProduto();*/});
+            btnAlterarProd.setOnClickListener(view -> {alterarProduto();});
 
             // Listener para o campo de validade
             ValProd.setOnClickListener(view -> {
@@ -478,6 +496,30 @@ public class ProdutosActivity extends AppCompatActivity {
             Toast.makeText(this, "Erro ao configurar botões", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void alterarProduto(int idProduto, String campo, String novoValor) {
+        SuperClassProd.CamposProdutoDto campoDto = new SuperClassProd.CamposProdutoDto(campo, novoValor);
+
+        Call<ResponseBody> call = apiService.alterarProdutoPorCampo(token, idProduto, campoDto);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ProdutosActivity.this, "Produto atualizado com sucesso!", Toast.LENGTH_SHORT).show();
+                    carregarProdutos(); // Recarrega a lista, caso queira
+                } else {
+                    Toast.makeText(ProdutosActivity.this, "Erro ao atualizar: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(ProdutosActivity.this, "Falha de conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     /** Realiza uma venda do produto selecionado */
     private void realizarVenda() {
@@ -525,13 +567,11 @@ public class ProdutosActivity extends AppCompatActivity {
 
             // Chamada à API
             Call<SuperClassProd.PedidoVendaCompletoDto> call = apiService.criarPedidoVenda(token, pedidoVenda);
-            progressBar.setVisibility(View.VISIBLE);
 
             call.enqueue(new Callback<SuperClassProd.PedidoVendaCompletoDto>() {
                 @Override
                 public void onResponse(Call<SuperClassProd.PedidoVendaCompletoDto> call,
                                        Response<SuperClassProd.PedidoVendaCompletoDto> response) {
-                    progressBar.setVisibility(View.GONE);
                     try {
                         if (response.isSuccessful() && response.body() != null) {
                             Toast.makeText(ProdutosActivity.this,
@@ -560,7 +600,6 @@ public class ProdutosActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<SuperClassProd.PedidoVendaCompletoDto> call, Throwable t) {
-                    progressBar.setVisibility(View.GONE);
                     Log.e(TAG, "Falha ao realizar venda", t);
                     Toast.makeText(ProdutosActivity.this,
                             "Falha na conexão. Verifique sua internet.",
@@ -568,21 +607,8 @@ public class ProdutosActivity extends AppCompatActivity {
                 }
             });
         } catch (Exception e) {
-            progressBar.setVisibility(View.GONE);
             Log.e(TAG, "Erro durante o processo de venda", e);
             Toast.makeText(this, "Erro ao processar venda", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /** Formata data para ISO 8601 */
-    public String formatarData(Date data) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return sdf.format(data);
-        } catch (Exception e) {
-            Log.e(TAG, "Erro ao formatar data", e);
-            return null;
         }
     }
 

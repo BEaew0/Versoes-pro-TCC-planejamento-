@@ -92,11 +92,12 @@ public interface ApiService {
     Call<List<SuperClassProd.ProdutoDtoArray>> buscarTodosProdutos(@Header("Authorization") String token);
 
 
-    @PATCH("api/Produtos/alterar-produto-por-campo/{id}")
-    Call<SuperClassProd.ProdutoDto> alterarProduto(
+    @PATCH("alterar-produto-por-campo-{id}")
+    Call<ResponseBody> alterarProdutoPorCampo(
             @Header("Authorization") String token,
             @Path("id") int id,
-            @Body SuperClassProd.CamposProdutoDto campo);
+            @Body SuperClassProd.CamposProdutoDto campoDto
+    );
 
     @PATCH("api/Produtos/Alterar-Imagem-por-{id}")
     Call<SuperClassProd.ProdutoDto> alterarImagemProduto(
@@ -236,6 +237,17 @@ public interface ApiService {
             @Header("Authorization") String token,
             @Path("id") int idItemVenda
     );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    // Estoque
+
+    @GET("buscar-estoque-por-produto-{id_produto}")
+    Call<SuperClassProd.EstoqueProdutoDto> buscarEstoquePorProduto(
+            @Header("Authorization") String token,
+            @Path("id_produto") int idProduto
+    );
+
+
 }
 
 
