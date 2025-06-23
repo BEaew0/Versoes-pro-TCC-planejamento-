@@ -92,7 +92,7 @@ public interface ApiService {
     Call<List<SuperClassProd.ProdutoDtoArray>> buscarTodosProdutos(@Header("Authorization") String token);
 
 
-    @PATCH("alterar-produto-por-campo-{id}")
+    @PATCH("api/Produtos/alterar-produto-por-campo-{id}")
     Call<ResponseBody> alterarProdutoPorCampo(
             @Header("Authorization") String token,
             @Path("id") int id,
@@ -128,8 +128,8 @@ public interface ApiService {
             @Header("Authorization") String token,
             @Body SuperClassProd.CamposProdutoDto filtro); // id_pedido deve estar dentro do filtro
 
-    @GET("api/PedidoCompra/buscar-todos-pedidos")
-    Call<List<SuperClassProd.PedidoCompraCompletoDto>> buscarComprasPedido(@Header("Authorization") String token);
+    @GET("api/PedidoCompra/buscar-pedidos-usuario")
+    Call<List<SuperClassProd.PedidoDtoQuantidade>> buscarPedidosUsuario(@Header("Authorization") String token);
 
     @GET("api/PedidoCompra/Itens/{id_pedido}")
     Call<List<SuperClassProd.ItemCompraDto>> buscarItensCompraPorPedido(@Header("Authorization") String token, @Path("id_pedido") int idPedido);

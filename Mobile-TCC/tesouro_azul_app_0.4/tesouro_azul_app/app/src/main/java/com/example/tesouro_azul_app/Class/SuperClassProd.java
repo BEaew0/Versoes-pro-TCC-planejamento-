@@ -184,6 +184,66 @@ public class SuperClassProd {
         // ... outros getters e setters
     }
 
+    public class PedidoDtoQuantidade {
+
+        @SerializedName("iD_PEDIDO")
+        private int idPedido;
+
+        @SerializedName("iD_USUARIO_FK")
+        private int idUsuarioFk;
+
+        @SerializedName("iD_FORNECEDOR_FK")
+        private Integer idFornecedorFk;  // Nullable
+
+        @SerializedName("datA_PEDIDO")
+        private String dataPedido;
+
+        @SerializedName("valoR_PEDIDO")
+        private double valorPedido;
+
+        // Getters e Setters
+        public int getIdPedido() {
+            return idPedido;
+        }
+
+        public void setIdPedido(int idPedido) {
+            this.idPedido = idPedido;
+        }
+
+        public int getIdUsuarioFk() {
+            return idUsuarioFk;
+        }
+
+        public void setIdUsuarioFk(int idUsuarioFk) {
+            this.idUsuarioFk = idUsuarioFk;
+        }
+
+        public Integer getIdFornecedorFk() {
+            return idFornecedorFk;
+        }
+
+        public void setIdFornecedorFk(Integer idFornecedorFk) {
+            this.idFornecedorFk = idFornecedorFk;
+        }
+
+        public String getDataPedido() {
+            return dataPedido;
+        }
+
+        public void setDataPedido(String dataPedido) {
+            this.dataPedido = dataPedido;
+        }
+
+        public double getValorPedido() {
+            return valorPedido;
+        }
+
+        public void setValorPedido(double valorPedido) {
+            this.valorPedido = valorPedido;
+        }
+    }
+
+
 
     public static class PedidoDto {
 

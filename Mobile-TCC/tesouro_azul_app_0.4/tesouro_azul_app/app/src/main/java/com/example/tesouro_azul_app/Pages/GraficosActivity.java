@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.example.tesouro_azul_app.Class.SuperClassProd;
 import com.example.tesouro_azul_app.R;
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.Service.RetrofitClient;
@@ -33,6 +34,12 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class GraficosActivity extends AppCompatActivity {
 
@@ -69,6 +76,8 @@ public class GraficosActivity extends AppCompatActivity {
 
         setupChartDefaults();
         setupClickListeners();
+
+        carregarPedidosDoUsuario();
     }
 
     /**
@@ -137,7 +146,7 @@ public class GraficosActivity extends AppCompatActivity {
 
             case TYPE_LINE:
                 lineChart.setVisibility(View.VISIBLE);
-                displayLineChart();
+                carregarPedidosDoUsuario();
                 break;
 
             case TYPE_PIE:
@@ -233,6 +242,87 @@ public class GraficosActivity extends AppCompatActivity {
 
         lineChart.invalidate();
     }
+
+    private void carregarPedidosDoUsuario() {
+        Log.d(TAG, "Iniciando busca de pedidos do usuário...");
+
+        apiService.buscarPedidosUsuario(token).enqueue(new Callback<List<SuperClassProd.PedidoDtoQuantidade>>() {
+            @Override
+            public void onResponse(Call<List<SuperClassProd.PedidoDtoQuantidade>> call,
+                                   Response<List<SuperClassProd.PedidoDtoQuantidade>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Pedidos carregados com sucesso. Total: " + response.body().size());
+                    exibirGraficoComprasPorDia(response.body());
+                } else {
+                    Log.e(TAG, "Erro ao buscar pedidos. Código HTTP: " + response.code());
+
+                    try {
+                        if (response.errorBody() != null) {
+                            String erroDetalhado = response.errorBody().string();
+                            Log.e(TAG, "Corpo de erro da API: " + erroDetalhado);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao ler corpo de erro", e);
+                    }
+
+                    Toast.makeText(GraficosActivity.this, "Erro ao buscar pedidos: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<SuperClassProd.PedidoDtoQuantidade>> call, Throwable t) {
+                Log.e(TAG, "Falha na conexão ao buscar pedidos", t);
+                Toast.makeText(GraficosActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void exibirGraficoComprasPorDia(List<SuperClassProd.PedidoDtoQuantidade> pedidos) {
+        Log.d(TAG, "Montando gráfico de pedidos por dia...");
+
+        Map<String, Integer> quantidadePorDia = new TreeMap<>();  // TreeMap mantém as datas em ordem
+
+        for (SuperClassProd.PedidoDtoQuantidade pedido : pedidos) {
+            try {
+                String data = pedido.getDataPedido().split("T")[0];  // Exemplo: "2025-06-16"
+                int quantidadeAtual = quantidadePorDia.containsKey(data) ? quantidadePorDia.get(data) : 0;
+                quantidadePorDia.put(data, quantidadeAtual + 1);
+            } catch (Exception e) {
+                Log.e(TAG, "Erro ao processar data do pedido: " + pedido.getDataPedido(), e);
+            }
+        }
+
+        ArrayList<Entry> entries = new ArrayList<>();
+        ArrayList<String> labels = new ArrayList<>();
+        int index = 0;
+
+        for (Map.Entry<String, Integer> entry : quantidadePorDia.entrySet()) {
+            entries.add(new Entry(index, entry.getValue()));
+            labels.add(entry.getKey());
+            index++;
+        }
+
+        LineDataSet dataSet = new LineDataSet(entries, "Compras por Dia");
+        dataSet.setColor(ColorTemplate.getHoloBlue());
+        dataSet.setCircleColor(ColorTemplate.MATERIAL_COLORS[0]);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleRadius(4f);
+        dataSet.setValueTextSize(10f);
+
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
+
+        lineChart.invalidate();
+
+        Log.d(TAG, "Gráfico atualizado com sucesso.");
+    }
+
 
     /**
      * Oculta todos os gráficos
