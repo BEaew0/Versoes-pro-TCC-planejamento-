@@ -479,7 +479,7 @@ public class ProdutosActivity extends AppCompatActivity {
             btnComprar.setOnClickListener(view -> realizarCompra());
             btnVenderProd.setOnClickListener(view -> realizarVenda());
             btnAdicionarProd.setOnClickListener(view -> criarProduto());
-            btnAlterarProd.setOnClickListener(view -> {alterarProduto();});
+            btnAlterarProd.setOnClickListener(view -> {verificarCampoEAlterarProduto(idSelecionado);});
 
             // Listener para o campo de validade
             ValProd.setOnClickListener(view -> {
@@ -519,6 +519,38 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void verificarCampoEAlterarProduto(int idProduto) {
+        String nome = NomeProd.getText().toString().trim();
+        String valor = ValProd.getText().toString().trim();
+        String tipo = TipoProd.getText().toString().trim();
+        String codigo = CodProd.getText().toString().trim();
+
+        String campo = null;
+        String novoValor = null;
+
+        // Prioridade: Nome > Valor > Tipo > Código
+        if (!nome.isEmpty()) {
+            campo = "nome_produto";
+            novoValor = nome;
+        } else if (!valor.isEmpty()) {
+            campo = "valor_produto";
+            novoValor = valor;
+        } else if (!tipo.isEmpty()) {
+            campo = "tipo_produto";
+            novoValor = tipo;
+        } else if (!codigo.isEmpty()) {
+            campo = "cod_produto";
+            novoValor = codigo;
+        }
+
+        if (campo != null && novoValor != null) {
+            alterarProduto(idProduto, campo, novoValor);
+        } else {
+            Toast.makeText(this, "Preencha algum campo para atualizar", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
 
     /** Realiza uma venda do produto selecionado */
