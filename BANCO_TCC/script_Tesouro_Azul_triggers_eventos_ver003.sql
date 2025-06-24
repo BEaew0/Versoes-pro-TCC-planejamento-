@@ -141,6 +141,31 @@ BEGIN
 END; //
 
 DELIMITER 
+
+-- Trigger que atualiza o valor potencial em TB_ESTOQUE
+DELIMITER //
+
+CREATE TRIGGER trg_update_valor_potencial_venda
+BEFORE UPDATE ON TB_ESTOQUE_PRODUTO
+FOR EACH ROW
+BEGIN
+    DECLARE valor_produto DECIMAL(8,2);
+
+    -- Obter o valor do produto correspondente
+    SELECT p.VALOR_PRODUTO INTO valor_produto
+    FROM TB_PRODUTO p
+    WHERE p.ID_PRODUTO = NEW.ID_PRODUTO_FK;
+
+    -- Verificar se o valor do produto foi encontrado
+    IF valor_produto IS NULL THEN
+        SET valor_produto = 0; -- ou você pode lançar um erro, se preferir
+    END IF;
+
+    -- Atualizar o VALOR_POTENCIAL_VENDA_ESTOQUE
+    SET NEW.VALOR_POTENCIAL_VENDA_ESTOQUE = NEW.QTD_TOTAL_ESTOQUE * valor_produto;
+END; //
+
+DELIMITER ;
     
 -- Trigger que ativa OnCreate para acresentar o VALOR_PEDIDO na tabela TB_PEDIDO_COMPRA
 DELIMITER //
