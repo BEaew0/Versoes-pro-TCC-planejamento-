@@ -411,13 +411,22 @@ public class ConfigActivity extends AppCompatActivity {
 
         Log.d(TAG, "Iniciando desativação de conta para o usuário: " + userId);
 
-        Call<ResponseBody> call = apiService.desativarUsuario(token);
+        Call<ResponseBody> call = apiService.deletarUsuario(token);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 Log.d(TAG, "Resposta da API de desativação: Código " + response.code());
-                progressDialog.dismiss();
+
+                AuthUtils.logout(ConfigActivity.this);
+                limparDadosSessao();
+                RetrofitClient.resetClient();
+                apiService = RetrofitClient.getApiService(getApplicationContext());
+
                 handleDesativacaoResponse(response);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    progressDialog.dismiss();
+                    redirecionarParaLogin();
+                }, PROGRESS_DIALOG_DELAY_MS);
             }
 
             @Override

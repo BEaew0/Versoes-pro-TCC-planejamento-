@@ -58,8 +58,8 @@ public interface ApiService {
     );
 
     // Deletar Usuario
-    @DELETE("api/Usuarios/{id}")
-    Call<Void> deletarUsuario(String token, @Path("id") int id);
+    @DELETE("desativar-usuario")
+    Call<ResponseBody> deletarUsuario(String token);
 
     @POST("api/Usuarios/login")
     Call<SuperClassUser.LoginResponseDto> loginUsuario(@Body SuperClassUser.LoginRequestDto loginDto);

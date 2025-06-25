@@ -17,6 +17,7 @@
             android:layout_height="133dp"
             android:layout_gravity="center"
             android:layout_margin="16dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="17dp"
             android:layout_marginEnd="2dp"
             android:clickable="true"
@@ -27,7 +28,7 @@
             app:layout_constraintEnd_toStartOf="@+id/txtQuant"
             app:layout_constraintHorizontal_bias="0.8"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtFornecedor"
+            app:layout_constraintTop_toBottomOf="@+id/txtValidade"
             app:shapeAppearanceOverlay="@style/RoundedRectangleImageView" />
 
         <Button
@@ -36,9 +37,11 @@
             android:layout_height="66dp"
             android:layout_marginStart="36dp"
             android:layout_marginTop="124dp"
+            android:layout_marginEnd="17dp"
             android:backgroundTint="@color/blueButton"
             android:text="Adicionar"
             android:textSize="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/btnVenderProd"
             app:layout_constraintTop_toBottomOf="@+id/txtQuant" />
 
@@ -84,7 +87,7 @@
             android:layout_marginTop="25dp"
             android:layout_marginEnd="4dp"
             android:background="@drawable/edittext_background"
-            android:hint="Preço em R$"
+            android:hint="Preço em R$: 0.00"
             android:inputType="text"
             android:padding="12dp"
             android:textColor="@android:color/black"
@@ -116,13 +119,13 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
             android:background="@drawable/edittext_background"
-            android:hint="Quant produto"
+            android:hint="Quant(Compra/venda)"
             android:inputType="number"
             android:padding="12dp"
             android:textColor="@android:color/black"
             android:textColorHint="@color/cinza"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtFornecedor" />
+            app:layout_constraintTop_toBottomOf="@+id/txtValidade" />
 
         <EditText
             android:id="@+id/txtValidade"
@@ -141,23 +144,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/txtValorProd" />
 
-        <EditText
-            android:id="@+id/txtFornecedor"
-            android:layout_width="365dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="4dp"
-            android:background="@drawable/edittext_background"
-            android:hint="Fornecedor"
-            android:inputType="text"
-            android:padding="12dp"
-            android:textColor="@android:color/black"
-            android:textColorHint="@color/cinza"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.484"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtValidade" />
 
         <Button
             android:id="@+id/btnAlterarProd"
@@ -213,7 +199,7 @@
             android:id="@+id/txtPesquisaProd"
             android:layout_width="365dp"
             android:layout_height="56dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="13dp"
             android:layout_marginEnd="30dp"
             android:background="@drawable/edittext_background"

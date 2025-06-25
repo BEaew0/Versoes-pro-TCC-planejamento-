@@ -23,14 +23,9 @@
         android:theme="@style/Theme.Tesouro_azul_app"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".Pages.DetalhesProdutoActivity"
-            android:exported="false" />
+
         <activity
             android:name=".Pages.ConfigActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Pages.MetasActivity"
             android:exported="false" />
         <activity
             android:name=".Pages.GraficosActivity"

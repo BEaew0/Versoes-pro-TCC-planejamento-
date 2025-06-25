@@ -3,6 +3,8 @@ package com.example.tesouro_azul_app;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tesouro_azul_app.Pages.MainActivity;
+import com.example.tesouro_azul_app.Service.ApiOperation;
+import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.example.tesouro_azul_app.Util.DateUtils;
 import com.example.tesouro_azul_app.Util.ValidatorUtils;
 
@@ -21,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import android.app.Activity;
 import android.content.Context;
 
 import android.text.method.HideReturnsTransformationMethod;
@@ -268,7 +271,8 @@ public class EntradaActivity extends AppCompatActivity
                     sdfInput.setTimeZone(TimeZone.getTimeZone("UTC"));
                     String DATA_NASC_USUARIO;
 
-                    DATA_NASC_USUARIO = DateUtils.converterParaISO(birthUser);
+                    Date dataNasc = DateUtils.parseDataNascimento(birthUser, "dd/MM/yyyy");
+                    DATA_NASC_USUARIO = DateUtils.dateToISO8601(dataNasc);
 
                     // Cria o objeto CriarUsuarioDto com os nomes de campos exatos que a API espera
                     SuperClassUser.Usuario usuarioDto = new SuperClassUser.Usuario(
@@ -290,8 +294,7 @@ public class EntradaActivity extends AppCompatActivity
 
                             if (response.isSuccessful()) {
                                 Toast.makeText(EntradaActivity.this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
-                                startActivity(intent);
+                                realizarLogin(EMAIL_USUARIO,SENHA_USUARIO);
                                 finish(); // Fecha a activity atual
                             } else {
                                 tratarErroApi(response);
@@ -392,7 +395,65 @@ public class EntradaActivity extends AppCompatActivity
                     }
                 }
 
+                public void realizarLogin(String email, String senha) {
+                    if (email.isEmpty() || senha.isEmpty()) {
+                        Toast.makeText(EntradaActivity.this, "Preencha email e senha", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    SuperClassUser.LoginRequestDto loginDto = new SuperClassUser.LoginRequestDto(email, senha);
+                    ApiService apiService = RetrofitClient.getApiService(EntradaActivity.this);
+                    Call<SuperClassUser.LoginResponseDto> call = apiService.loginUsuario(loginDto);
+
+                    call.enqueue(new Callback<SuperClassUser.LoginResponseDto>() {
+                        @Override
+                        public void onResponse(Call<SuperClassUser.LoginResponseDto> call,
+                                               Response<SuperClassUser.LoginResponseDto> response) {
+
+                            if (response.isSuccessful() && response.body() != null) {
+                                // Login bem-sucedido
+                                SuperClassUser.LoginResponseDto loginResponse = response.body();
+
+                                // Armazena o token JWT
+                                AuthUtils.saveToken(EntradaActivity.this, loginResponse.getToken());
+
+                                // Navega para a tela principal
+                                Intent intent = new Intent(EntradaActivity.this, MainActivity.class);
+                                EntradaActivity.this.startActivity(intent);
+                                if (EntradaActivity.this instanceof Activity) {
+                                    ((Activity) EntradaActivity.this).finish();
+                                }
+
+                            } else {
+                                // Trata diferentes códigos de erro
+                                try {
+                                    String errorBody = response.errorBody() != null ?
+                                            response.errorBody().string() : "Erro desconhecido";
+
+                                    if (response.code() == 401) {
+                                        Toast.makeText(EntradaActivity.this, "Email ou senha inválidos", Toast.LENGTH_LONG).show();
+                                    } else if (response.code() == 400) {
+                                        Toast.makeText(EntradaActivity.this, "Usuário inativo", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(EntradaActivity.this, "Erro: " + errorBody, Toast.LENGTH_LONG).show();
+                                    }
+
+                                } catch (IOException e) {
+                                    Toast.makeText(EntradaActivity.this, "Erro ao processar resposta", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<SuperClassUser.LoginResponseDto> call, Throwable t) {
+                            Toast.makeText(EntradaActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            Log.e("LoginError", "Erro: ", t);
+                        }
+                    });
+                }
+
             });
+
         }
     }
 

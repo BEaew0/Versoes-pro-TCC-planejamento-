@@ -1,8 +1,10 @@
 package com.example.tesouro_azul_app.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +26,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Handler;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoViewHolder> {
 
@@ -85,48 +92,49 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
         holder.txtTipo.setText("Categoria: " + (produto.getTipoProduto() != null ? produto.getTipoProduto() : "Desconhecida"));
 
         // ------ Estoque ------
-        Double estoque = cacheEstoque.get(produto.getIdProduto());
+        // ------ Estoque ------
+        Double estoqueCache = cacheEstoque.get(produto.getIdProduto());
 
-        if (estoque != null)
-        {
-            holder.txtQuant.setText("Quantidade: " + estoque);
-        }
-         else if (produto.getQtdTotalEstoque() > 0)
-            {
+        if (estoqueCache != null) {
+            // Usa valor do cache se disponível
+            holder.txtQuant.setText("Quantidade: " + estoqueCache);
+            produto.setQtdTotalEstoque(estoqueCache);
+        } else if (produto.getQtdTotalEstoque() > 0) {
+            // Usa valor local se maior que zero
             holder.txtQuant.setText("Quantidade: " + produto.getQtdTotalEstoque());
-            }
-         else
-         {
-            // Se ainda não buscamos, mostra "Carregando..." e faz a requisição para a API
+        } else {
+            // Busca da API somente se não temos informação válida
             holder.txtQuant.setText("Carregando estoque...");
 
-            // Chamada assíncrona ao endpoint buscarEstoquePorProduto da API
             RetrofitClient.getApiService(context).buscarEstoquePorProduto("Bearer " + token, produto.getIdProduto())
-                    .enqueue(new retrofit2.Callback<SuperClassProd.EstoqueProdutoDto>() {
+                    .enqueue(new Callback<SuperClassProd.EstoqueProdutoDto>() {
                         @Override
-                        public void onResponse(retrofit2.Call<SuperClassProd.EstoqueProdutoDto> call, retrofit2.Response<SuperClassProd.EstoqueProdutoDto> response) {
+                        public void onResponse(Call<SuperClassProd.EstoqueProdutoDto> call, Response<SuperClassProd.EstoqueProdutoDto> response) {
                             if (response.isSuccessful() && response.body() != null) {
-                                double qtd = response.body().qtdTotalEstoque;
+                                double qtd = response.body().getQtdTotalEstoque();
+                                Log.d(TAG, "Estoque atualizado - Produto ID: " + produto.getIdProduto() + " - Qtd: " + qtd);
 
+                                // Atualiza cache e objeto produto
                                 cacheEstoque.put(produto.getIdProduto(), qtd);
-
-                                // Armazenar dentro do próprio produto
                                 produto.setQtdTotalEstoque(qtd);
 
-                                // Atualizar a TextView
-                                holder.txtQuant.setText("Quantidade: " + qtd);
+                                // Notifica mudança apenas se o ViewHolder ainda estiver visível
+                                if (holder.getAdapterPosition() != RecyclerView.NO_POSITION) {
+                                    notifyItemChanged(holder.getAdapterPosition());
+                                }
                             } else {
-                                holder.txtQuant.setText("Sem estoque");
-                                Log.e(TAG, "Erro ao buscar estoque: " + response.code());
+                                Log.e(TAG, "Erro ao buscar estoque - Código: " + response.code());
+                                holder.txtQuant.setText("Estoque indisponível");
                             }
                         }
 
                         @Override
-                        public void onFailure(retrofit2.Call<SuperClassProd.EstoqueProdutoDto> call, Throwable t) {
-                            holder.txtQuant.setText("Erro ao carregar estoque");
-                            Log.e(TAG, "Falha ao buscar estoque", t);
+                        public void onFailure(Call<SuperClassProd.EstoqueProdutoDto> call, Throwable t) {
+                            Log.e(TAG, "Falha na requisição de estoque", t);
+                            holder.txtQuant.setText("Erro ao carregar");
                         }
                     });
+
         }
 
         String imgBase64 = produto.getImgProduto();
@@ -169,11 +177,9 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
 
     // Método para atualizar a lista de produtos (ex: após um filtro ou reload)
     public void atualizarLista(List<SuperClassProd.ProdutoDtoArray> novaLista) {
-        if (novaLista == null) {
-            this.produtos = new ArrayList<>();
-        } else {
-            this.produtos = novaLista;
-        }
+        this.produtos = novaLista != null ? novaLista : new ArrayList<>();
+        cacheEstoque.clear(); // LIMPA o cache de estoque para forçar nova consulta
         notifyDataSetChanged();
     }
+
 }

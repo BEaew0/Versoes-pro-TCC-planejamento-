@@ -505,9 +505,19 @@ public class SuperClassProd {
         }
     }
 
-    public static class EstoqueProdutoDto {
-        @SerializedName("qTD_TOTAL_ESTOQUE")
-        public double qtdTotalEstoque;
+    public class EstoqueProdutoDto {
+        @SerializedName("qtD_TOTAL_ESTOQUE")
+        private double qtdTotalEstoque;
+
+        // Outros campos...
+
+        public double getQtdTotalEstoque() {
+            return qtdTotalEstoque;
+        }
+
+        public void setQtdTotalEstoque(double qtdTotalEstoque) {
+            this.qtdTotalEstoque = qtdTotalEstoque;
+        }
     }
 }
 

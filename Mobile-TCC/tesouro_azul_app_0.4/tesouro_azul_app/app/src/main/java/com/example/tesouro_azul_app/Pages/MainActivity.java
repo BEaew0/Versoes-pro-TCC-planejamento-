@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
 
         ProdutoCard = findViewById(R.id.ProdutoCard);
         graficosCard = findViewById(R.id.graficosCard);
-        MetasCard = findViewById(R.id.MetasCard);
         configCard = findViewById(R.id.configCard);
 
         ProdutoCard.setOnClickListener(new View.OnClickListener() {
@@ -40,13 +39,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        MetasCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, MetasActivity.class);
-                startActivity(intent);
-            }
-        });
         configCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

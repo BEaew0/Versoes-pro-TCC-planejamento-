@@ -57,9 +57,7 @@ public class GraficosActivity extends AppCompatActivity {
     private static final String TYPE_VENDAS = "vendas";
     private static final String TYPE_COMPRAS = "compras";
 
-    private String selectedDataType = TYPE_VENDAS; // ou TYPE_COMPRAS
-
-    private String compraString,vendaString;
+    private String selectedDataType = TYPE_VENDAS;
 
     private List<SuperClassProd.ItemVendaDtoQuant> listaDeVendas = new ArrayList<>();
     private List<SuperClassProd.ItemCompraDtoQuant> listaDeCompras = new ArrayList<>();
@@ -90,6 +88,11 @@ public class GraficosActivity extends AppCompatActivity {
 
         setupChartDefaults();
         setupClickListeners();
+
+        carregarItensCompraDoUsuario();
+        carregarItensVendaDoUsuario();
+
+        calcularTotaisEArmazenar(listaDeVendas,listaDeCompras);
 
         selectedGraphType = TYPE_BAR; // valor padrão
         selectedDataType = TYPE_VENDAS; // ou TYPE_COMPRAS
@@ -520,7 +523,6 @@ public class GraficosActivity extends AppCompatActivity {
 
         // Exemplo de uso:
         Log.d("Totais", totalVendidosStr + " | " + totalCompradosStr);
-        Toast.makeText(this, totalVendidosStr + "\n" + totalCompradosStr, Toast.LENGTH_LONG).show();
 
         // Se quiser exibir em TextViews:
         vendasInfo.setText(totalVendidosStr);

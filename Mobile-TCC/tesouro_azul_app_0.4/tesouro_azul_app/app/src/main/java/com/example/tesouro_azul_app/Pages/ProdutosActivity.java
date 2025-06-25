@@ -36,7 +36,9 @@ import com.example.tesouro_azul_app.Service.RetrofitClient;
 import com.example.tesouro_azul_app.Service.ApiService;
 import com.example.tesouro_azul_app.Util.AuthUtils;
 import com.example.tesouro_azul_app.Util.DatePickerUtil;
+import com.example.tesouro_azul_app.Util.DateUtils;
 import com.example.tesouro_azul_app.Util.ImageUtils;
+import com.example.tesouro_azul_app.Util.NumberUtils;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import java.io.FileNotFoundException;
@@ -46,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -140,6 +141,13 @@ public class ProdutosActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        carregarProdutos();  // Atualiza a lista sempre que voltar para esta tela
+    }
+
+
     /** Inicializa todas as views do layout */
     private void inicializarViews() {
         try {
@@ -160,7 +168,6 @@ public class ProdutosActivity extends AppCompatActivity {
             QuantProd = findViewById(R.id.txtQuant);
             ValProd = findViewById(R.id.txtValidade);
             CodProd = findViewById(R.id.txtCodProd);
-            FornProd = findViewById(R.id.txtFornecedor);
 
             Log.d(TAG, "Views inicializadas com sucesso");
         } catch (Exception e) {
@@ -279,6 +286,8 @@ public class ProdutosActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     /** Obtém informações do usuário a partir do token JWT */
     private void obterInfoUsuario() {
@@ -578,9 +587,11 @@ public class ProdutosActivity extends AppCompatActivity {
                 Toast.makeText(this, "Quantidade inválida", Toast.LENGTH_SHORT).show();
                 return;
             }
+            String valorProdutoStr = ValorProd.getText().toString().trim();
+            Double valor = NumberUtils.convertToDouble(valorProdutoStr);
 
             // Cálculos
-            double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
+            double valorTotal = valor * quantidade;
             String lote = "LOTE-" + System.currentTimeMillis();
             Log.d(TAG, "Preparando venda - Produto: " + produtoSelecionado.getNomeProduto() +
                     ", Quantidade: " + quantidade + ", Valor Total: " + valorTotal);
@@ -668,12 +679,26 @@ public class ProdutosActivity extends AppCompatActivity {
                 return;
             }
 
-            // Validação da data
-            String validadetxt = ValProd.getText().toString();
-            String validade = formatarParaISO8601(validadetxt, formatoEntrada);
+            String validadetxt;
+            String validade;
+
+            if (ValProd != null) {
+                 validadetxt = ValProd.getText().toString().trim();
+                // Validação da data
+                SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Date dataValidade = inputFormat.parse(validadetxt);
+                validade = DateUtils.dateToISO8601(dataValidade);
+            }
+            else {
+                validadetxt = null;
+                validade = null;
+            }
+
+            String valorProdutoStr = ValorProd.getText().toString().trim();
+            Double valor = NumberUtils.convertToDouble(valorProdutoStr);
 
             // Cálculos
-            double valorTotal = produtoSelecionado.getValorProduto() * quantidade;
+            double valorTotal = valor * quantidade;
             String lote = "LOTE-" + System.currentTimeMillis();
             Log.d(TAG, "Preparando compra - Produto: " + produtoSelecionado.getNomeProduto() +
                     ", Quantidade: " + quantidade + ", Valor Total: " + valorTotal +
@@ -691,13 +716,11 @@ public class ProdutosActivity extends AppCompatActivity {
 
             // Chamada à API
             Call<SuperClassProd.PedidoCompraCompletoDto> call = apiService.criarPedidoCompra(token, pedidoCompra);
-            progressBar.setVisibility(View.VISIBLE);
 
             call.enqueue(new Callback<SuperClassProd.PedidoCompraCompletoDto>() {
                 @Override
                 public void onResponse(Call<SuperClassProd.PedidoCompraCompletoDto> call,
                                        Response<SuperClassProd.PedidoCompraCompletoDto> response) {
-                    progressBar.setVisibility(View.GONE);
                     try {
                         if (response.isSuccessful() && response.body() != null) {
                             Toast.makeText(ProdutosActivity.this,
@@ -726,7 +749,6 @@ public class ProdutosActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<SuperClassProd.PedidoCompraCompletoDto> call, Throwable t) {
-                    progressBar.setVisibility(View.GONE);
                     Log.e(TAG, "Falha ao realizar compra", t);
                     Toast.makeText(ProdutosActivity.this,
                             "Erro na conexão. Tente novamente.",
@@ -734,24 +756,8 @@ public class ProdutosActivity extends AppCompatActivity {
                 }
             });
         } catch (Exception e) {
-            progressBar.setVisibility(View.GONE);
             Log.e(TAG, "Erro durante o processo de compra", e);
             Toast.makeText(this, "Erro ao processar compra", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /** Converte data para formato ISO 8601 */
-    public String formatarParaISO8601(String dataOriginal, String formatoOriginal) {
-        try {
-            SimpleDateFormat parser = new SimpleDateFormat(formatoOriginal, Locale.getDefault());
-            Date date = parser.parse(dataOriginal);
-
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-            formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return formatter.format(date);
-        } catch (Exception e) {
-            Log.e(TAG, "Erro ao formatar data: " + dataOriginal, e);
-            return null;
         }
     }
 
@@ -816,7 +822,7 @@ public class ProdutosActivity extends AppCompatActivity {
 
             double valorProduto;
             try {
-                valorProduto = Double.parseDouble(valorProdutoStr);
+                valorProduto = NumberUtils.convertToDouble(valorProdutoStr);
                 if (valorProduto <= 0) {
                     Log.w(TAG, "Tentativa de criar produto com valor inválido: " + valorProdutoStr);
                     Toast.makeText(this, "O valor do produto deve ser positivo", Toast.LENGTH_SHORT).show();
