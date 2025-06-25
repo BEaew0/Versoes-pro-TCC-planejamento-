@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,6 +40,7 @@ public class ApiOperation {
     private final EditText txtSenha;
     private final Button btnEnter;
     private final TextView txtRegistrar;
+    private final CheckBox mostrarSenhas;
 
     // Controle de tentativas de reconexão
     private int tentativa = 0;
@@ -55,6 +57,7 @@ public class ApiOperation {
                         EditText txtEmail,
                         EditText txtSenha,
                         Button btnEnter,
+                        CheckBox mostrarSenhas,
                         TextView txtRegistrar) {
         this.context = context;
         this.progressBar = progressBar;
@@ -62,6 +65,7 @@ public class ApiOperation {
         this.txtEmail = txtEmail;
         this.txtSenha = txtSenha;
         this.btnEnter = btnEnter;
+        this.mostrarSenhas = mostrarSenhas;
         this.txtRegistrar = txtRegistrar;
     }
 
@@ -81,6 +85,7 @@ public class ApiOperation {
         txtEmail.setVisibility(View.GONE);
         txtSenha.setVisibility(View.GONE);
         btnEnter.setVisibility(View.GONE);
+        mostrarSenhas.setVisibility(View.GONE);
         txtRegistrar.setVisibility(View.GONE);
 
         verificarStatusAPI(apiService);
@@ -201,6 +206,9 @@ public class ApiOperation {
                 txtEmail.setVisibility(View.VISIBLE);
                 txtSenha.setVisibility(View.VISIBLE);
                 btnEnter.setVisibility(View.VISIBLE);
+
+                mostrarSenhas.setVisibility(View.VISIBLE);
+
                 txtRegistrar.setVisibility(View.VISIBLE);
                 btnEnter.setText("Entrar");
                 btnEnter.setOnClickListener(new View.OnClickListener() {

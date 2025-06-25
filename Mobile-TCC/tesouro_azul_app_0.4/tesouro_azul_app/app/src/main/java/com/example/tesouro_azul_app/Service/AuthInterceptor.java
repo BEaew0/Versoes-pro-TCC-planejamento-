@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.tesouro_azul_app.EntradaActivity;
+import com.example.tesouro_azul_app.LoginActivity;
 
 import java.io.IOException;
 
@@ -56,7 +57,6 @@ public class AuthInterceptor implements Interceptor {
                 showToast("Erro interno no servidor");
                 break;
 
-            // Outros casos de erro se quiser...
         }
 
         return response;
@@ -72,7 +72,7 @@ public class AuthInterceptor implements Interceptor {
         new Handler(Looper.getMainLooper()).post(() -> {
             Toast.makeText(context, "Sessão expirada. Faça login novamente.", Toast.LENGTH_LONG).show();
 
-            Intent intent = new Intent(context, EntradaActivity.class);
+            Intent intent = new Intent(context, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             context.startActivity(intent);
         });

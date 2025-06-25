@@ -25,10 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoViewHolder> {
 
     private static final String TAG = "ProdutoAdapter";
@@ -39,7 +35,7 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
     private String token;                                   // Token JWT para autenticação nas requisições da API
 
     // Cache para armazenar as quantidades de estoque por produto (evita múltiplas requisições por produto)
-    private Map<Integer, Integer> cacheEstoque = new HashMap<>();
+    private Map<Integer, Double> cacheEstoque = new HashMap<Integer, Double>();
 
     // Interface para clique no item do RecyclerView
     public interface OnItemClickListener {
@@ -89,9 +85,10 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
         holder.txtTipo.setText("Categoria: " + (produto.getTipoProduto() != null ? produto.getTipoProduto() : "Desconhecida"));
 
         // ------ Estoque ------
-        Integer estoque = cacheEstoque.get(produto.getIdProduto());
+        Double estoque = cacheEstoque.get(produto.getIdProduto());
 
-        if (estoque != null) {
+        if (estoque != null)
+        {
             holder.txtQuant.setText("Quantidade: " + estoque);
         }
          else if (produto.getQtdTotalEstoque() > 0)
@@ -109,7 +106,7 @@ public class ProdutoAdapter extends RecyclerView.Adapter<ProdutoAdapter.ProdutoV
                         @Override
                         public void onResponse(retrofit2.Call<SuperClassProd.EstoqueProdutoDto> call, retrofit2.Response<SuperClassProd.EstoqueProdutoDto> response) {
                             if (response.isSuccessful() && response.body() != null) {
-                                int qtd = response.body().qtdTotalEstoque;
+                                double qtd = response.body().qtdTotalEstoque;
 
                                 cacheEstoque.put(produto.getIdProduto(), qtd);
 

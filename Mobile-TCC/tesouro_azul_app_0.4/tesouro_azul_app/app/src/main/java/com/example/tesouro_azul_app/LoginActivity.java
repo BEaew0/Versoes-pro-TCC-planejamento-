@@ -74,6 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                 txtEmail,
                 txtSenha,
                 btnEnter,
+                mostrarSenha,
                 txtRegistrar
         );
 

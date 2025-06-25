@@ -1,6 +1,5 @@
 package com.example.tesouro_azul_app.Class;
 
-import java.util.Date;
 import java.util.List;
 
 //@SerializedName("nomeExatoDoCampoJSON")
@@ -83,7 +82,7 @@ public class SuperClassProd {
 
     public static class ProdutoDtoArray {
 
-        public int qtdTotalEstoque; // Quantidade de estoque vinda da API
+        public double qtdTotalEstoque; // Quantidade de estoque vinda da API
 
         @SerializedName("iD_PRODUTO")
         private int idProduto;
@@ -117,11 +116,11 @@ public class SuperClassProd {
         }
 
         // Getter e Setter
-        public int getQtdTotalEstoque() {
+        public double getQtdTotalEstoque() {
             return qtdTotalEstoque;
         }
 
-        public void setQtdTotalEstoque(int qtdTotalEstoque) {
+        public void setQtdTotalEstoque(double qtdTotalEstoque) {
             this.qtdTotalEstoque = qtdTotalEstoque;
         }
 
@@ -243,7 +242,18 @@ public class SuperClassProd {
         }
     }
 
+    public class ItemCompraDtoQuant {
+        @SerializedName("quantidadE_ITEM_COMPRA")
+        public int quantidade;
 
+        @SerializedName("pedidoCompra")
+        public PedidoCompraDto pedidoCompra;
+    }
+
+    public class PedidoCompraDto {
+        @SerializedName("datA_PEDIDO")
+        public String dataPedido;
+    }
 
     public static class PedidoDto {
 
@@ -451,6 +461,20 @@ public class SuperClassProd {
             }
         }
 
+    public static class ItemVendaDtoQuant {
+        @SerializedName("qtS_ITEM_VENDA")
+        public int quantidade;
+
+        @SerializedName("pedidoVenda")
+        public PedidoVenda pedidoVenda;
+
+        public static class PedidoVenda {
+            @SerializedName("datA_PEDIDO_VENDA")
+            public String dataPedidoVenda;
+        }
+    }
+
+
     public static class CamposProdutoDto {
 
         @SerializedName("campo")
@@ -483,7 +507,7 @@ public class SuperClassProd {
 
     public static class EstoqueProdutoDto {
         @SerializedName("qTD_TOTAL_ESTOQUE")
-        public int qtdTotalEstoque;
+        public double qtdTotalEstoque;
     }
 }
 

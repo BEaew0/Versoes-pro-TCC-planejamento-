@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,11 +54,24 @@ public class GraficosActivity extends AppCompatActivity {
     private static final String TYPE_BAR = "barra";
     private static final String TYPE_LINE = "linha";
 
+    private static final String TYPE_VENDAS = "vendas";
+    private static final String TYPE_COMPRAS = "compras";
+
+    private String selectedDataType = TYPE_VENDAS; // ou TYPE_COMPRAS
+
+    private String compraString,vendaString;
+
+    private List<SuperClassProd.ItemVendaDtoQuant> listaDeVendas = new ArrayList<>();
+    private List<SuperClassProd.ItemCompraDtoQuant> listaDeCompras = new ArrayList<>();
+
+
+    private TextView comprasInfo,vendasInfo;
+
     // Componentes de UI
     private BarChart barChart;
     private LineChart lineChart;
     private PieChart pieChart;
-    private CardView pizzaCard, barraCard, linhaCard, lucroCard, vendasCard, faturamentoCard;
+    private CardView pizzaCard, barraCard, linhaCard, comprasCard, graficVendasCard ;
 
     // Dados mockados (substituir por dados reais posteriormente)
     private final List<String> labels = Arrays.asList("Miguel", "Carlos", "Victor", "Bea");
@@ -77,7 +91,8 @@ public class GraficosActivity extends AppCompatActivity {
         setupChartDefaults();
         setupClickListeners();
 
-        carregarPedidosDoUsuario();
+        selectedGraphType = TYPE_BAR; // valor padrão
+        selectedDataType = TYPE_VENDAS; // ou TYPE_COMPRAS
     }
 
     /**
@@ -91,9 +106,13 @@ public class GraficosActivity extends AppCompatActivity {
         pizzaCard = findViewById(R.id.PizzaCard);
         barraCard = findViewById(R.id.BarraCard);
         linhaCard = findViewById(R.id.LinhaCard);
-        lucroCard = findViewById(R.id.LucroCard);
-        vendasCard = findViewById(R.id.VendasCard);
-        faturamentoCard = findViewById(R.id.FaturamentoCard);
+
+        vendasInfo = findViewById(R.id.VendasTotalInfo);
+        comprasInfo = findViewById(R.id.ComprasTotalInfo);
+
+        comprasCard = findViewById(R.id.CompraCard);
+        graficVendasCard = findViewById(R.id.GraficVendasCard);
+
     }
 
     /**
@@ -113,182 +132,100 @@ public class GraficosActivity extends AppCompatActivity {
      * Configura os listeners de clique para os cards
      */
     private void setupClickListeners() {
-        pizzaCard.setOnClickListener(v -> selectGraph(TYPE_PIE, "Gráfico de Pizza selecionado"));
-        barraCard.setOnClickListener(v -> selectGraph(TYPE_BAR, "Gráfico de Barras selecionado"));
-        linhaCard.setOnClickListener(v -> selectGraph(TYPE_LINE, "Gráfico de Linhas selecionado"));
+        pizzaCard.setOnClickListener(v -> {
+            selectedGraphType = TYPE_PIE;
+            displaySelectedGraph();
+        });
 
-        lucroCard.setOnClickListener(v -> showToast("Lucro selecionado"));
-        vendasCard.setOnClickListener(v -> showToast("Vendas selecionadas"));
-        faturamentoCard.setOnClickListener(v -> showToast("Faturamento selecionado"));
+        barraCard.setOnClickListener(v -> {
+            selectedGraphType = TYPE_BAR;
+            displaySelectedGraph();
+        });
+
+        linhaCard.setOnClickListener(v -> {
+            selectedGraphType = TYPE_LINE;
+            displaySelectedGraph();
+        });
+
+        comprasCard.setOnClickListener(v -> {
+            selectedDataType = TYPE_COMPRAS;
+            showToast("Exibindo dados de compras");
+            displaySelectedGraph(); // Atualiza gráfico com novo tipo de dado
+        });
+
+        graficVendasCard.setOnClickListener(v -> {
+            selectedDataType = TYPE_VENDAS;
+            showToast("Exibindo dados de vendas");
+            displaySelectedGraph();
+        });
     }
 
-    /**
-     * Processa a seleção de um tipo de gráfico
-     */
-    private void selectGraph(String graphType, String message) {
-        clearAllCharts();
-        showToast(message);
-        selectedGraphType = graphType;
-        displaySelectedGraph();
-    }
 
     /**
      * Exibe o gráfico selecionado
      */
     private void displaySelectedGraph() {
-        hideAllCharts();
+        hideAllCharts(); // Garante que tudo fique oculto antes de qualquer ação
 
-        switch (selectedGraphType) {
-            case TYPE_BAR:
-                barChart.setVisibility(View.VISIBLE);
-                displayBarChart();
-                break;
-
-            case TYPE_LINE:
-                lineChart.setVisibility(View.VISIBLE);
-                carregarPedidosDoUsuario();
-                break;
-
-            case TYPE_PIE:
-                pieChart.setVisibility(View.VISIBLE);
-                displayPieChart();
-                break;
-
-            default:
-                showToast("Tipo de gráfico inválido");
-                break;
+        if (selectedDataType.equals(TYPE_COMPRAS)) {
+            carregarItensCompraDoUsuario(); // Vai exibir o gráfico correto depois
+        } else if (selectedDataType.equals(TYPE_VENDAS)) {
+            carregarItensVendaDoUsuario();
+        } else {
+            showToast("Tipo de dado inválido");
         }
     }
 
-    /**
-     * Configura e exibe o gráfico de barras
-     */
-    private void displayBarChart() {
-        ArrayList<BarEntry> entries = new ArrayList<>();
-        for (int i = 0; i < values.length; i++) {
-            entries.add(new BarEntry(i, values[i]));
+
+    private void gerarGraficoComprasPorData(List<SuperClassProd.ItemCompraDtoQuant> itens) {
+        // Agrupar por data
+        Map<String, Integer> totalPorData = new TreeMap<>();
+        for (SuperClassProd.ItemCompraDtoQuant item : itens) {
+            if (item.pedidoCompra != null && item.pedidoCompra.dataPedido != null) {
+                String data = item.pedidoCompra.dataPedido.split("T")[0];
+                int atual = totalPorData.containsKey(data) ? totalPorData.get(data) : 0;
+                totalPorData.put(data, atual + item.quantidade);
+            }
         }
 
-        BarDataSet dataSet = new BarDataSet(entries, "Dados");
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        // Preparar entradas do gráfico
+        ArrayList<BarEntry> entries = new ArrayList<>();
+        ArrayList<String> labels = new ArrayList<>();
+        int index = 0;
+        for (Map.Entry<String, Integer> entry : totalPorData.entrySet()) {
+            entries.add(new BarEntry(index, entry.getValue()));
+            labels.add(entry.getKey());
+            index++;
+        }
 
+        BarDataSet dataSet = new BarDataSet(entries, "Itens comprados por dia");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
         BarData barData = new BarData(dataSet);
         barChart.setData(barData);
 
-        // Configuração do eixo Y
-        YAxis yAxis = barChart.getAxisLeft();
-        yAxis.setAxisMinimum(0f);
-        yAxis.setAxisMaximum(100f);
-        yAxis.setAxisLineWidth(2f);
-        yAxis.setAxisLineColor(Color.BLACK);
-        yAxis.setLabelCount(10);
-        barChart.getAxisRight().setDrawLabels(false);
+        // Configurar eixo X
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
 
-        // Configuração do eixo X
-        barChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
-        barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        barChart.getXAxis().setGranularity(1f);
-        barChart.getXAxis().setGranularityEnabled(true);
+        // Eixo Y
+        barChart.getAxisLeft().setAxisMinimum(0f);
+        barChart.getAxisRight().setEnabled(false);
 
-        barChart.invalidate();
+        barChart.setVisibility(View.VISIBLE);
+
+        barChart.invalidate(); // Redesenhar gráfico
     }
+    private void exibirLineChartItensCompra(List<SuperClassProd.ItemCompraDtoQuant> itens) {
+        Map<String, Integer> totalPorData = new TreeMap<>();
 
-    /**
-     * Configura e exibe o gráfico de pizza
-     */
-    private void displayPieChart() {
-        ArrayList<PieEntry> entries = new ArrayList<>();
-        for (int i = 0; i < values.length; i++) {
-            entries.add(new PieEntry(values[i], labels.get(i)));
-        }
-
-        PieDataSet dataSet = new PieDataSet(entries, "Dados");
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-        dataSet.setSliceSpace(3f);
-        dataSet.setValueTextSize(12f);
-
-        PieData pieData = new PieData(dataSet);
-        pieChart.setData(pieData);
-        pieChart.setUsePercentValues(true);
-        pieChart.setEntryLabelColor(Color.BLACK);
-        pieChart.setHoleRadius(30f);
-        pieChart.setTransparentCircleRadius(35f);
-        pieChart.invalidate();
-    }
-
-    /**
-     * Configura e exibe o gráfico de linhas
-     */
-    private void displayLineChart() {
-        ArrayList<Entry> entries = new ArrayList<>();
-        for (int i = 0; i < values.length; i++) {
-            entries.add(new Entry(i, values[i]));
-        }
-
-        LineDataSet dataSet = new LineDataSet(entries, "Dados");
-        dataSet.setColor(ColorTemplate.getHoloBlue());
-        dataSet.setCircleColor(ColorTemplate.MATERIAL_COLORS[0]);
-        dataSet.setLineWidth(2f);
-        dataSet.setCircleRadius(5f);
-        dataSet.setValueTextSize(10f);
-
-        LineData lineData = new LineData(dataSet);
-        lineChart.setData(lineData);
-
-        lineChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
-        lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        lineChart.getXAxis().setGranularity(1f);
-        lineChart.getXAxis().setGranularityEnabled(true);
-
-        lineChart.invalidate();
-    }
-
-    private void carregarPedidosDoUsuario() {
-        Log.d(TAG, "Iniciando busca de pedidos do usuário...");
-
-        apiService.buscarPedidosUsuario(token).enqueue(new Callback<List<SuperClassProd.PedidoDtoQuantidade>>() {
-            @Override
-            public void onResponse(Call<List<SuperClassProd.PedidoDtoQuantidade>> call,
-                                   Response<List<SuperClassProd.PedidoDtoQuantidade>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Pedidos carregados com sucesso. Total: " + response.body().size());
-                    exibirGraficoComprasPorDia(response.body());
-                } else {
-                    Log.e(TAG, "Erro ao buscar pedidos. Código HTTP: " + response.code());
-
-                    try {
-                        if (response.errorBody() != null) {
-                            String erroDetalhado = response.errorBody().string();
-                            Log.e(TAG, "Corpo de erro da API: " + erroDetalhado);
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Erro ao ler corpo de erro", e);
-                    }
-
-                    Toast.makeText(GraficosActivity.this, "Erro ao buscar pedidos: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<SuperClassProd.PedidoDtoQuantidade>> call, Throwable t) {
-                Log.e(TAG, "Falha na conexão ao buscar pedidos", t);
-                Toast.makeText(GraficosActivity.this, "Falha na conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void exibirGraficoComprasPorDia(List<SuperClassProd.PedidoDtoQuantidade> pedidos) {
-        Log.d(TAG, "Montando gráfico de pedidos por dia...");
-
-        Map<String, Integer> quantidadePorDia = new TreeMap<>();  // TreeMap mantém as datas em ordem
-
-        for (SuperClassProd.PedidoDtoQuantidade pedido : pedidos) {
-            try {
-                String data = pedido.getDataPedido().split("T")[0];  // Exemplo: "2025-06-16"
-                int quantidadeAtual = quantidadePorDia.containsKey(data) ? quantidadePorDia.get(data) : 0;
-                quantidadePorDia.put(data, quantidadeAtual + 1);
-            } catch (Exception e) {
-                Log.e(TAG, "Erro ao processar data do pedido: " + pedido.getDataPedido(), e);
+        for (SuperClassProd.ItemCompraDtoQuant item : itens) {
+            if (item.pedidoCompra != null && item.pedidoCompra.dataPedido != null) {
+                String data = item.pedidoCompra.dataPedido.split("T")[0];
+                int atual = totalPorData.getOrDefault(data, 0);
+                totalPorData.put(data, atual + item.quantidade);
             }
         }
 
@@ -296,15 +233,15 @@ public class GraficosActivity extends AppCompatActivity {
         ArrayList<String> labels = new ArrayList<>();
         int index = 0;
 
-        for (Map.Entry<String, Integer> entry : quantidadePorDia.entrySet()) {
+        for (Map.Entry<String, Integer> entry : totalPorData.entrySet()) {
             entries.add(new Entry(index, entry.getValue()));
             labels.add(entry.getKey());
             index++;
         }
 
-        LineDataSet dataSet = new LineDataSet(entries, "Compras por Dia");
-        dataSet.setColor(ColorTemplate.getHoloBlue());
-        dataSet.setCircleColor(ColorTemplate.MATERIAL_COLORS[0]);
+        LineDataSet dataSet = new LineDataSet(entries, "Itens Comprados por Dia");
+        dataSet.setColor(Color.BLUE);
+        dataSet.setCircleColor(ColorTemplate.COLORFUL_COLORS[0]);
         dataSet.setLineWidth(2f);
         dataSet.setCircleRadius(4f);
         dataSet.setValueTextSize(10f);
@@ -318,9 +255,163 @@ public class GraficosActivity extends AppCompatActivity {
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
 
-        lineChart.invalidate();
+        lineChart.getAxisRight().setEnabled(false);
+        lineChart.getDescription().setEnabled(false);
 
-        Log.d(TAG, "Gráfico atualizado com sucesso.");
+        lineChart.setVisibility(View.VISIBLE);
+
+        lineChart.invalidate();
+    }
+    private void exibirPieChartItensCompra(List<SuperClassProd.ItemCompraDtoQuant> itens) {
+        Map<String, Integer> totalPorData = new TreeMap<>();
+
+        for (SuperClassProd.ItemCompraDtoQuant item : itens) {
+            if (item.pedidoCompra != null && item.pedidoCompra.dataPedido != null) {
+                String data = item.pedidoCompra.dataPedido.split("T")[0];
+                int atual = totalPorData.getOrDefault(data, 0);
+                totalPorData.put(data, atual + item.quantidade);
+            }
+        }
+
+        ArrayList<PieEntry> entries = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : totalPorData.entrySet()) {
+            entries.add(new PieEntry(entry.getValue(), entry.getKey()));
+        }
+
+        PieDataSet dataSet = new PieDataSet(entries, "Distribuição por Data");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        dataSet.setSliceSpace(3f);
+        dataSet.setValueTextSize(12f);
+
+        PieData pieData = new PieData(dataSet);
+        pieChart.setData(pieData);
+        pieChart.setUsePercentValues(true);
+        pieChart.setEntryLabelColor(Color.BLACK);
+        pieChart.setHoleRadius(30f);
+        pieChart.setTransparentCircleRadius(35f);
+        pieChart.getDescription().setEnabled(false);
+
+        pieChart.setVisibility(View.VISIBLE);
+
+        pieChart.invalidate();
+    }
+
+    private void exibirGraficoVendasPorDataLinha(List< SuperClassProd.ItemVendaDtoQuant > itens) {
+        Map<String, Integer> vendasPorData = new TreeMap<>(); // TreeMap ordena as datas
+
+        // Agrupar quantidades por data
+        for (SuperClassProd.ItemVendaDtoQuant item : itens) {
+            try {
+                String data = item.pedidoVenda.dataPedidoVenda.split("T")[0]; // Ex: 2025-06-17
+                int quantidadeAtual = vendasPorData.getOrDefault(data, 0);
+                vendasPorData.put(data, quantidadeAtual + item.quantidade);
+            } catch (Exception e) {
+                Log.e(TAG, "Erro ao processar item: " + item, e);
+            }
+        }
+
+        ArrayList<Entry> entries = new ArrayList<>();
+        ArrayList<String> labels = new ArrayList<>();
+
+        int index = 0;
+        for (Map.Entry<String, Integer> entry : vendasPorData.entrySet()) {
+            entries.add(new Entry(index, entry.getValue()));
+            labels.add(entry.getKey());
+            index++;
+        }
+
+        LineDataSet dataSet = new LineDataSet(entries, "Vendas por Dia");
+        dataSet.setColor(Color.BLUE);
+        dataSet.setCircleColor(Color.RED);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleRadius(4f);
+        dataSet.setValueTextSize(10f);
+
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
+
+        lineChart.setVisibility(View.VISIBLE);
+
+        lineChart.invalidate(); // Redesenha o gráfico
+    }
+    private void exibirGraficoBarrasVendasPorData(List<SuperClassProd.ItemVendaDtoQuant> itens) {
+        Map<String, Integer> vendasPorData = new TreeMap<>();
+
+        // Agrupando a quantidade vendida por data
+        for (SuperClassProd.ItemVendaDtoQuant item : itens) {
+            String data = item.pedidoVenda.dataPedidoVenda.split("T")[0]; // Ex: "2025-06-17"
+            int quantidadeAtual = vendasPorData.getOrDefault(data, 0);
+            vendasPorData.put(data, quantidadeAtual + item.quantidade);
+        }
+
+        ArrayList<BarEntry> entries = new ArrayList<>();
+        ArrayList<String> labels = new ArrayList<>();
+        int index = 0;
+
+        for (Map.Entry<String, Integer> entry : vendasPorData.entrySet()) {
+            entries.add(new BarEntry(index, entry.getValue()));
+            labels.add(entry.getKey());
+            index++;
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "Itens Vendidos por Data");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+
+        BarData barData = new BarData(dataSet);
+        barChart.setData(barData);
+
+        YAxis yAxis = barChart.getAxisLeft();
+        yAxis.setAxisMinimum(0f);
+        yAxis.setAxisLineWidth(2f);
+        yAxis.setAxisLineColor(Color.BLACK);
+        barChart.getAxisRight().setDrawLabels(false);
+
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
+
+        barChart.setVisibility(View.VISIBLE);
+
+        barChart.invalidate();
+    }
+    private void exibirGraficoPizzaVendasPorData(List<SuperClassProd.ItemVendaDtoQuant> itens) {
+        Map<String, Integer> vendasPorData = new TreeMap<>();
+
+        // Agrupando a quantidade vendida por data
+        for (SuperClassProd.ItemVendaDtoQuant item : itens) {
+            String data = item.pedidoVenda.dataPedidoVenda.split("T")[0];
+            int quantidadeAtual = vendasPorData.getOrDefault(data, 0);
+            vendasPorData.put(data, quantidadeAtual + item.quantidade);
+        }
+
+        ArrayList<PieEntry> entries = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : vendasPorData.entrySet()) {
+            entries.add(new PieEntry(entry.getValue(), entry.getKey()));
+        }
+
+        PieDataSet dataSet = new PieDataSet(entries, "Distribuição de Vendas");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        dataSet.setSliceSpace(3f);
+        dataSet.setValueTextSize(12f);
+
+        PieData pieData = new PieData(dataSet);
+        pieChart.setData(pieData);
+        pieChart.setUsePercentValues(true);
+        pieChart.setEntryLabelColor(Color.BLACK);
+        pieChart.setHoleRadius(30f);
+        pieChart.setTransparentCircleRadius(35f);
+
+        pieChart.setVisibility(View.VISIBLE); // para gráficos de pizza
+
+        pieChart.invalidate();
     }
 
 
@@ -334,30 +425,109 @@ public class GraficosActivity extends AppCompatActivity {
     }
 
     /**
-     * Limpa todos os gráficos
-     */
-    private void clearAllCharts() {
-        barChart.clear();
-        lineChart.clear();
-        pieChart.clear();
-    }
-
-    /**
      * Exibe uma mensagem Toast
      */
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    // Métodos para buscar dados reais (implementar posteriormente)
-    private void buscarLucro()
-    {
+    private void carregarItensVendaDoUsuario() {
+        apiService.buscarItensVendaPorUsuario(token).enqueue(new Callback<List<SuperClassProd.ItemVendaDtoQuant>>() {
+            @Override
+            public void onResponse(Call<List<SuperClassProd.ItemVendaDtoQuant>> call, Response<List<SuperClassProd.ItemVendaDtoQuant>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    listaDeVendas = response.body();
 
-    }
-    private void buscarItensVendidos()
-    {
+                    // Exibe o gráfico apropriado
+                    switch (selectedGraphType) {
+                        case TYPE_PIE:
+                            exibirGraficoPizzaVendasPorData(listaDeVendas);
+                            break;
+                        case TYPE_BAR:
+                            exibirGraficoBarrasVendasPorData(listaDeVendas);
+                            break;
+                        case TYPE_LINE:
+                            exibirGraficoVendasPorDataLinha(listaDeVendas);
+                            break;
+                    }
 
+                    // Atualiza totais
+                    calcularTotaisEArmazenar(listaDeVendas, listaDeCompras);
+                } else {
+                    Log.e(TAG, "Erro ao buscar itens de venda: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<SuperClassProd.ItemVendaDtoQuant>> call, Throwable t) {
+                Log.e(TAG, "Falha ao buscar itens de venda", t);
+            }
+        });
     }
+
+    private void carregarItensCompraDoUsuario() {
+        apiService.buscarItensCompraPorUsuario(token).enqueue(new Callback<List<SuperClassProd.ItemCompraDtoQuant>>() {
+            @Override
+            public void onResponse(Call<List<SuperClassProd.ItemCompraDtoQuant>> call, Response<List<SuperClassProd.ItemCompraDtoQuant>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    listaDeCompras = response.body();
+
+                    // Exibe o gráfico apropriado
+                    switch (selectedGraphType) {
+                        case TYPE_PIE:
+                            exibirPieChartItensCompra(listaDeCompras);
+                            break;
+                        case TYPE_BAR:
+                            gerarGraficoComprasPorData(listaDeCompras);
+                            break;
+                        case TYPE_LINE:
+                            exibirLineChartItensCompra(listaDeCompras);
+                            break;
+                    }
+
+                    // Atualiza totais
+                    calcularTotaisEArmazenar(listaDeVendas, listaDeCompras);
+                } else {
+                    Log.e(TAG, "Erro ao buscar itens de compra: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<SuperClassProd.ItemCompraDtoQuant>> call, Throwable t) {
+                Log.e(TAG, "Falha ao buscar itens de compra", t);
+            }
+        });
+    }
+
+
+    private void calcularTotaisEArmazenar(List<SuperClassProd.ItemVendaDtoQuant> vendas, List<SuperClassProd.ItemCompraDtoQuant> compras) {
+        int totalVendidos = 0;
+        int totalComprados = 0;
+
+        // Soma os itens vendidos
+        for (SuperClassProd.ItemVendaDtoQuant item : vendas) {
+            totalVendidos += item.quantidade;
+        }
+
+        // Soma os itens comprados
+        for (SuperClassProd.ItemCompraDtoQuant item : compras) {
+            totalComprados += item.quantidade;
+        }
+
+        // Armazena os totais em String
+        String totalVendidosStr = String.valueOf(totalVendidos);
+        String totalCompradosStr = String.valueOf(totalComprados);
+
+        // Exemplo de uso:
+        Log.d("Totais", totalVendidosStr + " | " + totalCompradosStr);
+        Toast.makeText(this, totalVendidosStr + "\n" + totalCompradosStr, Toast.LENGTH_LONG).show();
+
+        // Se quiser exibir em TextViews:
+        vendasInfo.setText(totalVendidosStr);
+        comprasInfo.setText(totalCompradosStr);
+    }
+
+
 
     /** Obtém o token do usuário com prefixo Bearer */
     private String obterTokenUsuario() {

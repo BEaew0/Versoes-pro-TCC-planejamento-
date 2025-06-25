@@ -80,18 +80,18 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/VendasHjName"
+                        android:id="@+id/VendasTotalName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/VendasHjInfo"
+                        android:layout_below="@+id/VendasTotalInfo"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="Vendas hoje"
+                        android:text="Vendas"
                         android:textColor="@color/blueText"
                         android:textSize="22sp" />
 
                     <TextView
-                        android:id="@+id/VendasHjInfo"
+                        android:id="@+id/VendasTotalInfo"
                         android:layout_width="150dp"
                         android:layout_height="70dp"
                         android:layout_centerHorizontal="true"
@@ -106,7 +106,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/ValidCard"
+                android:id="@+id/CompraHJCard"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -119,18 +119,18 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/FaturaName"
+                        android:id="@+id/CompraTotalName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/FaturaInfo"
+                        android:layout_below="@+id/ComprasTotalInfo"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="Perto de vencer"
+                        android:text="Compras"
                         android:textColor="@color/red"
                         android:textSize="22sp" />
 
                     <TextView
-                        android:id="@+id/FaturaInfo"
+                        android:id="@+id/ComprasTotalInfo"
                         android:layout_width="150dp"
                         android:layout_height="70dp"
                         android:layout_centerHorizontal="true"
@@ -150,6 +150,7 @@
             android:id="@+id/graficoTxt"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
             android:fontFamily="@font/poppins_semibold"
             android:text="Tipos de grafico"
             android:textColor="@color/blueText"
@@ -286,6 +287,7 @@
             android:id="@+id/InfoTxt"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
             android:fontFamily="@font/poppins_semibold"
             android:text="O que exibir?"
             android:textColor="@color/blueText"
@@ -304,7 +306,7 @@
 
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/LucroCard"
+                android:id="@+id/CompraCard"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
@@ -317,13 +319,13 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/LucroName"
+                        android:id="@+id/CompraName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/LucroImage"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:text="Lucro"
+                        android:text="Compras"
                         android:textColor="@color/blueText"
                         android:textSize="20sp" />
 
@@ -376,44 +378,6 @@
                 </RelativeLayout>
 
             </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/FaturamentoCard"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="20dp">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/FaturamentoName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/FaturamentoImage"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="10dp"
-                        android:text="Fatura"
-                        android:textColor="@color/blueText"
-                        android:textSize="20sp" />
-
-                    <ImageView
-                        android:id="@+id/FaturamentoImage"
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:layout_centerHorizontal="true"
-                        android:importantForAccessibility="no"
-                        android:src="@drawable/baseline_corporate_fare_24" />
-
-
-                </RelativeLayout>
-
-            </androidx.cardview.widget.CardView>
-
 
         </LinearLayout>
 

@@ -134,6 +134,9 @@ public interface ApiService {
     @GET("api/PedidoCompra/Itens/{id_pedido}")
     Call<List<SuperClassProd.ItemCompraDto>> buscarItensCompraPorPedido(@Header("Authorization") String token, @Path("id_pedido") int idPedido);
 
+    @GET("api/PedidoCompra/buscar-todos-itens-compra-por-usuario")
+    Call<List<SuperClassProd.ItemCompraDtoQuant>> buscarItensCompraPorUsuario(@Header("Authorization") String token);
+
     @GET("api/PedidoCompra/buscar-pedidos-usuario")
     Call<List<SuperClassProd.PedidoCompraCompletoDto>> buscarComprasPedidoPorUsuario(@Header("Authorization") String token);
 
@@ -191,7 +194,7 @@ public interface ApiService {
     );
 
     // Endpoint para buscar pedidos de venda do usuário atual
-    @GET("buscar-pedidos-por-usuario")
+    @GET("api/PedidoVenda/buscar-todos-itens-venda")
     Call<List<SuperClassProd.PedidoVendaCompletoDto>> buscarPedidosVendaPorUsuario(
             @Header("Authorization") String token
     );
@@ -203,8 +206,8 @@ public interface ApiService {
     );
 
     // Endpoint para buscar itens de venda do usuário atual
-    @GET("buscar-itens-venda-por-usuario")
-    Call<List<SuperClassProd.ItemVendaDto>> buscarItensVendaPorUsuario(
+    @GET("api/PedidoVenda/buscar-itens-venda-por-usuario")
+    Call<List<SuperClassProd.ItemVendaDtoQuant>> buscarItensVendaPorUsuario(
             @Header("Authorization") String token
     );
 
@@ -241,7 +244,7 @@ public interface ApiService {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Estoque
 
-    @GET("buscar-estoque-por-produto-{id_produto}")
+    @GET("api/Estoque/buscar-estoque-por-produto/{id_produto}")
     Call<SuperClassProd.EstoqueProdutoDto> buscarEstoquePorProduto(
             @Header("Authorization") String token,
             @Path("id_produto") int idProduto

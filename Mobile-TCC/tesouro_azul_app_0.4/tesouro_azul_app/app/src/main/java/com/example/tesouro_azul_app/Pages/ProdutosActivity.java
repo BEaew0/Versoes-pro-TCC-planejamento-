@@ -551,8 +551,6 @@ public class ProdutosActivity extends AppCompatActivity {
         }
     }
 
-
-
     /** Realiza uma venda do produto selecionado */
     private void realizarVenda() {
         Log.d(TAG, "Iniciando processo de venda");
