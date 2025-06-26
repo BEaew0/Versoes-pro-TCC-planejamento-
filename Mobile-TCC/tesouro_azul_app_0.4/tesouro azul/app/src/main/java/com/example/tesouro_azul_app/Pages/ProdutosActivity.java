@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -679,19 +680,22 @@ public class ProdutosActivity extends AppCompatActivity {
                 return;
             }
 
-            String  validadetxt = ValProd.getText().toString().trim();
-            String validade;
+            String validadetxt = ValProd.getText().toString().trim();
+            String validade = null; // Por padrão, validade é nula
 
-            if (validadetxt.isEmpty()) {
-                // Validação da data
-                SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                Date dataValidade = inputFormat.parse(validadetxt);
-                validade = DateUtils.dateToISO8601(dataValidade);
+            if (!validadetxt.isEmpty()) {
+                try {
+                    // Apenas tenta converter se houver valor
+                    SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                    Date dataValidade = inputFormat.parse(validadetxt);
+                    validade = DateUtils.dateToISO8601(dataValidade);
+                } catch (ParseException e) {
+                    Log.e(TAG, "Data de validade inválida", e);
+                    Toast.makeText(this, "Data inválida (use formato dd/MM/yyyy)", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             }
-            else {
-                validadetxt = null;
-                validade = null;
-            }
+
 
             String valorProdutoStr = ValorProd.getText().toString().trim();
             Double valor = NumberUtils.convertToDouble(valorProdutoStr);
