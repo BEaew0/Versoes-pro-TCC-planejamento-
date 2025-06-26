@@ -679,11 +679,10 @@ public class ProdutosActivity extends AppCompatActivity {
                 return;
             }
 
-            String validadetxt;
+            String  validadetxt = ValProd.getText().toString().trim();
             String validade;
 
-            if (ValProd != null) {
-                 validadetxt = ValProd.getText().toString().trim();
+            if (validadetxt.isEmpty()) {
                 // Validação da data
                 SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 Date dataValidade = inputFormat.parse(validadetxt);
